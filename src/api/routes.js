@@ -85,24 +85,25 @@ router.get('/latest-posts', async (req, res) => {
         const postHistory = db.collection('post_history');
         const cryptoDiary = db.collection('crypto_diary_entries');
 
-        // Get latest news tweet (no type field means news)
-        const latestNews = await postHistory
-            .find({ type: { $ne: 'wisdom' } })
-            .sort({ publishedAt: -1 })
-            .limit(1)
+        // Get all posts sorted by date (for now, until we add type field)
+        const latestPosts = await postHistory
+            .find({})
+            .sort({ postedAt: -1 })
+            .limit(10)
             .toArray();
 
-        // Get latest wisdom tweet
-        const latestWisdom = await postHistory
-            .find({ type: 'wisdom' })
-            .sort({ publishedAt: -1 })
-            .limit(1)
-            .toArray();
+        // Separate wisdom tweets from news tweets by checking the content
+        const wisdomPosts = latestPosts.filter(p => 
+            p.content && (p.content.includes('kodex.academy') || p.content.includes('Learn more'))
+        );
+        const newsPosts = latestPosts.filter(p => 
+            p.content && !(p.content.includes('kodex.academy') || p.content.includes('Learn more'))
+        );
 
         // Get latest diary entry
         const latestDiary = await cryptoDiary
             .find({})
-            .sort({ publishedAt: -1 })
+            .sort({ postedAt: -1 })
             .limit(1)
             .toArray();
 
@@ -111,9 +112,9 @@ router.get('/latest-posts', async (req, res) => {
         res.json({
             success: true,
             data: {
-                lastNewsPost: latestNews[0] ? latestNews[0].publishedAt : null,
-                lastWisdomPost: latestWisdom[0] ? latestWisdom[0].publishedAt : null,
-                lastDiary: latestDiary[0] ? latestDiary[0].publishedAt : null
+                lastNewsPost: newsPosts[0] ? newsPosts[0].postedAt : null,
+                lastWisdomPost: wisdomPosts[0] ? wisdomPosts[0].postedAt : null,
+                lastDiary: latestDiary[0] ? latestDiary[0].postedAt : null
             },
             timestamp: new Date().toISOString()
         });
