@@ -135,16 +135,15 @@ async function getRecentImportantArticles() {
     // Get the days in order
     const days = Object.keys(articlesByDay).sort();
     
-    // Select up to 10 articles from each day
-    const selectedArticles = [];
+    // Log articles per day
     days.forEach(day => {
-      console.log(`📅 Processing articles for ${day}`);
-      const dayArticles = articlesByDay[day].slice(0, 10); // Limit to top 10 per day
-      console.log(`  ↳ Selected ${dayArticles.length} articles`);
-      selectedArticles.push(...dayArticles);
+      console.log(`📅 Found ${articlesByDay[day].length} articles for ${day}`);
     });
     
-    console.log(`📚 Selected a total of ${selectedArticles.length} articles from ${days.length} days: ${days.join(', ')}`);
+    // Select the top 10 articles overall (already sorted by importance)
+    const selectedArticles = sortedArticles.slice(0, 10);
+    
+    console.log(`📚 Selected top 10 articles from ${days.length} days: ${days.join(', ')}`);
     return selectedArticles;
   } catch (error) {
     console.error('❌ Error fetching articles:', error);
