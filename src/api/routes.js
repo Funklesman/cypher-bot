@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { exec } = require('child_process');
 
 // Import bot functions
 let botModule;
@@ -340,10 +341,7 @@ router.post('/settings/toggle-bluesky', (req, res) => {
  */
 router.post('/restart', async (req, res) => {
     try {
-        console.log('🔄 Admin requested bot restart');
-        
-        // Use PM2's programmatic API to restart
-        const { exec } = require('child_process');
+        console.log('🔄 Admin requested bot restart via API');
         
         // Send response immediately
         res.json({
