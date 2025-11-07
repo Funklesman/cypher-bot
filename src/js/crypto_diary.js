@@ -72,8 +72,9 @@ async function generateCryptoDiary() {
     saveDiaryToFile(diaryContent);
     
     // 4. Post to Mastodon if enabled
+    let mastodonPostData = null;
     if (process.env.MASTODON_POST_ENABLED === 'true') {
-      await postDiaryToMastodon(diaryContent);
+      mastodonPostData = await postDiaryToMastodon(diaryContent);
     } else {
       console.log('⚠️ Mastodon posting disabled - set MASTODON_POST_ENABLED=true to enable');
     }
@@ -84,6 +85,9 @@ async function generateCryptoDiary() {
     } else {
       console.log('⚠️ Webflow posting disabled - set WEBFLOW_POST_ENABLED=true to enable');
     }
+    
+    // 6. Store diary entry in MongoDB for dashboard tracking
+    await storeDiaryInMongoDB(diaryContent, articles, mastodonPostData);
     
     return diaryContent;
   } catch (error) {
@@ -382,6 +386,41 @@ async function postDiaryToWebflow(diaryContent, articles) {
     }
   } catch (error) {
     console.error('❌ Error posting diary to Webflow:', error);
+    return null;
+  }
+}
+
+/**
+ * Store diary entry in MongoDB for dashboard tracking
+ */
+async function storeDiaryInMongoDB(diaryContent, articles, mastodonPostData) {
+  try {
+    console.log('💾 Storing diary entry in MongoDB...');
+    
+    const db = await dbClient.getDb();
+    const collection = db.collection('crypto_diary_entries');
+    
+    const diaryEntry = {
+      content: diaryContent,
+      articleCount: articles.length,
+      articles: articles.map(a => ({
+        title: a.title,
+        source: a.source,
+        url: a.url,
+        importanceScore: a.importanceScore
+      })),
+      postedAt: new Date(),
+      publishedAt: new Date(), // For consistency with API queries
+      postUrl: mastodonPostData?.url || null,
+      postId: mastodonPostData?.id || null,
+      characterCount: diaryContent.length
+    };
+    
+    const result = await collection.insertOne(diaryEntry);
+    console.log('✅ Stored diary entry in MongoDB:', result.insertedId);
+    return result;
+  } catch (error) {
+    console.error('❌ Error storing diary in MongoDB:', error);
     return null;
   }
 }
