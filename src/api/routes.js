@@ -92,6 +92,12 @@ router.get('/latest-posts', async (req, res) => {
             .limit(10)
             .toArray();
 
+        console.log('📊 DEBUG: Found', latestPosts.length, 'posts in post_history');
+        if (latestPosts.length > 0) {
+            console.log('📊 DEBUG: First post keys:', Object.keys(latestPosts[0]));
+            console.log('📊 DEBUG: First post data:', JSON.stringify(latestPosts[0], null, 2));
+        }
+
         // Separate wisdom tweets from news tweets by checking the content
         const wisdomPosts = latestPosts.filter(p => 
             p.content && (p.content.includes('kodex.academy') || p.content.includes('Learn more'))
@@ -100,12 +106,19 @@ router.get('/latest-posts', async (req, res) => {
             p.content && !(p.content.includes('kodex.academy') || p.content.includes('Learn more'))
         );
 
+        console.log('📊 DEBUG: Found', wisdomPosts.length, 'wisdom posts and', newsPosts.length, 'news posts');
+
         // Get latest diary entry
         const latestDiary = await cryptoDiary
             .find({})
             .sort({ postedAt: -1 })
             .limit(1)
             .toArray();
+
+        console.log('📊 DEBUG: Found', latestDiary.length, 'diary entries');
+        if (latestDiary.length > 0) {
+            console.log('📊 DEBUG: First diary keys:', Object.keys(latestDiary[0]));
+        }
 
         await client.close();
 
