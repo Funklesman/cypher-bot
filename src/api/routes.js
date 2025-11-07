@@ -82,27 +82,27 @@ router.get('/latest-posts', async (req, res) => {
         const db = client.db('tweet_bot');
 
         // Get collections
-        const postedArticles = db.collection('posted_articles');
-        const cryptoDiary = db.collection('crypto_diary');
+        const postHistory = db.collection('post_history');
+        const cryptoDiary = db.collection('crypto_diary_entries');
 
-        // Get latest news posts
-        const latestNews = await postedArticles
-            .find({})
-            .sort({ postedAt: -1 })
+        // Get latest news tweet (no type field means news)
+        const latestNews = await postHistory
+            .find({ type: { $ne: 'wisdom' } })
+            .sort({ publishedAt: -1 })
             .limit(1)
             .toArray();
 
-        // Get latest wisdom post (filter by type if you add a type field)
-        const latestWisdom = await postedArticles
+        // Get latest wisdom tweet
+        const latestWisdom = await postHistory
             .find({ type: 'wisdom' })
-            .sort({ postedAt: -1 })
+            .sort({ publishedAt: -1 })
             .limit(1)
             .toArray();
 
         // Get latest diary entry
         const latestDiary = await cryptoDiary
             .find({})
-            .sort({ generatedAt: -1 })
+            .sort({ publishedAt: -1 })
             .limit(1)
             .toArray();
 
@@ -111,9 +111,9 @@ router.get('/latest-posts', async (req, res) => {
         res.json({
             success: true,
             data: {
-                lastNewsPost: latestNews[0] ? latestNews[0].postedAt : null,
-                lastWisdomPost: latestWisdom[0] ? latestWisdom[0].postedAt : null,
-                lastDiary: latestDiary[0] ? latestDiary[0].generatedAt : null
+                lastNewsPost: latestNews[0] ? latestNews[0].publishedAt : null,
+                lastWisdomPost: latestWisdom[0] ? latestWisdom[0].publishedAt : null,
+                lastDiary: latestDiary[0] ? latestDiary[0].publishedAt : null
             },
             timestamp: new Date().toISOString()
         });
