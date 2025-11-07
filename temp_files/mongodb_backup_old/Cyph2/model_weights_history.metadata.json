@@ -1,1 +1,0 @@
-{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"56e7a2581baa4a198ebf0f525f05ee2c","collectionName":"model_weights_history","type":"collection"}

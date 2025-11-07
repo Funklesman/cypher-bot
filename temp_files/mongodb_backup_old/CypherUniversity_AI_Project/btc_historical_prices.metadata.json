@@ -1,1 +1,0 @@
-{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"9d547d591bcd49debe708e666bb7753f","collectionName":"btc_historical_prices","type":"collection"}

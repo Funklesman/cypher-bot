@@ -1,1 +1,0 @@
-{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"},{"v":{"$numberInt":"2"},"key":{"timestamp":{"$numberInt":"1"}},"name":"historical_timestamp_idx","unique":true}],"uuid":"6bad15e248374f17be613289b2b773d9","collectionName":"historical_data","type":"collection"}

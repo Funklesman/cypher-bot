@@ -28,3 +28,8 @@ pids
 .vscode/
 *.swp
 *.swo
+
+# Temp files and test scripts
+temp_files/
+screenshots/
+logs/
