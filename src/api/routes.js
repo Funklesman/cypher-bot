@@ -79,7 +79,7 @@ router.get('/latest-posts', async (req, res) => {
         const client = new MongoClient(mongoUri);
         await client.connect();
         
-        const db = client.db('tweet_bot');
+        const db = client.db('TweetBot');
 
         // Get collections
         const postHistory = db.collection('post_history');
