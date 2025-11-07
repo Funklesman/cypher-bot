@@ -15,6 +15,7 @@ const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
 const Mastodon = require('mastodon-api');
+const { MongoClient } = require('mongodb');
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -397,7 +398,17 @@ async function storeDiaryInMongoDB(diaryContent, articles, mastodonPostData) {
   try {
     console.log('💾 Storing diary entry in MongoDB...');
     
-    const db = await dbClient.getDb();
+    const mongoUri = process.env.MONGODB_URI;
+    if (!mongoUri) {
+      console.error('❌ MongoDB URI not configured');
+      return null;
+    }
+    
+    // Connect to MongoDB
+    const client = new MongoClient(mongoUri);
+    await client.connect();
+    
+    const db = client.db('TweetBot');
     const collection = db.collection('crypto_diary_entries');
     
     const diaryEntry = {
@@ -418,6 +429,8 @@ async function storeDiaryInMongoDB(diaryContent, articles, mastodonPostData) {
     
     const result = await collection.insertOne(diaryEntry);
     console.log('✅ Stored diary entry in MongoDB:', result.insertedId);
+    
+    await client.close();
     return result;
   } catch (error) {
     console.error('❌ Error storing diary in MongoDB:', error);
