@@ -348,6 +348,37 @@ router.post('/settings/toggle-bluesky', (req, res) => {
 });
 
 /**
+ * POST /api/restart
+ * Restart the tweet bot via PM2
+ */
+router.post('/restart', async (req, res) => {
+    try {
+        console.log('🔄 Admin requested bot restart');
+        
+        // Send response immediately before restarting
+        res.json({
+            success: true,
+            message: 'Bot restart initiated',
+            timestamp: new Date().toISOString()
+        });
+        
+        // Restart the process after a short delay to ensure response is sent
+        setTimeout(() => {
+            console.log('🔄 Restarting bot process...');
+            process.exit(0); // PM2 will automatically restart the process
+        }, 500);
+        
+    } catch (error) {
+        console.error('Error restarting bot:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to restart bot',
+            error: error.message
+        });
+    }
+});
+
+/**
  * GET /api/health
  * Simple health check endpoint
  */
