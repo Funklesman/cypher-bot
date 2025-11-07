@@ -1714,6 +1714,10 @@ let lastWisdomTweetTime = 0;
 let lastNewsTweetTime = 0;
 let wisdomTopicIndex = 0;
 
+// State for API access
+let nextScheduledPost = null;
+let nextWisdomPost = null;
+
 // Wisdom tweet prompt
 const wisdomPrompt = `You are writing crypto educational content with deep insights for Kodex Academy.
 
@@ -1830,6 +1834,7 @@ function scheduleNextWisdomTweet() {
     }
     
     const nextWisdomTime = new Date(Date.now() + wisdomDelay);
+    nextWisdomPost = nextWisdomTime; // Store for API access
     console.log(`🎓 Next wisdom tweet scheduled for: ${nextWisdomTime.toLocaleString()} (${(wisdomDelay / 1000 / 60 / 60).toFixed(1)} hours from now)`);
     
     setTimeout(async () => {
@@ -1861,6 +1866,7 @@ function startProductionMode() {
         const nextPostDelay = randomHours * 60 * 60 * 1000; // Convert to milliseconds
         
         const nextPostTime = new Date(Date.now() + nextPostDelay);
+        nextScheduledPost = nextPostTime; // Store for API access
         console.log(`⏰ Next post scheduled for: ${nextPostTime.toLocaleString()} (${randomHours.toFixed(1)} hours from now)`);
         
         setTimeout(async () => {
@@ -1899,12 +1905,21 @@ function startProductionMode() {
 validateEnvVariables();
 
 // Export public API
+// Function for API to trigger news post
+async function runNewsPost() {
+    console.log('📡 API triggered news post generation');
+    process.env.MASTODON_POST_ENABLED = 'true';
+    await postSingleItem(12);
+    lastNewsTweetTime = Date.now();
+}
+
 module.exports = {
     // Runner functions
     startTestingMode,
     startProductionMode,
     postSingleItem,
     postWisdomTweet,
+    runNewsPost,
 
     
     // Helper functions
@@ -1917,7 +1932,12 @@ module.exports = {
     
     // API constants
     DEFAULT_MAX_AGE_DAYS: 6,
-    EXTENDED_MAX_AGE_DAYS: 12
+    EXTENDED_MAX_AGE_DAYS: 12,
+    
+    // State for API access
+    get nextScheduledPost() { return nextScheduledPost; },
+    get nextWisdomPost() { return nextWisdomPost; },
+    get lastNewsPostTime() { return lastNewsTweetTime; }
 };
 
 

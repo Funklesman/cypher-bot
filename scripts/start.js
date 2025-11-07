@@ -13,6 +13,9 @@ require('dotenv').config();
 // Import our main bot module
 const bot = require('../src/js/index');
 
+// Import API server
+const ApiServer = require('../src/api/server');
+
 // Check if we're running in production mode
 const isProduction = process.argv.includes('--production');
 
@@ -83,6 +86,20 @@ async function showMenu() {
 async function startBot(choice) {
   // Close readline interface
   rl.close();
+  
+  // Start API server for production/testing modes
+  if (choice === 1 || choice === 2) {
+    const apiPort = process.env.API_PORT || 3000;
+    const apiServer = new ApiServer(apiPort);
+    
+    try {
+      await apiServer.start();
+      console.log('✅ API server started successfully');
+    } catch (error) {
+      console.error('⚠️ Failed to start API server:', error.message);
+      console.log('   Bot will continue running without API');
+    }
+  }
   
   switch (choice) {
     case 1:
