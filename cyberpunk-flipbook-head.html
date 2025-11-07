@@ -1,0 +1,540 @@
+<style>
+/* Cyberpunk Flipbook - Pure CSS Solution */
+.cyber-flipbook {
+  width: 882px;
+  height: 612px;
+  margin: 50px auto;
+  perspective: 1190px;
+  position: relative;
+  background: transparent;
+  overflow: hidden;
+}
+
+/* Cyberpunk glow when book is open */
+.cyber-flipbook.book-open {
+  box-shadow: 
+    0 0 50px rgba(50, 203, 234, 0.3),
+    0 0 100px rgba(50, 203, 234, 0.1),
+    inset 0 0 50px rgba(50, 203, 234, 0.05);
+}
+
+/* Removed annoying overlay lines */
+
+.book-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.book-page {
+  position: absolute;
+  width: 441px;
+  height: 612px;
+  background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+  border: 1px solid rgba(50, 203, 234, 0.4);
+  box-shadow: 
+    0 0 20px rgba(50, 203, 234, 0.2),
+    inset 0 0 30px rgba(50, 203, 234, 0.05);
+  box-sizing: border-box;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.book-page.left {
+  left: 0;
+  transform-origin: right center;
+}
+
+.book-page.right {
+  right: 0;
+  transform-origin: left center;
+}
+
+.book-page.left.flipped {
+  transform: rotateY(-180deg);
+}
+
+.book-page.right.flipped {
+  transform: rotateY(180deg);
+}
+
+.page-content {
+  width: 100%;
+  height: 100%;
+  color: #e0e0e0;
+  font-family: 'Courier New', monospace;
+  font-size: 15.5px;
+  line-height: 1.6;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-title {
+  color: #32cbea;
+  font-size: 18.5px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  border-left: 3px solid #32cbea;
+  padding-left: 10px;
+  border-bottom: 1px solid rgba(50, 203, 234, 0.3);
+  padding-bottom: 8px;
+  text-shadow: 0 0 10px rgba(50, 203, 234, 0.5);
+}
+
+.page-date {
+  color: #32cbea;
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 18px;
+  opacity: 0.8;
+}
+
+.page-text {
+  color: #e0e0e0;
+  text-align: left;
+}
+
+.page-text p {
+  margin-bottom: 15px;
+  font-size: 15.5px;
+  line-height: 1.6;
+}
+
+.page-text br {
+  line-height: 2;
+}
+
+.page-text p:last-child {
+  margin-bottom: 0;
+}
+
+.page-text strong {
+  color: #32cbea;
+  text-shadow: 0 0 8px rgba(50, 203, 234, 0.4);
+}
+
+.page-text em {
+  color: #32cbea;
+  text-shadow: 0 0 6px rgba(50, 203, 234, 0.3);
+}
+
+/* Additional rich text elements */
+.page-text ul, .page-text ol {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.page-text li {
+  margin-bottom: 5px;
+  line-height: 1.5;
+}
+
+.page-text h1, .page-text h2, .page-text h3, .page-text h4 {
+  color: #32cbea;
+  margin: 15px 0 10px 0;
+  text-shadow: 0 0 8px rgba(50, 203, 234, 0.4);
+}
+
+.page-text blockquote {
+  border-left: 3px solid #32cbea;
+  padding-left: 15px;
+  margin: 15px 0;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+/* Close book button */
+.close-book-btn {
+  position: absolute;
+  top: 5px;
+  right: 15px;
+  width: 25px;
+  height: 25px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 20, 147, 0.5);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #ff1493;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.close-book-btn:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.8);
+  border-color: rgba(255, 20, 147, 0.8);
+  color: #ff1493;
+  box-shadow: 0 0 15px rgba(255, 20, 147, 0.4);
+  transform: scale(1.1);
+}
+
+.page-number {
+  position: absolute;
+  bottom: 5px;
+  right: 15px;
+  font-size: 10px;
+  color: rgba(50, 203, 234, 0.7);
+  font-family: 'Courier New', monospace;
+  text-shadow: 0 0 5px rgba(50, 203, 234, 0.3);
+}
+
+.cover-page {
+  background: linear-gradient(135deg, #32cbea 0%, #2aa3c8 100%);
+  color: #111;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Removed scanning animation overlay */
+
+.cover-title {
+  font-size: 44.5px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  z-index: 2;
+  position: relative;
+  text-shadow: 0 0 20px rgba(17, 17, 17, 0.8);
+}
+
+.cover-subtitle {
+  font-size: 16.5px;
+  opacity: 0.8;
+  z-index: 2;
+  position: relative;
+}
+
+.navigation {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(50, 203, 234, 0.4);
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #32cbea;
+  font-size: 17.5px;
+  font-weight: bold;
+  user-select: none;
+  box-shadow: 
+    0 0 15px rgba(50, 203, 234, 0.3),
+    inset 0 0 15px rgba(50, 203, 234, 0.1);
+  text-shadow: 0 0 8px rgba(50, 203, 234, 0.6);
+}
+
+.nav-prev {
+  left: -25px;
+}
+
+.nav-next {
+  right: -25px;
+}
+
+.navigation.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+
+
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #32cbea;
+  font-family: 'Courier New', monospace;
+  font-size: 21.5px;
+  z-index: 30;
+}
+
+.loading::after {
+  content: '...';
+  animation: loading-dots 1.5s infinite;
+}
+
+@keyframes loading-dots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60%, 100% { content: '...'; }
+}
+
+/* Tablet/Desktop single page - remove black box effect and style single page */
+@media (max-width: 1199px) and (min-width: 600px) {
+  /* Remove outer container styling to eliminate black box effect */
+  .cyber-flipbook {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    overflow: visible !important;
+  }
+  
+  /* Remove outer container glow when book is open in single page mode */
+  .cyber-flipbook.book-open {
+    box-shadow: none !important;
+  }
+  
+  /* Hide right page for single page view */
+  .book-page.right {
+    display: none !important;
+  }
+  
+  /* Center and style the single page with glow effect */
+  .book-page.left {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 441px !important;
+    position: relative;
+  }
+  
+  /* Apply glow effect directly to the single page when book is open */
+  .cyber-flipbook.book-open .book-page.left {
+    box-shadow: 
+      0 0 50px rgba(50, 203, 234, 0.3),
+      0 0 100px rgba(50, 203, 234, 0.1),
+      inset 0 0 50px rgba(50, 203, 234, 0.05);
+  }
+  
+  /* Hide the default navigation in single page desktop mode - we'll add custom navigation to the page */
+  .navigation {
+    display: none !important;
+  }
+  
+  /* Custom navigation for single page desktop mode - positioned relative to the page */
+  .page-navigation {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(50, 203, 234, 0.4);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #32cbea;
+    font-size: 17.5px;
+    font-weight: bold;
+    user-select: none;
+    box-shadow: 
+      0 0 15px rgba(50, 203, 234, 0.3),
+      inset 0 0 15px rgba(50, 203, 234, 0.1);
+    text-shadow: 0 0 8px rgba(50, 203, 234, 0.6);
+  }
+  
+  .page-nav-prev {
+    left: -25px;
+  }
+  
+  .page-nav-next {
+    right: -25px;
+  }
+  
+  .page-navigation.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  
+  /* Desktop single page: Keep single closed book */
+  .closed-book-left, .closed-book-right {
+    display: none !important;
+  }
+  
+  .closed-book {
+    display: block !important;
+  }
+}
+
+/* Desktop full width (above 1199px): Show two-page closed book */
+@media (min-width: 1200px) {
+  .closed-book {
+    display: none !important;
+  }
+  
+  .closed-book-left, .closed-book-right {
+    display: block !important;
+  }
+}
+
+/* Mobile responsive - Single page view */
+@media (max-width: 599px) {
+  .cyber-flipbook {
+    width: 95vw;
+    max-width: 380px;
+    height: calc(95vw * 1.28);
+    max-height: 520px;
+    margin: 20px auto;
+  }
+  
+  /* Hide right page on mobile for single page view */
+  .book-page.right {
+    display: none !important;
+  }
+  
+  /* Center the left page and make it full width */
+  .book-page.left {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 95vw !important;
+    max-width: 380px !important;
+  }
+  
+  .book-page, .closed-book {
+    width: 95vw !important;
+    max-width: 380px;
+    height: calc(95vw * 1.28);
+    max-height: 520px;
+    padding: 15px;
+    font-size: 14px;
+  }
+  
+  .page-content {
+    font-size: 14px;
+  }
+  
+  .page-title {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  .page-text {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .cover-title {
+    font-size: 24px;
+  }
+  
+  .cover-subtitle {
+    font-size: 12px;
+  }
+  
+  .navigation {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+  
+  .nav-prev {
+    left: -22px;
+  }
+  
+  .nav-next {
+    right: -22px;
+  }
+  
+  .close-book-btn {
+    top: 8px;
+    right: 12px;
+    width: 22px;
+    height: 22px;
+    font-size: 16px;
+  }
+  
+  /* Mobile: Keep single closed book */
+  .closed-book-left, .closed-book-right {
+    display: none !important;
+  }
+  
+  .closed-book {
+    display: block !important;
+  }
+}
+
+
+
+/* Closed book styles - Desktop two-page spread */
+.closed-book-left, .closed-book-right {
+  width: 441px !important;
+  height: 612px;
+  cursor: pointer;
+  box-shadow: 
+    0 0 40px rgba(50, 203, 234, 0.4),
+    0 0 80px rgba(50, 203, 234, 0.2),
+    inset 0 0 40px rgba(50, 203, 234, 0.1);
+  border: 2px solid rgba(50, 203, 234, 0.6);
+  position: absolute;
+}
+
+.closed-book-left {
+  left: 0;
+  border-right: 1px solid rgba(50, 203, 234, 0.3);
+}
+
+.closed-book-right {
+  right: 0;
+  border-left: 1px solid rgba(50, 203, 234, 0.3);
+}
+
+/* Fallback single closed book for compatibility */
+.closed-book {
+  width: 441px !important;
+  height: 612px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+  box-shadow: 
+    0 0 40px rgba(50, 203, 234, 0.4),
+    0 0 80px rgba(50, 203, 234, 0.2),
+    inset 0 0 40px rgba(50, 203, 234, 0.1);
+  border: 2px solid rgba(50, 203, 234, 0.6);
+}
+
+/* Subtle pulse effect for closed book */
+.closed-book, .closed-book-left, .closed-book-right {
+  animation: cyberpunkPulse 3s ease-in-out infinite;
+}
+
+@keyframes cyberpunkPulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 40px rgba(50, 203, 234, 0.4),
+      0 0 80px rgba(50, 203, 234, 0.2),
+      inset 0 0 40px rgba(50, 203, 234, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 60px rgba(50, 203, 234, 0.6),
+      0 0 120px rgba(50, 203, 234, 0.3),
+      inset 0 0 60px rgba(50, 203, 234, 0.15);
+  }
+}
+
+.click-to-open {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #111;
+  font-size: 13.5px;
+  font-weight: bold;
+  opacity: 0.7;
+  text-shadow: 0 0 10px rgba(17, 17, 17, 0.6);
+}
+
+/* Removed glitch effect for smoother transitions */
+</style>

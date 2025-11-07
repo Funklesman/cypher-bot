@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"},{"v":{"$numberInt":"2"},"key":{"timestamp":{"$numberInt":"1"}},"name":"metrics_timestamp_idx","unique":true}],"uuid":"bf730dc7b72843309540a5a88d8abeff","collectionName":"market_metrics","type":"collection"}

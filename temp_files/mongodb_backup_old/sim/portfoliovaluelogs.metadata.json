@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"4defe0ac540a4c48bf5062767ab8046a","collectionName":"portfoliovaluelogs","type":"collection"}

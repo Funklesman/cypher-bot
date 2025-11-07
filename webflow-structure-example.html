@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Webflow CMS Structure Example</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    .example { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .code { background: #f8f8f8; padding: 15px; border-radius: 4px; font-family: monospace; margin: 10px 0; }
+    .highlight { background: #fffacd; padding: 2px 4px; border-radius: 3px; }
+    .step { background: #e8f4f8; padding: 15px; margin: 10px 0; border-left: 4px solid #2196F3; }
+    .warning { background: #fff3cd; padding: 15px; margin: 10px 0; border-left: 4px solid #ffc107; }
+    .success { background: #d4edda; padding: 15px; margin: 10px 0; border-left: 4px solid #28a745; }
+  </style>
+</head>
+<body>
+  <h1>🚀 Webflow CMS Flipbook Structure Guide</h1>
+  
+  <div class="example">
+    <h2>📋 Step 1: Create the Flipbook Container</h2>
+    <p>Add this DIV element to your page where you want the flipbook to appear:</p>
+    <div class="code">
+&lt;div class="flipbook"&gt;&lt;/div&gt;
+    </div>
+    <div class="step">
+      <strong>In Webflow Designer:</strong><br>
+      1. Add a DIV element<br>
+      2. Give it the class name: <span class="highlight">flipbook</span><br>
+      3. Leave it empty - the JavaScript will populate it
+    </div>
+  </div>
+
+  <div class="example">
+    <h2>📊 Step 2: Setup Your CMS Collection List</h2>
+    <p>Create this structure using Webflow's CMS Collection List element:</p>
+    <div class="code">
+&lt;div class="cms-data" style="display: none;"&gt;
+  &lt;div class="w-dyn-list"&gt;
+    &lt;div class="w-dyn-items"&gt;
+      &lt;div class="w-dyn-item"&gt;
+        &lt;div class="cms-title"&gt;{{Title Field}}&lt;/div&gt;
+        &lt;div class="cms-date"&gt;{{Date Field}}&lt;/div&gt;
+        &lt;div class="cms-content"&gt;{{Rich Text Field}}&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+    </div>
+    
+    <div class="step">
+      <strong>In Webflow Designer:</strong><br>
+      1. Add a Collection List element<br>
+      2. Connect it to your diary/blog collection<br>
+      3. Give the wrapper DIV the class: <span class="highlight">cms-data</span><br>
+      4. Set wrapper to <span class="highlight">display: none</span> (in style panel)<br>
+      5. Inside the Collection Item, add 3 text elements with classes:<br>
+      &nbsp;&nbsp;• <span class="highlight">cms-title</span> (connect to Title field)<br>
+      &nbsp;&nbsp;• <span class="highlight">cms-date</span> (connect to Date field)<br>
+      &nbsp;&nbsp;• <span class="highlight">cms-content</span> (connect to Rich Text field)
+    </div>
+  </div>
+
+  <div class="example">
+    <h2>🎨 Step 3: Complete Page Structure</h2>
+    <p>Your final page structure should look like this:</p>
+    <div class="code">
+&lt;!-- Visible flipbook container --&gt;
+&lt;div class="flipbook"&gt;&lt;/div&gt;
+
+&lt;!-- Hidden CMS data source --&gt;
+&lt;div class="cms-data" style="display: none;"&gt;
+  &lt;div class="w-dyn-list"&gt;
+    &lt;div class="w-dyn-items"&gt;
+      &lt;div class="w-dyn-item"&gt;
+        &lt;div class="cms-title"&gt;Crypto Market Analysis&lt;/div&gt;
+        &lt;div class="cms-date"&gt;March 26, 2025&lt;/div&gt;
+        &lt;div class="cms-content"&gt;
+          &lt;p&gt;Today's market showed significant volatility...&lt;/p&gt;
+          &lt;p&gt;&lt;strong&gt;Key developments:&lt;/strong&gt;&lt;/p&gt;
+          &lt;ul&gt;&lt;li&gt;Bitcoin reached new highs&lt;/li&gt;&lt;/ul&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;!-- More collection items... --&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+    </div>
+  </div>
+
+  <div class="example">
+    <h2>🔧 Step 4: Add Custom Code</h2>
+    <div class="step">
+      <strong>Page Settings → Custom Code:</strong><br>
+      1. <strong>Head Code:</strong> Copy contents of <code>webflow-flipbook-head.html</code><br>
+      2. <strong>Body Code:</strong> Copy contents of <code>webflow-flipbook-body.html</code>
+    </div>
+  </div>
+
+  <div class="example">
+    <h2>✅ Step 5: Testing & Troubleshooting</h2>
+    
+    <div class="success">
+      <strong>✓ Success Indicators:</strong><br>
+      • Flipbook appears with cover page<br>
+      • Can navigate with mouse clicks or arrow keys<br>
+      • Console shows "Flipbook initialized successfully!"<br>
+      • Pages contain your CMS content, properly formatted
+    </div>
+
+    <div class="warning">
+      <strong>⚠️ Common Issues:</strong><br>
+      • <strong>"No .flipbook element found"</strong> → Add div with class "flipbook"<br>
+      • <strong>"No CMS items found"</strong> → Check CMS collection list setup<br>
+      • <strong>"Turn.js not loaded"</strong> → Check internet connection/CDN<br>
+      • <strong>Vertical layout instead of flipbook</strong> → Check JavaScript console for errors
+    </div>
+
+    <div class="step">
+      <strong>Debug Console Commands:</strong><br>
+      Open browser console (F12) and run these to test:<br>
+      <code>$('.flipbook').length</code> → Should return 1<br>
+      <code>$('.cms-data .w-dyn-item').length</code> → Should return number of CMS items<br>
+      <code>$.fn.turn</code> → Should show Turn.js is loaded
+    </div>
+  </div>
+
+  <div class="example">
+    <h2>🎯 CMS Collection Setup</h2>
+    <p>Your Webflow CMS collection should have these fields:</p>
+    <div class="code">
+Collection: "Diary Entries" (or similar)
+
+Required Fields:
+├── Title (Plain Text) → connects to .cms-title
+├── Date (Date/Time) → connects to .cms-date  
+└── Content (Rich Text) → connects to .cms-content
+
+Optional Fields:
+├── Featured (Switch) → for highlighting special entries
+├── Tags (Multi-reference) → for categorization
+└── Slug (generated from Title) → for SEO
+    </div>
+  </div>
+
+  <div class="example">
+    <h2>🎨 Customization Tips</h2>
+    
+    <div class="step">
+      <strong>Color Scheme:</strong><br>
+      • Primary: <span style="background: #fef735; color: #111; padding: 2px 6px;">#fef735</span> (Cyber Yellow)<br>
+      • Secondary: <span style="background: #00ffff; color: #111; padding: 2px 6px;">#00ffff</span> (Cyan)<br>
+      • Background: <span style="background: #111; color: #fef735; padding: 2px 6px;">#111</span> (Dark)
+    </div>
+
+    <div class="step">
+      <strong>Performance:</strong><br>
+      • Limit to 50-100 entries for best performance<br>
+      • Optimize images in rich text content<br>
+      • Test on mobile devices for touch interaction
+    </div>
+
+    <div class="step">
+      <strong>Advanced Features:</strong><br>
+      • Keyboard navigation (←/→ arrows)<br>
+      • Automatic text splitting across pages<br>
+      • Page continuation indicators<br>
+      • Responsive design for mobile
+    </div>
+  </div>
+
+  <script>
+    // Add some interactive highlighting
+    document.querySelectorAll('.highlight').forEach(el => {
+      el.addEventListener('click', () => {
+        navigator.clipboard.writeText(el.textContent);
+        el.style.background = '#90EE90';
+        setTimeout(() => {
+          el.style.background = '#fffacd';
+        }, 1000);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"},{"v":{"$numberInt":"2"},"key":{"timestamp":{"$numberInt":"1"},"title":{"$numberInt":"1"}},"name":"macro_timestamp_title_idx","unique":true}],"uuid":"32882d8ad5514e7cbf7d5e53e4b92e56","collectionName":"macro_trends","type":"collection"}

@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"873dd8deccf04fbeb405fb0c771d20d1","collectionName":"dune_transaction_metrics","type":"collection"}

@@ -1,20 +1,62 @@
 {
   "name": "tweet-bot",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/js/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "start": "node scripts/start.js",
+    "start:prod": "node scripts/start.js --production",
+    "pm2:start": "pm2 start ecosystem.config.js --env production",
+    "pm2:stop": "pm2 stop tweetbot",
+    "pm2:restart": "pm2 restart tweetbot",
+    "pm2:logs": "pm2 logs tweetbot",
+    "pm2:status": "pm2 list",
+    "pm2:delete": "pm2 delete tweetbot",
+    "post:single": "node scripts/post-single.js",
+    "post:wisdom": "node scripts/test-wisdom-tweet.js",
+    "urgent:scan": "node scripts/scan-urgent.js",
+    "diary:test": "node src/test-crypto-diary.js",
+    "diary:generate": "node -e \"require('./src/js/crypto_diary').generateCryptoDiary()\"",
+    "crosspost": "node scripts/crosspost.js",
+    "crosspost:latest": "node scripts/crosspost-latest-mastodon.js",
+    "crosspost:dryrun": "node scripts/crosspost-dryrun.js",
+    "test:x": "node scripts/test-x-posting.js",
+    "test:bluesky": "node scripts/test-bluesky-posting.js",
+    "test:optimize": "node scripts/test-content-optimization.js",
+    "test:mastodon-optimize": "node scripts/test-mastodon-optimize.js",
+    "test:content-crosspost": "node scripts/test-content-crosspost.js",
+    "test:webflow": "node scripts/test-webflow.js"
   },
-  "keywords": [],
+  "keywords": [
+    "crypto",
+    "bot",
+    "mastodon",
+    "news",
+    "ai"
+  ],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "AI-powered cryptocurrency news bot for Mastodon",
   "dependencies": {
-    "axios": "^1.7.9",
+    "@atproto/api": "^0.12.0",
+    "axios": "^1.8.4",
+    "cheerio": "^1.0.0",
+    "debug": "^4.4.0",
     "dotenv": "^16.4.7",
+    "follow-redirects": "^1.15.9",
+    "ioredis": "^5.0.0",
+    "luxon": "^3.4.4",
+    "mastodon-api": "^1.3.0",
+    "mongodb": "^6.20.0",
     "node-cron": "^3.0.3",
-    "openai": "^4.77.3",
+    "openai": "^4.90.0",
+    "puppeteer": "^22.0.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "rss-parser": "^3.13.0",
     "twitter-api-v2": "^1.19.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }

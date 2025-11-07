@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"c6654833b5ff41d7a72fa32bd9ff2e6a","collectionName":"sentiment_predictions","type":"collection"}

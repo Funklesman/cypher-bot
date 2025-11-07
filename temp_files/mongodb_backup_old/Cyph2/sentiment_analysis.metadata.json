@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"9637b7db87104a7da709ae16d860e575","collectionName":"sentiment_analysis","type":"collection"}

@@ -1,0 +1,887 @@
+<script>
+// Cyberpunk Flipbook - Pure JavaScript Solution
+class CyberFlipbook {
+  constructor() {
+    this.pages = [];
+    this.currentSpread = 0; // 0 = cover, 1 = first content spread, etc.
+    this.currentMobilePage = 0; // For mobile single page navigation
+    this.container = null;
+    this.isAnimating = false;
+    this.isBookOpen = false; // New state for book open/closed
+    this.isMobile = window.innerWidth <= 599; // Only true mobile needs different pagination
+    this.isSinglePageDesktop = window.innerWidth <= 1199 && window.innerWidth > 599; // Desktop 1-page view
+    
+    this.init();
+    
+    // Listen for window resize to update mobile state and regenerate pages
+    window.addEventListener('resize', () => {
+      const wasMobile = this.isMobile;
+      const wasDesktopFullWidth = window.innerWidth >= 1200;
+      this.isMobile = window.innerWidth <= 599; // Only regenerate for true mobile
+      this.isSinglePageDesktop = window.innerWidth <= 1199 && window.innerWidth > 599;
+      const isDesktopFullWidth = window.innerWidth >= 1200;
+      
+      // Only regenerate pages when switching to/from true mobile (≤599px)
+      if (wasMobile !== this.isMobile && this.pages.length > 0) {
+        console.log(`📱 Switching to ${this.isMobile ? 'mobile' : 'desktop'} mode - regenerating pages`);
+        this.regeneratePages();
+      }
+      
+      // Refresh display for all non-mobile changes and closed book layout changes
+      if (!this.isMobile || wasDesktopFullWidth !== isDesktopFullWidth) {
+        this.showCurrentSpread();
+        this.updateNavigation();
+      }
+    });
+  }
+  
+  init() {
+    console.log('🚀 Initializing Cyberpunk Flipbook...');
+    
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => this.setup());
+    } else {
+      this.setup();
+    }
+  }
+  
+  setup() {
+    this.container = document.querySelector('.cyber-flipbook');
+    
+    if (!this.container) {
+      console.error('❌ No .cyber-flipbook element found');
+      return;
+    }
+    
+    console.log('✅ Found flipbook container');
+    
+    // Show loading
+    this.showLoading();
+    
+    // Process CMS content
+    this.processCMSContent();
+    
+    // Build flipbook
+    this.buildFlipbook();
+    
+    // Setup navigation
+    this.setupNavigation();
+    
+    console.log('✨ Cyberpunk Flipbook initialized successfully!');
+  }
+  
+  showLoading() {
+    this.container.innerHTML = '<div class="loading">LOADING NEURAL DATA</div>';
+  }
+  
+  processCMSContent() {
+    // Try different CMS selector patterns
+    const selectors = [
+      '.w-dyn-item',
+      '.cms-data .w-dyn-item',
+      '.collection-item',
+      '.cms-item'
+    ];
+    
+    let cmsItems = [];
+    
+    for (const selector of selectors) {
+      cmsItems = Array.from(document.querySelectorAll(selector));
+      if (cmsItems.length > 0) {
+        console.log(`✅ Found ${cmsItems.length} CMS items using: ${selector}`);
+        break;
+      }
+    }
+    
+    if (cmsItems.length === 0) {
+      console.warn('⚠️ No CMS items found, creating demo content');
+      this.createDemoContent();
+      return;
+    }
+    
+    // Store original CMS data for regeneration
+    this.originalCMSData = [];
+    
+    // Process each CMS item (newest first - no reverse needed)
+    cmsItems.forEach(item => {
+      const data = this.extractContentFromItem(item);
+      if (data.content) {
+        this.originalCMSData.push(data);
+        const pages = this.splitContentIntoPages(data);
+        this.pages.push(...pages);
+      }
+    });
+    
+    console.log(`📖 Generated ${this.pages.length} content pages`);
+  }
+  
+  extractContentFromItem(item) {
+    // Try multiple field patterns
+    const titleSelectors = ['.cms-title', '.title', '.name', 'h1', 'h2', 'h3'];
+    const dateSelectors = ['.cms-date', '.date', '.time'];
+    const contentSelectors = ['.cms-content', '.content', '.text', '.rich-text'];
+    
+    let title = 'Untitled Entry';
+    let date = 'Unknown Date';
+    let content = '';
+    
+    // Extract title
+    for (const sel of titleSelectors) {
+      const el = item.querySelector(sel);
+      if (el && el.textContent.trim()) {
+        title = el.textContent.trim();
+        break;
+      }
+    }
+    
+    // Extract date
+    for (const sel of dateSelectors) {
+      const el = item.querySelector(sel);
+      if (el && el.textContent.trim()) {
+        date = el.textContent.trim();
+        break;
+      }
+    }
+    
+    // Extract date from title if not found
+    if (date === 'Unknown Date' && title.includes('-')) {
+      const parts = title.split('-');
+      if (parts.length > 1) {
+        const possibleDate = parts[parts.length - 1].trim();
+        if (possibleDate.length > 5) {
+          date = possibleDate;
+        }
+      }
+    }
+    
+    // Extract content
+    for (const sel of contentSelectors) {
+      const el = item.querySelector(sel);
+      if (el && (el.innerHTML || el.textContent).trim()) {
+        content = el.innerHTML || el.textContent;
+        break;
+      }
+    }
+    
+    console.log(`📝 Extracted: "${title}" (${date}) - ${content.length} chars`);
+    
+    return { title, date, content };
+  }
+  
+  splitContentIntoPages(data) {
+    const { title, date, content } = data;
+    const pages = [];
+    
+    // Clean up content but preserve paragraph structure
+    const cleanContent = content
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/\n\s*\n\s*\n+/g, '\n\n') // Multiple line breaks to double
+      .trim();
+    
+    // Create temporary measuring container
+    const measuringContainer = this.createMeasuringContainer();
+    
+    // Split into words but track line breaks
+    const parts = cleanContent.split(/(\n\n|\n)/); // Keep separators
+    let currentPageContent = '';
+    let isFirstPage = true;
+    let partIndex = 0;
+    
+    while (partIndex < parts.length) {
+      let testContent = currentPageContent;
+      let partsAdded = 0;
+      
+      // Keep adding parts until page is full
+      while (partIndex < parts.length) {
+        const nextPart = parts[partIndex];
+        
+        // Handle line breaks
+        if (nextPart === '\n\n') {
+          const testWithBreak = testContent + '<br><br>';
+          if (this.testContentHeight(measuringContainer, testWithBreak, isFirstPage ? title : `${date} (cont.)`, isFirstPage)) {
+            break;
+          }
+          testContent = testWithBreak;
+          partIndex++;
+          partsAdded++;
+          continue;
+        } else if (nextPart === '\n') {
+          const testWithBreak = testContent + '<br>';
+          if (this.testContentHeight(measuringContainer, testWithBreak, isFirstPage ? title : `${date} (cont.)`, isFirstPage)) {
+            break;
+          }
+          testContent = testWithBreak;
+          partIndex++;
+          partsAdded++;
+          continue;
+        }
+        
+        // Handle text content - split by words if needed
+        const words = nextPart.split(' ');
+        let wordIndex = 0;
+        
+        while (wordIndex < words.length) {
+          const word = words[wordIndex];
+          const testWithWord = testContent + (testContent && !testContent.endsWith('>') ? ' ' : '') + word;
+          
+          if (this.testContentHeight(measuringContainer, testWithWord, isFirstPage ? title : `${date} (cont.)`, isFirstPage)) {
+            // Page is full
+            if (wordIndex === 0 && partsAdded === 0) {
+              // Force at least one word
+              testContent = testWithWord;
+              wordIndex++;
+            }
+            break;
+          }
+          
+          testContent = testWithWord;
+          wordIndex++;
+        }
+        
+        // If we processed all words in this part, move to next part
+        if (wordIndex >= words.length) {
+          partIndex++;
+          partsAdded++;
+        } else {
+          // Create remaining words as new part
+          const remainingWords = words.slice(wordIndex).join(' ');
+          parts[partIndex] = remainingWords;
+          break;
+        }
+      }
+      
+      // Save current page
+      if (testContent.trim()) {
+        pages.push({
+          title: isFirstPage ? title : `${date} (cont.)`,
+          date: '',
+          content: testContent.trim(),
+          isFirstPage
+        });
+        
+        currentPageContent = '';
+        isFirstPage = false;
+      }
+    }
+    
+    // Clean up measuring container
+    document.body.removeChild(measuringContainer);
+    
+    return pages;
+  }
+  
+  // Regenerate pages when switching between mobile/desktop
+  regeneratePages() {
+    if (!this.originalCMSData || this.originalCMSData.length === 0) return;
+    
+    // Clear current pages
+    this.pages = [];
+    
+    // Regenerate from original CMS data
+    this.originalCMSData.forEach(data => {
+      if (data.content) {
+        const pages = this.splitContentIntoPages(data);
+        this.pages.push(...pages);
+      }
+    });
+    
+    console.log(`📖 Regenerated ${this.pages.length} pages for ${this.isMobile ? 'mobile' : 'desktop'}`);
+    
+    // Rebuild flipbook
+    this.buildFlipbook();
+  }
+  
+  // Create invisible measuring container
+  createMeasuringContainer() {
+    const container = document.createElement('div');
+    const windowWidth = window.innerWidth;
+    
+    // 3 simple breakpoints - desktop modes use same text calculation parameters
+    let containerWidth, containerPadding, fontSize;
+    if (windowWidth <= 950) {
+      // Mobile: single page
+      containerWidth = '380px';
+      containerPadding = '15px';
+      fontSize = '14px';
+    } else {
+      // Desktop (both 1-page and 2-page): use same text calculation parameters
+      // This ensures same amount of text per page regardless of display mode
+      containerWidth = '441px';
+      containerPadding = '20px';
+      fontSize = '15.5px';
+    }
+    
+    container.style.cssText = `
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+      width: ${containerWidth};
+      height: auto;
+      padding: ${containerPadding};
+      font-family: 'Courier New', monospace;
+      font-size: ${fontSize};
+      line-height: 1.6;
+      color: #e0e0e0;
+      background: transparent;
+      box-sizing: border-box;
+      visibility: hidden;
+    `;
+    document.body.appendChild(container);
+    return container;
+  }
+  
+  // Test if content fits in page height
+  testContentHeight(container, content, title, isFirstPage) {
+    const windowWidth = window.innerWidth;
+    
+    // 2 simple breakpoints for height limits - desktop modes use same parameters
+    let maxHeight, titleFontSize, contentFontSize;
+    if (windowWidth <= 950) {
+      // Mobile
+      maxHeight = 520;
+      titleFontSize = '16px';
+      contentFontSize = '14px';
+    } else {
+      // Desktop (both 1-page and 2-page): use same text calculation parameters
+      // This ensures same amount of text per page regardless of display mode
+      maxHeight = 590;
+      titleFontSize = '18.5px';
+      contentFontSize = '15.5px';
+    }
+    
+    container.innerHTML = `
+      <div style="font-size: ${titleFontSize}; font-weight: bold; margin-bottom: 10px; padding-bottom: 8px;">${title}</div>
+      <div style="font-size: ${contentFontSize}; line-height: 1.6;">${content}</div>
+    `;
+    
+    const contentHeight = container.scrollHeight;
+    return contentHeight > maxHeight;
+  }
+  
+
+  
+  createDemoContent() {
+    this.pages = [
+      {
+        title: 'Demo Entry',
+        date: 'System Generated',
+        content: 'This is a demo entry since no CMS content was found. The cyberpunk flipbook is working correctly. Add your CMS collection to see your actual content here. This system supports dynamic content loading and automatic page splitting for optimal reading experience.',
+        isFirstPage: true
+      }
+    ];
+  }
+  
+  buildFlipbook() {
+    // Clear container
+    this.container.innerHTML = '';
+    
+    // Create book container
+    const bookContainer = document.createElement('div');
+    bookContainer.className = 'book-container';
+    this.container.appendChild(bookContainer);
+    
+    // Create all spreads
+    this.spreads = [];
+    
+    // Cover spread (index 0)
+    this.spreads.push({
+      left: this.createCoverPage('left'),
+      right: this.createCoverPage('right')
+    });
+    
+    // Content spreads
+    if (this.pages.length === 0) {
+      // If no content pages, create one empty spread with close button on right
+      this.spreads.push({
+        left: this.createEmptyPage(),
+        right: this.createEmptyPage(true)
+      });
+    } else {
+      for (let i = 0; i < this.pages.length; i += 2) {
+        this.spreads.push({
+          left: this.pages[i] ? this.createContentPage(this.pages[i], i + 1, false) : this.createEmptyPage(),
+          right: this.pages[i + 1] ? this.createContentPage(this.pages[i + 1], i + 2, true) : this.createEmptyPage(true)
+        });
+      }
+    }
+    
+    // Back cover spread
+    this.spreads.push({
+      left: this.createBackCoverPage('left'),
+      right: this.createBackCoverPage('right')
+    });
+    
+    // Add navigation
+    this.addNavigation();
+    
+    // Show initial closed book state
+    this.showCurrentSpread();
+  }
+  
+  createCoverPage(side) {
+    const isLeft = side === 'left';
+    return `
+      <div class="page-content cover-page">
+        <div class="cover-title">${isLeft ? 'Crypto Diary' : 'Digital Codex'}</div>
+        <div class="cover-subtitle">${isLeft ? 'Neural Chronicles of the Blockchain' : 'Encrypted Memories'}</div>
+      </div>
+    `;
+  }
+  
+  createBackCoverPage(side) {
+    const isLeft = side === 'left';
+    const closeButton = !isLeft 
+      ? '<div class="close-book-btn" onclick="window.cyberFlipbook?.closeBook()" title="Close Book">×</div>'
+      : '';
+    
+    return `
+      <div class="page-content cover-page">
+        ${closeButton}
+        <div class="cover-title">${isLeft ? 'End of' : 'Neural Network'}</div>
+        <div class="cover-subtitle">${isLeft ? 'Transmission' : 'Disconnected'}</div>
+      </div>
+    `;
+  }
+  
+  createContentPage(pageData, pageNumber, includeCloseButton = false) {
+    const closeButton = includeCloseButton 
+      ? '<div class="close-book-btn" onclick="window.cyberFlipbook?.closeBook()" title="Close Book">×</div>'
+      : '';
+    
+    return `
+      <div class="page-content">
+        ${closeButton}
+        <div class="page-title">${pageData.title}</div>
+        <div class="page-text">
+          ${pageData.content}
+        </div>
+        <div class="page-number">${pageNumber}</div>
+      </div>
+    `;
+  }
+  
+  createEmptyPage(includeCloseButton = false) {
+    const closeButton = includeCloseButton 
+      ? '<div class="close-book-btn" onclick="window.cyberFlipbook?.closeBook()" title="Close Book">×</div>'
+      : '';
+    
+    return `<div class="page-content">${closeButton}</div>`;
+  }
+  
+  showCurrentSpread() {
+    const bookContainer = this.container.querySelector('.book-container');
+    bookContainer.innerHTML = '';
+    
+    if (!this.isBookOpen) {
+      // Show closed book (single cover page)
+      this.showClosedBook(bookContainer);
+      return;
+    }
+    
+    if (this.isMobile) {
+      // Mobile: Show individual pages sequentially
+      const totalPages = this.spreads.length * 2;
+      
+      if (this.currentMobilePage >= totalPages) {
+        this.currentMobilePage = totalPages - 1;
+      }
+      
+      // Calculate which spread and which page (left/right) to show
+      const spreadIndex = Math.floor(this.currentMobilePage / 2);
+      const isRightPage = this.currentMobilePage % 2 === 1;
+      
+      const currentSpread = this.spreads[spreadIndex];
+      if (!currentSpread) return;
+      
+      const pageContent = isRightPage ? currentSpread.right : currentSpread.left;
+      
+      console.log(`Mobile: Showing page ${this.currentMobilePage} (spread ${spreadIndex}, ${isRightPage ? 'right' : 'left'})`);
+      
+      const singlePage = document.createElement('div');
+      singlePage.className = 'book-page left'; // Always use left styling for mobile
+      singlePage.innerHTML = pageContent;
+      bookContainer.appendChild(singlePage);
+    } else if (this.isSinglePageDesktop) {
+      // Desktop Single Page: Show one page at a time with close button on visible page
+      const totalPages = this.spreads.length * 2;
+      
+      if (this.currentMobilePage >= totalPages) {
+        this.currentMobilePage = totalPages - 1;
+      }
+      
+      // Calculate which spread and which page (left/right) to show
+      const spreadIndex = Math.floor(this.currentMobilePage / 2);
+      const isRightPage = this.currentMobilePage % 2 === 1;
+      
+      const currentSpread = this.spreads[spreadIndex];
+      if (!currentSpread) return;
+      
+      let pageContent = isRightPage ? currentSpread.right : currentSpread.left;
+      
+      // Add close button to the visible page if it doesn't already have one
+      if (!pageContent.includes('close-book-btn')) {
+        // Insert close button into the page content
+        pageContent = pageContent.replace(
+          '<div class="page-content',
+          '<div class="page-content'  
+        ).replace(
+          '<div class="page-content">',
+          '<div class="page-content"><div class="close-book-btn" onclick="window.cyberFlipbook?.closeBook()" title="Close Book">×</div>'
+        );
+      }
+      
+      console.log(`Desktop Single Page: Showing page ${this.currentMobilePage} (spread ${spreadIndex}, ${isRightPage ? 'right' : 'left'})`);
+      
+      const singlePage = document.createElement('div');
+      singlePage.className = 'book-page left'; // Always use left styling for single page
+      singlePage.innerHTML = pageContent;
+      
+      // Add navigation buttons directly to the page for single-page desktop mode
+      this.addPageNavigation(singlePage, totalPages);
+      
+      bookContainer.appendChild(singlePage);
+    } else {
+      // Desktop: Show both pages in spread
+      const currentSpread = this.spreads[this.currentSpread];
+      if (!currentSpread) return;
+      
+      console.log(`Desktop: Showing spread ${this.currentSpread} of ${this.spreads.length - 1}`);
+      
+      // Create left page
+      const leftPage = document.createElement('div');
+      leftPage.className = 'book-page left';
+      leftPage.innerHTML = currentSpread.left;
+      bookContainer.appendChild(leftPage);
+      
+      // Create right page
+      const rightPage = document.createElement('div');
+      rightPage.className = 'book-page right';
+      rightPage.innerHTML = currentSpread.right;
+      bookContainer.appendChild(rightPage);
+    }
+  }
+  
+  showClosedBook(container) {
+    // Check if we should show two-page spread (desktop full width only)
+    const isDesktopFullWidth = window.innerWidth >= 1200;
+    
+    // Create wrapper that's not clickable
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = `
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      pointer-events: none;
+    `;
+    
+    if (isDesktopFullWidth) {
+      // Desktop: Create two-page closed book spread
+      
+      // Left closed book page
+      const closedBookLeft = document.createElement('div');
+      closedBookLeft.className = 'book-page closed-book-left';
+      closedBookLeft.style.pointerEvents = 'auto';
+      closedBookLeft.innerHTML = `
+        <div class="page-content cover-page">
+          <div class="cover-title">Crypto Diary</div>
+          <div class="cover-subtitle">Neural Chronicles of the Blockchain</div>
+        </div>
+      `;
+      
+      // Right closed book page
+      const closedBookRight = document.createElement('div');
+      closedBookRight.className = 'book-page closed-book-right';
+      closedBookRight.style.pointerEvents = 'auto';
+      closedBookRight.innerHTML = `
+        <div class="page-content cover-page">
+          <div class="cover-title">Digital Codex</div>
+          <div class="cover-subtitle">Encrypted Memories</div>
+          <div class="click-to-open">Click to Open</div>
+        </div>
+      `;
+      
+      // Add click handlers to both pages
+      closedBookLeft.addEventListener('click', () => this.openBook());
+      closedBookRight.addEventListener('click', () => this.openBook());
+      
+      wrapper.appendChild(closedBookLeft);
+      wrapper.appendChild(closedBookRight);
+    } else {
+      // Mobile/Tablet: Create single closed book cover
+      const closedBook = document.createElement('div');
+      closedBook.className = 'book-page closed-book';
+      closedBook.style.pointerEvents = 'auto';
+      closedBook.innerHTML = `
+        <div class="page-content cover-page">
+          <div class="cover-title">Crypto Diary</div>
+          <div class="cover-subtitle">Neural Chronicles of the Blockchain</div>
+          <div class="click-to-open">Click to Open</div>
+        </div>
+      `;
+      
+      // Add click handler to open the book
+      closedBook.addEventListener('click', () => this.openBook());
+      
+      wrapper.appendChild(closedBook);
+    }
+    
+    container.appendChild(wrapper);
+  }
+  
+  openBook() {
+    if (this.isAnimating) return;
+    
+    console.log('📖 Opening book...');
+    this.isAnimating = true;
+    this.isBookOpen = true;
+    
+    // Open to first content page
+    this.currentSpread = 1; // Desktop: spread 1 (first content spread)
+    this.currentMobilePage = 2; // Mobile: page 2 (first content page, skipping cover spread)
+    
+    // Add cyberpunk glow effects to open book (no transition animations)
+    this.container.classList.add('book-open');
+    
+    // Instant opening - no heavy animations
+    this.showCurrentSpread();
+    this.updateNavigation();
+    
+    // Short delay to prevent double-clicks
+    setTimeout(() => {
+      this.isAnimating = false;
+    }, 100);
+  }
+  
+  closeBook() {
+    if (this.isAnimating) return;
+    
+    console.log('📚 Closing book...');
+    this.isAnimating = true;
+    this.isBookOpen = false;
+    this.currentSpread = 0;
+    this.currentMobilePage = 0;
+    
+    // Remove open book glow effects
+    this.container.classList.remove('book-open');
+    
+    // Show closed book state
+    this.showCurrentSpread();
+    this.updateNavigation();
+    
+    // Short delay to prevent double-clicks
+    setTimeout(() => {
+      this.isAnimating = false;
+    }, 100);
+  }
+  
+  addNavigation() {
+    const prevBtn = document.createElement('div');
+    prevBtn.className = 'navigation nav-prev';
+    prevBtn.innerHTML = '←';
+    prevBtn.addEventListener('click', () => this.previousSpread());
+    this.container.appendChild(prevBtn);
+    
+    const nextBtn = document.createElement('div');
+    nextBtn.className = 'navigation nav-next';
+    nextBtn.innerHTML = '→';
+    nextBtn.addEventListener('click', () => this.nextSpread());
+    this.container.appendChild(nextBtn);
+    
+    this.updateNavigation();
+  }
+  
+
+  
+  setupNavigation() {
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        this.previousSpread();
+      } else if (e.key === 'ArrowRight') {
+        this.nextSpread();
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        if (!this.isBookOpen) {
+          e.preventDefault();
+          this.openBook();
+        }
+      }
+    });
+    
+    // Touch/swipe support
+    let startX = 0;
+    this.container.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+    });
+    
+    this.container.addEventListener('touchend', (e) => {
+      const endX = e.changedTouches[0].clientX;
+      const diff = startX - endX;
+      
+      // If book is closed, only open if touching the actual book
+      if (!this.isBookOpen) {
+        // Check if the touch target is the book itself or its children
+        const target = e.target;
+        const isBookElement = target.closest('.closed-book') || target.classList.contains('closed-book');
+        
+        if (isBookElement) {
+          this.openBook();
+        }
+        return;
+      }
+      
+      if (Math.abs(diff) > 50) { // Minimum swipe distance
+        if (diff > 0) {
+          this.nextSpread();
+        } else {
+          this.previousSpread();
+        }
+      }
+    });
+  }
+  
+  nextSpread() {
+    if (this.isAnimating) return;
+    
+    // If book is closed, open it first
+    if (!this.isBookOpen) {
+      this.openBook();
+      return;
+    }
+    
+    this.isAnimating = true;
+    
+    if (this.isMobile || this.isSinglePageDesktop) {
+      // Mobile/Single Page Desktop: Navigate by individual pages
+      const totalPages = this.spreads.length * 2;
+      console.log(`${this.isMobile ? 'Mobile' : 'Single Page Desktop'} Next: currentPage=${this.currentMobilePage}, totalPages=${totalPages}`);
+      if (this.currentMobilePage < totalPages - 1) {
+        this.currentMobilePage++;
+      }
+    } else {
+      // Desktop: Navigate by spreads
+      const maxSpreads = this.spreads.length - 1;
+      console.log(`Desktop Next: currentSpread=${this.currentSpread}, maxSpreads=${maxSpreads}`);
+      if (this.currentSpread < maxSpreads) {
+        this.currentSpread++;
+      }
+    }
+    
+    this.showCurrentSpread();
+    this.updateNavigation();
+    
+    setTimeout(() => {
+      this.isAnimating = false;
+    }, 200);
+  }
+  
+  previousSpread() {
+    // If book is closed, open it first
+    if (!this.isBookOpen) {
+      this.openBook();
+      return;
+    }
+    
+    this.isAnimating = true;
+    
+    if (this.isMobile || this.isSinglePageDesktop) {
+      // Mobile/Single Page Desktop: Navigate by individual pages
+      console.log(`${this.isMobile ? 'Mobile' : 'Single Page Desktop'} Previous: currentPage=${this.currentMobilePage}`);
+      if (this.currentMobilePage > 0) {
+        this.currentMobilePage--;
+      }
+    } else {
+      // Desktop: Navigate by spreads
+      console.log(`Desktop Previous: currentSpread=${this.currentSpread}`);
+      if (this.currentSpread > 0) {
+        this.currentSpread--;
+      }
+    }
+    
+    this.showCurrentSpread();
+    this.updateNavigation();
+    
+    setTimeout(() => {
+      this.isAnimating = false;
+    }, 200);
+  }
+  
+  updateNavigation() {
+    const prevBtn = this.container.querySelector('.nav-prev');
+    const nextBtn = this.container.querySelector('.nav-next');
+    
+    if (!this.isBookOpen) {
+      // Hide navigation when book is closed
+      prevBtn.style.display = 'none';
+      nextBtn.style.display = 'none';
+      return;
+    }
+    
+    // Show navigation when book is open
+    prevBtn.style.display = 'flex';
+    nextBtn.style.display = 'flex';
+    
+    if (this.isMobile || this.isSinglePageDesktop) {
+      // Mobile/Single Page Desktop: Check individual page bounds
+      const totalPages = this.spreads.length * 2;
+      prevBtn.classList.toggle('disabled', this.currentMobilePage <= 0);
+      nextBtn.classList.toggle('disabled', this.currentMobilePage >= totalPages - 1);
+    } else {
+      // Desktop: Check spread bounds
+      const maxSpreads = this.spreads.length - 1;
+      prevBtn.classList.toggle('disabled', this.currentSpread <= 0);
+      nextBtn.classList.toggle('disabled', this.currentSpread >= maxSpreads);
+    }
+  }
+  
+  // Add navigation buttons directly to a page (for single-page desktop mode)
+  addPageNavigation(pageElement, totalPages) {
+    // Remove any existing page navigation
+    const existingNav = pageElement.querySelectorAll('.page-navigation');
+    existingNav.forEach(nav => nav.remove());
+    
+    // Create previous button
+    const prevBtn = document.createElement('div');
+    prevBtn.className = 'page-navigation page-nav-prev';
+    prevBtn.innerHTML = '←';
+    prevBtn.addEventListener('click', () => this.previousSpread());
+    
+    // Create next button
+    const nextBtn = document.createElement('div');
+    nextBtn.className = 'page-navigation page-nav-next';
+    nextBtn.innerHTML = '→';
+    nextBtn.addEventListener('click', () => this.nextSpread());
+    
+    // Update button states
+    prevBtn.classList.toggle('disabled', this.currentMobilePage <= 0);
+    nextBtn.classList.toggle('disabled', this.currentMobilePage >= totalPages - 1);
+    
+    // Add buttons to the page
+    pageElement.appendChild(prevBtn);
+    pageElement.appendChild(nextBtn);
+  }
+
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.cyberFlipbook = new CyberFlipbook();
+  });
+} else {
+  window.cyberFlipbook = new CyberFlipbook();
+}
+
+// Also try when Webflow is ready
+if (window.Webflow) {
+  window.Webflow.push(() => {
+    setTimeout(() => {
+      if (!window.cyberFlipbook) {
+        window.cyberFlipbook = new CyberFlipbook();
+      }
+    }, 500);
+  });
+}
+</script>
