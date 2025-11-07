@@ -355,17 +355,29 @@ router.post('/restart', async (req, res) => {
     try {
         console.log('🔄 Admin requested bot restart');
         
-        // Send response immediately before restarting
+        // Use PM2's programmatic API to restart
+        const { exec } = require('child_process');
+        
+        // Send response immediately
         res.json({
             success: true,
-            message: 'Bot restart initiated',
+            message: 'Bot restart initiated via PM2',
             timestamp: new Date().toISOString()
         });
         
-        // Restart the process after a short delay to ensure response is sent
+        // Execute PM2 restart after response is sent
         setTimeout(() => {
-            console.log('🔄 Restarting bot process...');
-            process.exit(0); // PM2 will automatically restart the process
+            console.log('🔄 Executing PM2 restart command...');
+            exec('pm2 restart tweetbot', (error, stdout, stderr) => {
+                if (error) {
+                    console.error('❌ PM2 restart error:', error.message);
+                    return;
+                }
+                if (stderr) {
+                    console.error('⚠️ PM2 restart stderr:', stderr);
+                }
+                console.log('✅ PM2 restart output:', stdout);
+            });
         }, 500);
         
     } catch (error) {
