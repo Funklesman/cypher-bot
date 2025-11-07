@@ -65,18 +65,21 @@ router.get('/status', async (req, res) => {
  */
 router.get('/latest-posts', async (req, res) => {
     try {
-        const DBClientFactory = require('../js/db_client_factory');
-        const dbClient = DBClientFactory.createClient();
+        const { MongoClient } = require('mongodb');
+        const mongoUri = process.env.MONGODB_URI;
         
-        // Get MongoDB connection
-        const db = dbClient.getDb();
-        
-        if (!db) {
+        if (!mongoUri) {
             return res.status(503).json({
                 success: false,
-                message: 'Database not connected'
+                message: 'MongoDB URI not configured'
             });
         }
+
+        // Connect to MongoDB
+        const client = new MongoClient(mongoUri);
+        await client.connect();
+        
+        const db = client.db('tweet_bot');
 
         // Get collections
         const postedArticles = db.collection('posted_articles');
@@ -102,6 +105,8 @@ router.get('/latest-posts', async (req, res) => {
             .sort({ generatedAt: -1 })
             .limit(1)
             .toArray();
+
+        await client.close();
 
         res.json({
             success: true,
