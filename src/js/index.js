@@ -1047,6 +1047,8 @@ CRITICAL RULES:
 - NO analytical phrases: "Real power sits with", "The tell is", "Follow the money", "Watch for"
 - NO formats: "Benefit: X / Risk: Y" or "Setup: / Stakes: / Outcome:"
 - NO summary labels: "Net:", "Takeaway:", "Bottom line:", "TL;DR:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if it adds educational value)
+- NO meta-labels: "One observation:", "The point is:", "Here's the thing:", "Key insight:"
+- NO framework phrases: "this phase", "this cycle", "this pattern" - say it more specifically
 - NO meta-commentary: "sounds like X, but" or "X suggests Y"
 - NO date formats like "Aug '25" - just say "August" or "recently"
 - Just talk normally about what you noticed and why it matters
@@ -1073,6 +1075,8 @@ BANNED PHRASES:
 - "Watch for"
 - Any format like "Player: X / Motive: Y"
 - Summary labels: "Net:", "Takeaway:", "Bottom line:", "TL;DR:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
+- Meta-labels: "One observation:", "The point is:", "Here's the thing:", "Key insight:"
+- Framework phrases: "this phase", "this cycle", "this pattern" - be more specific
 - Date formats like "Aug '25" - say "August" or "recently" instead
 
 Example style:
@@ -1099,6 +1103,8 @@ DON'T USE:
 - "This validates X" or "This confirms Y"
 - Meta-commentary about the news itself
 - Summary labels: "Net:", "Takeaway:", "Bottom line:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
+- Meta-labels: "One observation:", "The point is:", "Here's the thing:"
+- Vague phrases: "this phase", "this cycle" - be specific about what you mean
 - Date formats like "Aug '25" - say "August" or "last month" instead
 
 Example style:
@@ -1122,6 +1128,8 @@ AVOID:
 - Structured formats
 - Hype or overselling
 - Summary labels: "Net:", "Takeaway:", "Bottom line:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
+- Meta-labels: "One observation:", "The point is:", "Key insight:"
+- Vague phrases: "this phase", "this cycle" - say what you actually mean
 - Date formats like "Aug '25" - say "August" or "recently"
 
 Example style:
@@ -1148,6 +1156,8 @@ NO:
 - Lists or formats
 - Taking sides
 - Summary labels: "Net:", "Takeaway:", "Bottom line:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
+- Meta-labels: "One observation:", "The point is:", "Here's what matters:"
+- Vague phrases: "this phase", "this cycle" - be specific
 - Date formats like "Aug '25" - say "August" or "last month"
 
 Example style:
@@ -1171,6 +1181,8 @@ BANNED:
 - Structured analysis formats
 - Pushing a direction
 - Summary labels: "Net:", "Takeaway:", "Bottom line:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
+- Meta-labels: "One observation:", "The key point:", "Here's the thing:"
+- Vague phrases: "this phase", "this cycle" - be concrete
 - Date formats like "Aug '25" - say "August" or "recently"
 
 Example style:
@@ -1196,6 +1208,8 @@ DON'T:
 - Format like a product announcement
 - Oversell or hype
 - Use summary labels: "Net:", "Takeaway:", "Bottom line:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
+- Use meta-labels: "One observation:", "Key point:", "Here's what matters:"
+- Use vague phrases: "this phase", "this cycle" - be specific about what's happening
 - Use date formats like "Aug '25" - say "August" or "last month"
 
 Example style:
