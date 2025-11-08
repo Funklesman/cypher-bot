@@ -1037,7 +1037,9 @@ function pickRandom(arr) {
 const negativePrompts = [
     // NEGATIVE VARIATION 1 - "The Mechanism Broke"
     `
-Using the following news headline and context, craft a sharp, analytical tweet grounded in crypto market history. 
+Using the following news headline, context, and article content, craft a sharp, analytical tweet grounded in crypto market history.
+
+IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
 
 Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
 
@@ -1053,7 +1055,9 @@ Include these hashtags at the end:
 `,
     // NEGATIVE VARIATION 2 - "Follow the Money"
     `
-Using the following news headline and context, write a reflective, skeptical tweet grounded in crypto market history.
+Using the following news headline, context, and article content, write a reflective, skeptical tweet grounded in crypto market history.
+
+IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
 
 Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
 
@@ -1074,7 +1078,9 @@ Include these hashtags at the end:
 const positivePrompts = [
     // POSITIVE VARIATION 1 - "The Infrastructure Shifted"
     `
-Using the following news headline and context, craft a sharp, confident tweet grounded in crypto market history.
+Using the following news headline, context, and article content, craft a sharp, confident tweet grounded in crypto market history.
+
+IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
 
 Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
 
@@ -1090,7 +1096,9 @@ Include these hashtags at the end:
 `,
     // POSITIVE VARIATION 2 - "The Thesis Validates"
     `
-Using the following news headline and context, write a reflective, honest, and quietly optimistic tweet.
+Using the following news headline, context, and article content, write a reflective, honest, and quietly optimistic tweet.
+
+IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
 
 Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
 
@@ -1109,7 +1117,9 @@ Include these hashtags at the end:
 const neutralPrompts = [
     // NEUTRAL VARIATION 1 - "The Quiet Signal"
     `
-Using the following news headline and context, craft a clear, informed, and reflective tweet.
+Using the following news headline, context, and article content, craft a clear, informed, and reflective tweet.
+
+IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
 
 Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
 
@@ -1125,7 +1135,9 @@ Include these hashtags at the end:
 `,
     // NEUTRAL VARIATION 2 - "Where Are We in the Cycle?"
     `
-Using the following news headline and context, write a tweet in a balanced, analytical tone.
+Using the following news headline, context, and article content, write a tweet in a balanced, analytical tone.
+
+IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
 
 Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
 
@@ -1143,7 +1155,9 @@ Include these hashtags at the end:
 
 // Special opportunity override prompt - uses Infrastructure lens with optimism focus
 const opportunityPrompt = `
-Using the following news headline and context, write a reflective, honest, and quietly optimistic tweet.
+Using the following news headline, context, and article content, write a reflective, honest, and quietly optimistic tweet.
+
+IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
 
 Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
 
@@ -1283,6 +1297,8 @@ async function generateTweet(event, retryCount = 0) {
         const userPrompt = `Article Title: ${event.title}
 
 Context: ${event.description}
+
+${event.content ? `Article Content: ${event.content}` : ''}
 
 Source: ${event.source}
 
