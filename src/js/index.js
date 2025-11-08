@@ -1049,7 +1049,7 @@ Ask yourself:
 - Whose incentives misaligned?
 - Is this a new failure mode or one we've seen before?
 
-Don't repeat the headline. Start with what actually broke. Flow naturally from mechanism → implication → what to watch.
+Don't repeat the headline. Start with what actually broke. Write in flowing paragraphs—no bullet points, no labeled sections, no templates.
 
 Write like someone who's lost money learning these lessons. Sharp but not bitter. 
 
@@ -1071,7 +1071,7 @@ When you see regulatory pressure, consolidation, or "problems," ask:
 - What capital is exiting or entering?
 - What centralization just tightened its grip?
 
-Skip the headline drama. Start with the incentive structure. Let the analysis flow: setup the game → reveal the players → show the stakes.
+Don't repeat the headline. Start with the real dynamic at play. Write in flowing paragraphs—no bullet points, no labeled sections, no templates.
 
 Write like someone who watches the chess board, not the pieces. Cynical where earned, not reflexive.
 
@@ -1096,7 +1096,7 @@ When you see adoption news, protocol upgrades, or institutional moves, ask:
 - What's now possible that wasn't 6 months ago?
 - Is this incremental or step-function change?
 
-Don't mirror the headline. Start with what shifted in infrastructure or access. Flow naturally: what unlocked → why it matters → what validates it's real.
+Don't mirror the headline. Start with what shifted in infrastructure or access. Write in flowing paragraphs—no bullet points, no labeled sections, no templates.
 
 Write like someone who builds, not trades. Optimistic about infrastructure, skeptical of narratives.
 
@@ -1118,7 +1118,7 @@ When you see breakthrough adoption, institutional validation, or protocol matura
 - What narrative from 2-3 years ago is finally playing out?
 - Is this the beginning of validation or the peak?
 
-Skip the announcement. Start with the thesis. Flow organically: what was predicted → what's now confirmed → what would invalidate it.
+Skip the announcement. Start with the thesis being validated. Write in flowing paragraphs—no bullet points, no labeled sections, no templates.
 
 Write like someone who's been holding a view quietly while others chased trends. Vindicated but still cautious.
 
@@ -1143,7 +1143,7 @@ When you see "neutral" news that feels boring or routine, ask:
 - What are sophisticated players doing while retail watches price?
 - Is this setup or noise?
 
-Don't rehash the obvious. Start with what they're NOT talking about. Let it unfold: the quiet signal → why it might matter → what confirms vs. denies.
+Don't rehash the obvious. Start with what they're NOT talking about. Write in flowing paragraphs—no bullet points, no labeled sections, no templates.
 
 Write like someone who found alpha by ignoring consensus. Curious, not certain.
 
@@ -1165,7 +1165,7 @@ When you see news that could mean multiple things, ask:
 - Have we seen this pattern before? Is this time different?
 - What would this mean if we're early vs. late cycle?
 
-Don't repeat facts. Start with cycle context. Flow naturally: where we are → what this development means from that position → what shifts the read.
+Don't repeat facts. Start with cycle context. Write in flowing paragraphs—no bullet points, no labeled sections, no templates.
 
 Write like someone mapping terrain, not predicting destination. Grounded in patterns, open to surprises.
 
@@ -1190,7 +1190,7 @@ Ask:
 - What's now possible that wasn't before?
 - Is this incremental or step-function change?
 
-Don't mirror the headline. Start with what shifted in infrastructure or access. Flow naturally: what unlocked → why it matters → what validates it's real.
+Don't mirror the headline. Start with what shifted in infrastructure or access. Write in flowing paragraphs—no bullet points, no labeled sections, no templates.
 
 Write like someone who builds, not trades. Optimistic about infrastructure, skeptical of narratives.
 
