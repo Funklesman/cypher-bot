@@ -1055,6 +1055,8 @@ ONE insight, not a list of facts. Tell a clear story: What changed → Why it ma
 
 Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
 
+If you use technical terms (UTXO, basis, OI, etc.), add brief context so it's clear. Stay sophisticated but accessible.
+
 Write like someone who's lost money learning these lessons. Sharp but not bitter. 
 
 Max 650 chars. 2-3 emojis only where they clarify stakes.
@@ -1080,6 +1082,8 @@ Don't repeat the headline. Start with the real dynamic at play.
 ONE insight, not a list of facts. Tell a clear story: Who benefits → How the game works → What it reveals.
 
 Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
+
+If you use technical terms, add brief context so it's clear. Stay sophisticated but accessible.
 
 Write like someone who watches the chess board, not the pieces. Cynical where earned, not reflexive.
 
@@ -1110,6 +1114,8 @@ ONE insight, not a list of facts. Tell a clear story: What unlocked → Why it m
 
 Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
 
+If you use technical terms, add brief context so it's clear. Stay sophisticated but accessible.
+
 Write like someone who builds, not trades. Optimistic about infrastructure, skeptical of narratives.
 
 Max 650 chars. 2-3 emojis to mark genuine progress.
@@ -1135,6 +1141,8 @@ Skip the announcement. Start with the thesis being validated.
 ONE insight, not a list of facts. Tell a clear story: What was predicted → What's now confirmed → What would invalidate it.
 
 Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
+
+If you use technical terms, add brief context so it's clear. Stay sophisticated but accessible.
 
 Write like someone who's been holding a view quietly while others chased trends. Vindicated but still cautious.
 
@@ -1165,6 +1173,8 @@ ONE insight, not a list of facts. Tell a clear story: The quiet signal → Why i
 
 Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
 
+If you use technical terms, add brief context so it's clear. Stay sophisticated but accessible.
+
 Write like someone who found alpha by ignoring consensus. Curious, not certain.
 
 Max 650 chars. 2-3 emojis to mark the overlooked.
@@ -1190,6 +1200,8 @@ Don't repeat facts. Start with cycle context.
 ONE insight, not a list of facts. Tell a clear story: Where we are → What this means from here → What shifts the read.
 
 Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
+
+If you use technical terms, add brief context so it's clear. Stay sophisticated but accessible.
 
 Write like someone mapping terrain, not predicting destination. Grounded in patterns, open to surprises.
 
@@ -1219,6 +1231,8 @@ Don't mirror the headline. Start with what shifted in infrastructure or access.
 ONE insight, not a list of facts. Tell a clear story: What unlocked → Why it matters → What validates it's real.
 
 Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
+
+If you use technical terms, add brief context so it's clear. Stay sophisticated but accessible.
 
 Write like someone who builds, not trades. Optimistic about infrastructure, skeptical of narratives.
 
