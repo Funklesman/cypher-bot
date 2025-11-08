@@ -1049,13 +1049,15 @@ Ask yourself:
 - Whose incentives misaligned?
 - Is this a new failure mode or one we've seen before?
 
-Don't repeat the headline. Start with what actually broke. 
+Don't repeat the headline. 
+
+STRUCTURE: Start with a clear observation that hooks attention ("Everyone's focused on X, but the real issue is Y" OR "The headline says X happened, but what actually matters is Y"). Then explain the mechanism in simple terms BEFORE diving into implications.
 
 ONE insight, not a list of facts. Tell a clear story: What changed → Why it matters → What to watch.
 
 Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
 
-If you use technical terms (UTXO, basis, OI, etc.), add brief context so it's clear. Stay sophisticated but accessible.
+Keep it conversational. If you use technical terms, explain them immediately in plain language. Write like you're explaining to a smart friend at a coffee shop.
 
 Write like someone who's lost money learning these lessons. Sharp but not bitter. 
 
@@ -1077,13 +1079,15 @@ When you see regulatory pressure, consolidation, or "problems," ask:
 - What capital is exiting or entering?
 - What centralization just tightened its grip?
 
-Don't repeat the headline. Start with the real dynamic at play.
+Don't repeat the headline.
+
+STRUCTURE: Start with a clear observation that hooks attention ("Everyone's focused on X, but the real issue is Y" OR "The headline says X happened, but what actually matters is Y"). Then explain the mechanism in simple terms BEFORE diving into implications.
 
 ONE insight, not a list of facts. Tell a clear story: Who benefits → How the game works → What it reveals.
 
 Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
 
-If you use technical terms, add brief context so it's clear. Stay sophisticated but accessible.
+Keep it conversational. If you use technical terms, explain them immediately in plain language. Write like you're explaining to a smart friend at a coffee shop.
 
 Write like someone who watches the chess board, not the pieces. Cynical where earned, not reflexive.
 
@@ -1108,13 +1112,15 @@ When you see adoption news, protocol upgrades, or institutional moves, ask:
 - What's now possible that wasn't 6 months ago?
 - Is this incremental or step-function change?
 
-Don't mirror the headline. Start with what shifted in infrastructure or access.
+Don't mirror the headline.
+
+STRUCTURE: Start with a clear observation that hooks attention ("Everyone's focused on X, but the real unlock is Y" OR "The headline says X launched, but what actually matters is Y"). Then explain the mechanism in simple terms BEFORE diving into implications.
 
 ONE insight, not a list of facts. Tell a clear story: What unlocked → Why it matters → What validates it's real.
 
 Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
 
-If you use technical terms, add brief context so it's clear. Stay sophisticated but accessible.
+Keep it conversational. If you use technical terms, explain them immediately in plain language. Write like you're explaining to a smart friend at a coffee shop.
 
 Write like someone who builds, not trades. Optimistic about infrastructure, skeptical of narratives.
 
@@ -1136,13 +1142,15 @@ When you see breakthrough adoption, institutional validation, or protocol matura
 - What narrative from 2-3 years ago is finally playing out?
 - Is this the beginning of validation or the peak?
 
-Skip the announcement. Start with the thesis being validated.
+Skip the announcement.
+
+STRUCTURE: Start with a clear observation that hooks attention ("Everyone's focused on X, but this confirms Y" OR "The headline says X happened, but what actually validates is Y"). Then explain the mechanism in simple terms BEFORE diving into implications.
 
 ONE insight, not a list of facts. Tell a clear story: What was predicted → What's now confirmed → What would invalidate it.
 
 Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
 
-If you use technical terms, add brief context so it's clear. Stay sophisticated but accessible.
+Keep it conversational. If you use technical terms, explain them immediately in plain language. Write like you're explaining to a smart friend at a coffee shop.
 
 Write like someone who's been holding a view quietly while others chased trends. Vindicated but still cautious.
 
@@ -1167,13 +1175,15 @@ When you see "neutral" news that feels boring or routine, ask:
 - What are sophisticated players doing while retail watches price?
 - Is this setup or noise?
 
-Don't rehash the obvious. Start with what they're NOT talking about.
+Don't rehash the obvious.
+
+STRUCTURE: Start with a clear observation that hooks attention ("Everyone's watching X, but the quiet signal is Y" OR "The headline says X, but what nobody's discussing is Y"). Then explain the mechanism in simple terms BEFORE diving into implications.
 
 ONE insight, not a list of facts. Tell a clear story: The quiet signal → Why it might matter → What confirms vs. denies.
 
 Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
 
-If you use technical terms, add brief context so it's clear. Stay sophisticated but accessible.
+Keep it conversational. If you use technical terms, explain them immediately in plain language. Write like you're explaining to a smart friend at a coffee shop.
 
 Write like someone who found alpha by ignoring consensus. Curious, not certain.
 
@@ -1195,13 +1205,15 @@ When you see news that could mean multiple things, ask:
 - Have we seen this pattern before? Is this time different?
 - What would this mean if we're early vs. late cycle?
 
-Don't repeat facts. Start with cycle context.
+Don't repeat facts.
+
+STRUCTURE: Start with a clear observation that hooks attention ("Everyone's debating if X, but the cycle signal is Y" OR "The headline says X, but where we are in the cycle means Y"). Then explain the mechanism in simple terms BEFORE diving into implications.
 
 ONE insight, not a list of facts. Tell a clear story: Where we are → What this means from here → What shifts the read.
 
 Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
 
-If you use technical terms, add brief context so it's clear. Stay sophisticated but accessible.
+Keep it conversational. If you use technical terms, explain them immediately in plain language. Write like you're explaining to a smart friend at a coffee shop.
 
 Write like someone mapping terrain, not predicting destination. Grounded in patterns, open to surprises.
 
@@ -1226,13 +1238,15 @@ Ask:
 - What's now possible that wasn't before?
 - Is this incremental or step-function change?
 
-Don't mirror the headline. Start with what shifted in infrastructure or access.
+Don't mirror the headline.
+
+STRUCTURE: Start with a clear observation that hooks attention ("Everyone's focused on X, but the real unlock is Y" OR "The headline says X launched, but what actually matters is Y"). Then explain the mechanism in simple terms BEFORE diving into implications.
 
 ONE insight, not a list of facts. Tell a clear story: What unlocked → Why it matters → What validates it's real.
 
 Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
 
-If you use technical terms, add brief context so it's clear. Stay sophisticated but accessible.
+Keep it conversational. If you use technical terms, explain them immediately in plain language. Write like you're explaining to a smart friend at a coffee shop.
 
 Write like someone who builds, not trades. Optimistic about infrastructure, skeptical of narratives.
 
