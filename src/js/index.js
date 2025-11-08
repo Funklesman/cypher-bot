@@ -1770,7 +1770,7 @@ function startTestingMode() {
     cron.schedule('0 */6 * * *', async () => {
         console.log('⏰ Running scheduled 6-hour test post...');
         process.env.MASTODON_POST_ENABLED = 'true';
-        await postSingleItem(12); // Still use 12-hour news window
+        await postSingleItem(72); // Use 72-hour news window
     });
     
     // Urgent scanning removed - integrated into regular posting cycle
@@ -1780,7 +1780,7 @@ function startTestingMode() {
     console.log('🚀 Running initial post immediately...');
     console.log('===================================================\n');
     process.env.MASTODON_POST_ENABLED = 'true';
-    postSingleItem(12);
+    postSingleItem(72);
 }
 
 // Wisdom topics for educational tweets (rotated)
@@ -1979,7 +1979,7 @@ function startProductionMode() {
         setTimeout(async () => {
             console.log('⏰ Running scheduled organic post...');
             process.env.MASTODON_POST_ENABLED = 'true';
-            await postSingleItem(12);
+            await postSingleItem(72);
             lastNewsTweetTime = Date.now(); // Track timing for wisdom tweet collision avoidance
             
             // Schedule the next post
@@ -1997,7 +1997,7 @@ function startProductionMode() {
     // Run initial post immediately
     console.log('🚀 Running initial post...');
     process.env.MASTODON_POST_ENABLED = 'true';
-    postSingleItem(12);
+    postSingleItem(72);
     lastNewsTweetTime = Date.now(); // Track initial post timing
     
     // Start organic scheduling after initial post
@@ -2016,7 +2016,7 @@ validateEnvVariables();
 async function runNewsPost() {
     console.log('📡 API triggered news post generation');
     process.env.MASTODON_POST_ENABLED = 'true';
-    await postSingleItem(12);
+    await postSingleItem(72);
     lastNewsTweetTime = Date.now();
 }
 
