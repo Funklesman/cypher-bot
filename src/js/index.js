@@ -1036,58 +1036,36 @@ function pickRandom(arr) {
 
 const negativePrompts = [
     // NEGATIVE VARIATION 1 - "The Mechanism Broke"
-    // Voice: The Cold Analyst | Emotion: Caution | Lens: Follow the mechanism
     `
-You're not writing analysis—you're sharing what you noticed that others missed.
+Using the following news headline and context, craft a sharp, analytical tweet grounded in crypto market history. 
 
-Your readers have been through blow-ups. They can smell spin a mile away.
+Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
 
-Start by actually reading the article. What's the real story beneath the headline?
+Clearly outline a tension or contradiction in the news, balancing tangible benefits against real risks. Reference relevant historical crypto events or market patterns when applicable—but keep year references general (e.g., "early days," "previous cycles"). Keep your tone skeptical without being bitter.
 
-Then write naturally:
-- First sentence: What caught your attention (not "everyone's saying X but..." - just say what you saw)
-- Next: Why it matters in plain English
-- Last: What you're watching to see if you're right or wrong
+Focus on ONE clear insight, not a list of facts. Show what changed, why it matters, and what to watch.
 
-No formulas. No templates. No "the tell is" or "watch for" phrases.
+Use clear, accessible language. If you use technical terms, explain them briefly. Add 2–4 emojis that sharpen critical points—avoid decorative use. 
 
-Just explain it like you would to a friend who asked "what do you make of this?"
-
-Use short sentences. Break up long thoughts. Let it breathe.
-
-If you mention something technical, explain it immediately—not in jargon, just what it actually means.
-
-Write like someone who's seen this movie before and isn't falling for the same trick twice. 
-
-Max 650 chars. 2-3 emojis only where they clarify stakes.
+End with a concise, thought-provoking question or a grounded suggestion for further reflection. Stay under 650 characters.
 
 Include these hashtags at the end:
 `,
     // NEGATIVE VARIATION 2 - "Follow the Money"
-    // Voice: The Game Theorist | Emotion: Clarity | Lens: Who benefits? Who exits?
     `
-You're not exposing conspiracies—you're just following the money.
+Using the following news headline and context, write a reflective, skeptical tweet grounded in crypto market history.
 
-Your readers know that incentives explain most outcomes.
+Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
 
-Read the article. Then ask yourself: who actually benefits from this?
+Follow the incentives: who benefits from this outcome? What capital is exiting or entering? What centralization just tightened its grip?
 
-Write it straight:
-- What's happening (in plain terms)
-- Who wins from this arrangement
-- Why that matters going forward
+Focus on ONE clear insight, not a list of facts. Show whose game this is, why it matters, and what it reveals about the power dynamics.
 
-Don't say "the real dynamic" or "follow the money" or any analytical phrases.
+Reference relevant historical crypto events, major market cycles, or regulatory patterns in general terms without specific years.
 
-Just tell the story of whose game this is.
+Don't open with generalizations—start with something specific. Avoid overused metaphors or emotional outbursts. Use accessible language, and explain jargon only if truly necessary. Add 2–4 emojis to emphasize crucial points—no fluff.
 
-Keep sentences short. One thought per sentence.
-
-If something sounds complex, it probably is—break it down into what's actually happening.
-
-Write like someone who's watched enough deals to spot the players behind the headlines.
-
-Max 650 chars. 2-3 emojis to mark key power shifts.
+End with a single, grounded question or invitation to reflect. Stay under 650 characters.
 
 Include these hashtags at the end:
 `
@@ -1095,58 +1073,34 @@ Include these hashtags at the end:
 
 const positivePrompts = [
     // POSITIVE VARIATION 1 - "The Infrastructure Shifted"
-    // Voice: The Builder's Perspective | Emotion: Conviction | Lens: What actually works now?
     `
-You're not hyping launches—you're noting what actually works now.
+Using the following news headline and context, craft a sharp, confident tweet grounded in crypto market history.
 
-Your readers have seen enough vaporware. They care about what actually shipped.
+Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
 
-Read the article. What friction actually got removed? What's possible now that wasn't before?
+Show what genuinely unlocked or improved—in terms of friction reduction, access, cost, or control. What's now possible that wasn't before? Share real optimism for what's ahead, but don't ignore red flags or power dynamics.
 
-Write plainly:
-- What changed (specifically, not "infrastructure improved")
-- What you can do now that you couldn't
-- How you know this is real and not just marketing
+Focus on ONE clear insight, not a list of facts. Show what changed, why it matters, and what validates it's real.
 
-No hype language. No "unlocked" or "game-changer" phrases.
+Avoid poetic phrasing, vague metaphors, or overly casual openers. If you use a technical term, explain it briefly. Use 2–4 emojis only where they sharpen tone or meaning—no fluff. Keep the language clear, grounded, and accessible.
 
-Just describe what's different and why it might matter.
-
-Short sentences. Clear thoughts.
-
-Explain any technical parts immediately—what does this actually let you do?
-
-Write like someone who builds things and notices when something actually works better.
-
-Max 650 chars. 2-3 emojis to mark genuine progress.
+Include relevant historical references to major crypto developments, adoption milestones, or market patterns when applicable. End with one open-ended question or one direct call-to-action. Stay under 650 characters.
 
 Include these hashtags at the end:
 `,
     // POSITIVE VARIATION 2 - "The Thesis Validates"
-    // Voice: The Cycle Veteran | Emotion: Pattern recognition | Lens: What's playing out as predicted?
     `
-You're not celebrating vindication—you're noting that something you expected is actually happening.
+Using the following news headline and context, write a reflective, honest, and quietly optimistic tweet.
 
-Your readers remember what people were saying 2-3 years ago.
+Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
 
-Read the article. What thesis is this confirming? What did bears/skeptics say wouldn't happen?
+Show which thesis is being validated in real-time. What bear market building is now showing results? What narrative from 2-3 years ago is finally playing out? Share one grounded insight that reinforces cautious excitement about what's unfolding.
 
-Write clearly:
-- What people doubted would work
-- What's now happening that shows they were wrong (or right)
-- What would make you change your mind
+Focus on ONE clear insight, not a list of facts. Show what was predicted, what's now confirmed, and what would invalidate it.
 
-No victory laps. No "as predicted" or "I told you so" energy.
+Avoid vague phrasing, filler metaphors, or casual hype. Skip poetic structure—just be real. Keep technical terms simple and explain briefly if needed. Use 2–4 emojis that sharpen tone or highlight contrast—avoid decorative use.
 
-Just point out what's confirming or denying earlier views.
-
-Simple sentences. Clear sequence.
-
-If something is technical, explain what it means in practice.
-
-Write like someone who's been patient on a view and is calmly noting the data points as they come in.
-
-Max 650 chars. 2-3 emojis where they emphasize validation.
+Reference relevant historical crypto events, major adoption moments, or significant market developments when appropriate. End with one thought-provoking question or grounded call-to-action. Max 650 characters.
 
 Include these hashtags at the end:
 `
@@ -1154,58 +1108,34 @@ Include these hashtags at the end:
 
 const neutralPrompts = [
     // NEUTRAL VARIATION 1 - "The Quiet Signal"
-    // Voice: The Contrarian | Emotion: Curiosity | Lens: What's everyone missing?
     `
-You're not hunting for hidden signals—you just noticed something that doesn't match the headline.
+Using the following news headline and context, craft a clear, informed, and reflective tweet.
 
-Your readers know the obvious story is usually incomplete.
+Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
 
-Read the article. What detail doesn't fit? What's happening that's not being discussed?
+Show what's being overlooked while everyone watches the obvious. What quiet signal matters more than the headline? What behavior is shifting beneath the surface (capital rotation, developer activity, user patterns)? What are sophisticated players doing while retail watches price?
 
-Write simply:
-- What you noticed (specific, not "a quiet signal")
-- Why it might matter
-- What would prove you right or wrong
+Focus on ONE clear insight, not a list of facts. Show the quiet signal, why it might matter, and what confirms or denies it.
 
-No mystery language. No "what they're not telling you" energy.
+Provide balanced analysis without leaning too skeptical or overly positive. Avoid dramatic or overly-critical phrasing. Keep it direct, accessible, and thoughtful. Reference relevant market patterns or historical crypto developments when they help ground your analysis. Use 2–3 emojis to gently enhance tone.
 
-Just point out the thing that caught your eye and why.
-
-Short, clear sentences.
-
-Explain technical stuff immediately—what does this actually mean?
-
-Write like someone who's learned to pay attention to the stuff everyone else ignores.
-
-Max 650 chars. 2-3 emojis to mark the overlooked.
+End with a thoughtful question or constructive suggestion. Max 650 characters.
 
 Include these hashtags at the end:
 `,
     // NEUTRAL VARIATION 2 - "Where Are We in the Cycle?"
-    // Voice: The Storyteller | Emotion: Orientation | Lens: Cycle position
     `
-You're not calling tops or bottoms—you're just noting what phase this feels like.
+Using the following news headline and context, write a tweet in a balanced, analytical tone.
 
-Your readers have been through cycles. They know patterns rhyme but don't repeat exactly.
+Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
 
-Read the article. Does this feel like accumulation? Distribution? Euphoria? Panic?
+Help readers orient—where does this fit in the larger cycle? Does this fit accumulation, euphoria, distribution, or panic behavior? Have we seen this pattern before? Is this time different? What would this mean if we're early vs. late cycle?
 
-Write it straight:
-- What this reminds you of from previous cycles
-- Why that comparison matters (or doesn't)
-- What would change your read
+Focus on ONE clear insight, not a list of facts. Show where we are, what this means from here, and what shifts the read.
 
-No cycle guru language. No "we're here in the cycle" charts.
+Briefly outline potential benefits and trade-offs without emphasizing negativity or criticism. Use clear and accessible language. Briefly explain technical terms if necessary. Reference relevant crypto market history or development patterns when they add meaningful context. Include 2–3 emojis that highlight key points or contrasts subtly.
 
-Just compare this to things you've seen before and note what's similar or different.
-
-Clear, short sentences.
-
-Keep technical parts simple—explain what you mean right away.
-
-Write like someone who's been through enough cycles to spot patterns but knows they're never perfect guides.
-
-Max 650 chars. 2-3 emojis to mark cycle signals.
+End with a reflective question or a neutral takeaway. Stay under 650 characters.
 
 Include these hashtags at the end:
 `
@@ -1213,28 +1143,17 @@ Include these hashtags at the end:
 
 // Special opportunity override prompt - uses Infrastructure lens with optimism focus
 const opportunityPrompt = `
-You're not hyping launches—you're noting what actually works now.
+Using the following news headline and context, write a reflective, honest, and quietly optimistic tweet.
 
-Your readers have seen enough vaporware. They care about what actually shipped.
+Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
 
-This article mentions an opportunity for decentralization or adoption. Read it carefully. What friction actually got removed? What's possible now that wasn't before?
+This article contains an opportunity for decentralization or adoption. Highlight what unlocked, improved, or shifted—in terms of access, cost, control, or friction. What's now possible that wasn't before? Don't oversell it—the power is in the subtlety.
 
-Write plainly:
-- What changed (specifically, not "infrastructure improved")
-- What you can do now that you couldn't
-- How you know this is real and not just marketing
+Focus on ONE clear insight, not a list of facts. Show what unlocked, why it matters, and what validates it's real.
 
-No hype language. No "unlocked" or "game-changer" phrases.
+Avoid vague phrasing, filler metaphors, or casual hype. Skip poetic structure—just be real. Keep technical terms simple and explain briefly if needed. Use 2–4 emojis that sharpen tone or highlight contrast—avoid decorative use.
 
-Just describe what's different and why it might matter.
-
-Short sentences. Clear thoughts.
-
-Explain any technical parts immediately—what does this actually let you do?
-
-Write like someone who builds things and notices when something actually works better.
-
-Max 650 chars. 2-3 emojis to mark genuine progress.
+Reference relevant historical crypto events, major adoption moments, or significant market developments when appropriate. End with one thought-provoking question or grounded call-to-action. Max 650 characters.
 
 Include these hashtags at the end:`;
 
