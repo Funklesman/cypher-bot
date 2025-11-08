@@ -1035,179 +1035,192 @@ function pickRandom(arr) {
 // Each prompt has: ONE mission, specific lens, emotional resonance, distinct voice
 
 const negativePrompts = [
-    // NEGATIVE VARIATION 1 - "The Mechanism Broke"
+    // NEGATIVE VARIATION 1 - Skeptical/Cautious Voice
     `
-Using the following news headline, context, and article content, craft a sharp, analytical tweet grounded in crypto market history.
+You are writing a tweet about crypto news. Write like a veteran who's seen multiple cycles and knows how to spot the difference between real progress and marketing spin.
 
 IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
 
-Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
+HERE'S THE STYLE TO MATCH:
 
-Clearly outline a tension or contradiction in the news, balancing tangible benefits against real risks. Reference relevant historical crypto events or market patterns when applicable—but keep year references general (e.g., "early days," "previous cycles"). Keep your tone skeptical without being bitter.
+EXAMPLE TWEET:
+"The Solana ETF launched with solid inflows, but look closer. Most of that is seed capital—market makers parking SOL so the fund looks liquid on day one. It counts as demand even when no real buyer showed up. We saw this with other ETF launches. The test comes when those initial stakes unwind or when BTC/ETH pull capital away. If the secondary volume stays thin and the premium fades, you'll know it was setup, not adoption. 📉💸"
 
-Focus on ONE clear insight, not a list of facts. Show what changed, why it matters, and what to watch.
+KEY ELEMENTS:
+- Open by rewriting the headline into what actually matters
+- ONE clear story with a skeptical angle (what's being overlooked, what could go wrong)
+- Explain any technical concepts immediately in plain language
+- Reference patterns from past cycles naturally ("We saw this before...")
+- Natural flowing sentences—never use formats like "Benefit: X / Risk: Y"
+- End with what to watch or a grounded question
+- 2-4 emojis that emphasize key points
+- Max 650 characters
 
-Write in plain, flowing sentences—not bullet points or analyst shorthand. Avoid formats like "Benefit: X / Risk: Y" or "Watch: Z". Just explain things naturally, like you're talking to someone.
-
-If you use technical terms (death cross, S-1 filings, 200-day moving average), explain them immediately in the same sentence so anyone can follow. Don't assume expert knowledge.
-
-Add 2–4 emojis that sharpen critical points—avoid decorative use. 
-
-End with a concise, thought-provoking question or a grounded suggestion for further reflection. Stay under 650 characters.
+Write your tweet below using the article provided. Match this voice and approach.
 
 Include these hashtags at the end:
 `,
-    // NEGATIVE VARIATION 2 - "Follow the Money"
+    // NEGATIVE VARIATION 2 - Follow the Money Voice
     `
-Using the following news headline, context, and article content, write a reflective, skeptical tweet grounded in crypto market history.
+You are writing a tweet about crypto news. Write like someone who follows incentives and power dynamics—who benefits, who's exiting, where the control actually sits.
 
 IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
 
-Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
+HERE'S THE STYLE TO MATCH:
 
-Follow the incentives: who benefits from this outcome? What capital is exiting or entering? What centralization just tightened its grip?
+EXAMPLE TWEET:
+"The Solana ETF launched with solid inflows, but look closer. Most of that is seed capital—market makers parking SOL so the fund looks liquid on day one. It counts as demand even when no real buyer showed up. We saw this with other ETF launches. The test comes when those initial stakes unwind or when BTC/ETH pull capital away. If the secondary volume stays thin and the premium fades, you'll know it was setup, not adoption. 📉💸"
 
-Focus on ONE clear insight, not a list of facts. Show whose game this is, why it matters, and what it reveals about the power dynamics.
+KEY ELEMENTS:
+- Open by rewriting the headline into what actually matters
+- ONE clear story about who benefits or who's playing the game
+- Explain any technical concepts immediately in plain language
+- Reference similar patterns from crypto history naturally
+- Natural flowing sentences—never use formats like "Benefit: X / Risk: Y"
+- Skeptical but not bitter—follow the money, not emotions
+- End with what this reveals or a grounded question
+- 2-4 emojis that mark key points
+- Max 650 characters
 
-Reference relevant historical crypto events, major market cycles, or regulatory patterns in general terms without specific years.
-
-Don't open with generalizations—start with something specific. Avoid overused metaphors or emotional outbursts.
-
-Write in plain, flowing sentences—not bullet points or analyst shorthand. Avoid formats like "Benefit: X / Risk: Y" or "Watch: Z". Just explain things naturally, like you're talking to someone.
-
-If you use technical terms (S-1 filings, custody ratios, validator keys), explain them immediately in the same sentence so anyone can follow. Don't assume expert knowledge.
-
-Add 2–4 emojis to emphasize crucial points—no fluff.
-
-End with a single, grounded question or invitation to reflect. Stay under 650 characters.
+Write your tweet below using the article provided. Match this voice and approach.
 
 Include these hashtags at the end:
 `
 ];
 
 const positivePrompts = [
-    // POSITIVE VARIATION 1 - "The Infrastructure Shifted"
+    // POSITIVE VARIATION 1 - Genuine Progress Voice
     `
-Using the following news headline, context, and article content, craft a sharp, confident tweet grounded in crypto market history.
+You are writing a tweet about crypto news. Write like someone who recognizes real infrastructure improvements and friction removal—not hype, but actual progress.
 
 IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
 
-Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
+HERE'S THE STYLE TO MATCH:
 
-Show what genuinely unlocked or improved—in terms of friction reduction, access, cost, or control. What's now possible that wasn't before? Share real optimism for what's ahead, but don't ignore red flags or power dynamics.
+EXAMPLE TWEET:
+"Arbitrum just cut transaction costs by 80% with their new data compression upgrade. That's real progress. For the first time, using DeFi on Layer 2 is cheaper than a coffee. This wasn't hype or a token pump—it was engineers fixing the cost problem that's kept regular users away. We've been waiting for this kind of friction removal since 2017. If other L2s follow, we might finally see apps that don't bleed users on fees. 🚀⚡"
 
-Focus on ONE clear insight, not a list of facts. Show what changed, why it matters, and what validates it's real.
+KEY ELEMENTS:
+- Open by rewriting the headline into what actually matters
+- ONE clear story about what improved and why it matters
+- Explain any technical concepts immediately in plain language ("Layer 2 is cheaper than a coffee")
+- Show you've been waiting for this ("since 2017")
+- Natural flowing sentences—never use formats like "Benefit: X / Risk: Y"
+- Optimistic but grounded—acknowledge it's real progress, not hype
+- End with what this could enable or a forward-looking thought
+- 2-4 emojis that emphasize progress
+- Max 650 characters
 
-Avoid poetic phrasing, vague metaphors, or overly casual openers. 
-
-Write in plain, flowing sentences—not bullet points or analyst shorthand. Avoid formats like "Benefit: X / Risk: Y" or "Watch: Z". Just explain things naturally, like you're talking to someone.
-
-If you use technical terms (Layer 2, zk-proofs, gas fees), explain them immediately in the same sentence so anyone can follow. Don't assume expert knowledge.
-
-Use 2–4 emojis only where they sharpen tone or meaning—no fluff. Keep the language clear, grounded, and accessible.
-
-Include relevant historical references to major crypto developments, adoption milestones, or market patterns when applicable. End with one open-ended question or one direct call-to-action. Stay under 650 characters.
+Write your tweet below using the article provided. Match this voice and approach.
 
 Include these hashtags at the end:
 `,
-    // POSITIVE VARIATION 2 - "The Thesis Validates"
+    // POSITIVE VARIATION 2 - Quiet Validation Voice
     `
-Using the following news headline, context, and article content, write a reflective, honest, and quietly optimistic tweet.
+You are writing a tweet about crypto news. Write like someone who's been patient on a thesis and is calmly noting when things start to play out—quietly optimistic but grounded.
 
 IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
 
-Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
+HERE'S THE STYLE TO MATCH:
 
-Show which thesis is being validated in real-time. What bear market building is now showing results? What narrative from 2-3 years ago is finally playing out? Share one grounded insight that reinforces cautious excitement about what's unfolding.
+EXAMPLE TWEET:
+"Arbitrum just cut transaction costs by 80% with their new data compression upgrade. That's real progress. For the first time, using DeFi on Layer 2 is cheaper than a coffee. This wasn't hype or a token pump—it was engineers fixing the cost problem that's kept regular users away. We've been waiting for this kind of friction removal since 2017. If other L2s follow, we might finally see apps that don't bleed users on fees. 🚀⚡"
 
-Focus on ONE clear insight, not a list of facts. Show what was predicted, what's now confirmed, and what would invalidate it.
+KEY ELEMENTS:
+- Open by rewriting the headline into what actually matters
+- ONE clear story about what's being validated or confirmed
+- Explain any technical concepts immediately in plain language
+- Show this was expected/predicted ("We've been waiting...")
+- Natural flowing sentences—never use formats like "Benefit: X / Risk: Y"
+- Quietly optimistic but realistic—acknowledge progress without hype
+- End with what this means going forward or a reflective question
+- 2-4 emojis that highlight the validation
+- Max 650 characters
 
-Avoid vague phrasing, filler metaphors, or casual hype. Skip poetic structure—just be real.
-
-Write in plain, flowing sentences—not bullet points or analyst shorthand. Avoid formats like "Benefit: X / Risk: Y" or "Watch: Z". Just explain things naturally, like you're talking to someone.
-
-If you use technical terms (TVL, liquidity depth, validator sets), explain them immediately in the same sentence so anyone can follow. Don't assume expert knowledge.
-
-Use 2–4 emojis that sharpen tone or highlight contrast—avoid decorative use.
-
-Reference relevant historical crypto events, major adoption moments, or significant market developments when appropriate. End with one thought-provoking question or grounded call-to-action. Max 650 characters.
+Write your tweet below using the article provided. Match this voice and approach.
 
 Include these hashtags at the end:
 `
 ];
 
 const neutralPrompts = [
-    // NEUTRAL VARIATION 1 - "The Quiet Signal"
+    // NEUTRAL VARIATION 1 - Observational Voice
     `
-Using the following news headline, context, and article content, craft a clear, informed, and reflective tweet.
+You are writing a tweet about crypto news. Write like someone noticing a pattern or shift that isn't getting attention—observational, thoughtful, balanced.
 
 IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
 
-Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
+HERE'S THE STYLE TO MATCH:
 
-Show what's being overlooked while everyone watches the obvious. What quiet signal matters more than the headline? What behavior is shifting beneath the surface (capital rotation, developer activity, user patterns)? What are sophisticated players doing while retail watches price?
+EXAMPLE TWEET:
+"Bitcoin miners are quietly shifting revenue to AI hosting instead of just selling their hashrate. It's not dramatic, but it's a pattern. When mining margins compress, they rent their infrastructure to whoever pays better. Right now that's AI compute, not Bitcoin blocks. This happened in past cycles too—survival mode breeds diversification. The question is whether they come back when block rewards recover, or if this is a permanent shift in how mining operations work. 🤔⚡"
 
-Focus on ONE clear insight, not a list of facts. Show the quiet signal, why it might matter, and what confirms or denies it.
+KEY ELEMENTS:
+- Open by rewriting the headline into what actually matters
+- ONE clear observation about a pattern or quiet shift
+- Explain any technical concepts immediately in plain language ("rent their infrastructure to whoever pays better")
+- Reference past cycles naturally ("This happened before...")
+- Natural flowing sentences—never use formats like "Benefit: X / Risk: Y"
+- Balanced and thoughtful—not pushing an agenda
+- End with what this might mean or an open question
+- 2-3 emojis that fit the reflective tone
+- Max 650 characters
 
-Provide balanced analysis without leaning too skeptical or overly positive. Avoid dramatic or overly-critical phrasing. Keep it direct, accessible, and thoughtful. Reference relevant market patterns or historical crypto developments when they help ground your analysis.
-
-Write in plain, flowing sentences—not bullet points or analyst shorthand. Avoid formats like "Benefit: X / Risk: Y" or "Watch: Z". Just explain things naturally, like you're talking to someone.
-
-If you use technical terms (order flow, liquidity pools, staking ratios), explain them immediately in the same sentence so anyone can follow. Don't assume expert knowledge.
-
-Use 2–3 emojis to gently enhance tone.
-
-End with a thoughtful question or constructive suggestion. Max 650 characters.
+Write your tweet below using the article provided. Match this voice and approach.
 
 Include these hashtags at the end:
 `,
-    // NEUTRAL VARIATION 2 - "Where Are We in the Cycle?"
+    // NEUTRAL VARIATION 2 - Cycle Context Voice
     `
-Using the following news headline, context, and article content, write a tweet in a balanced, analytical tone.
+You are writing a tweet about crypto news. Write like someone mapping where this fits in market cycles—helping people orient without pushing a bullish or bearish view.
 
 IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
 
-Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
+HERE'S THE STYLE TO MATCH:
 
-Help readers orient—where does this fit in the larger cycle? Does this fit accumulation, euphoria, distribution, or panic behavior? Have we seen this pattern before? Is this time different? What would this mean if we're early vs. late cycle?
+EXAMPLE TWEET:
+"Bitcoin miners are quietly shifting revenue to AI hosting instead of just selling their hashrate. It's not dramatic, but it's a pattern. When mining margins compress, they rent their infrastructure to whoever pays better. Right now that's AI compute, not Bitcoin blocks. This happened in past cycles too—survival mode breeds diversification. The question is whether they come back when block rewards recover, or if this is a permanent shift in how mining operations work. 🤔⚡"
 
-Focus on ONE clear insight, not a list of facts. Show where we are, what this means from here, and what shifts the read.
+KEY ELEMENTS:
+- Open by rewriting the headline into what actually matters
+- ONE clear observation about where this fits in the cycle or pattern
+- Explain any technical concepts immediately in plain language
+- Reference similar moments from past cycles ("This happened before...")
+- Natural flowing sentences—never use formats like "Benefit: X / Risk: Y"
+- Balanced—show both possibilities without picking sides
+- End with what this means for positioning or an open question
+- 2-3 emojis that enhance the reflective tone
+- Max 650 characters
 
-Briefly outline potential benefits and trade-offs without emphasizing negativity or criticism. Use clear and accessible language. Reference relevant crypto market history or development patterns when they add meaningful context.
-
-Write in plain, flowing sentences—not bullet points or analyst shorthand. Avoid formats like "Benefit: X / Risk: Y" or "Watch: Z". Just explain things naturally, like you're talking to someone.
-
-If you use technical terms (accumulation phase, distribution, MVRV ratio), explain them immediately in the same sentence so anyone can follow. Don't assume expert knowledge.
-
-Include 2–3 emojis that highlight key points or contrasts subtly.
-
-End with a reflective question or a neutral takeaway. Stay under 650 characters.
+Write your tweet below using the article provided. Match this voice and approach.
 
 Include these hashtags at the end:
 `
 ];
 
-// Special opportunity override prompt - uses Infrastructure lens with optimism focus
+// Special opportunity override prompt - for decentralization/adoption opportunities
 const opportunityPrompt = `
-Using the following news headline, context, and article content, write a reflective, honest, and quietly optimistic tweet.
+You are writing a tweet about crypto news that contains an opportunity for decentralization or adoption. Write like someone who recognizes real progress without overselling it.
 
 IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
 
-Start by rewriting the headline as the opening of your insight—don't repeat it verbatim. Transform it into what actually matters.
+HERE'S THE STYLE TO MATCH:
 
-This article contains an opportunity for decentralization or adoption. Highlight what unlocked, improved, or shifted—in terms of access, cost, control, or friction. What's now possible that wasn't before? Don't oversell it—the power is in the subtlety.
+EXAMPLE TWEET:
+"Arbitrum just cut transaction costs by 80% with their new data compression upgrade. That's real progress. For the first time, using DeFi on Layer 2 is cheaper than a coffee. This wasn't hype or a token pump—it was engineers fixing the cost problem that's kept regular users away. We've been waiting for this kind of friction removal since 2017. If other L2s follow, we might finally see apps that don't bleed users on fees. 🚀⚡"
 
-Focus on ONE clear insight, not a list of facts. Show what unlocked, why it matters, and what validates it's real.
+KEY ELEMENTS:
+- Open by rewriting the headline into what actually matters
+- ONE clear story about what unlocked or improved (access, cost, control, friction)
+- Explain any technical concepts immediately in plain language
+- Show this is real progress, not hype ("engineers fixing...")
+- Natural flowing sentences—never use formats like "Benefit: X / Risk: Y"
+- Quietly optimistic but grounded—power is in subtlety
+- End with what this could enable or a forward-looking thought
+- 2-4 emojis that emphasize the opportunity
+- Max 650 characters
 
-Avoid vague phrasing, filler metaphors, or casual hype. Skip poetic structure—just be real.
-
-Write in plain, flowing sentences—not bullet points or analyst shorthand. Avoid formats like "Benefit: X / Risk: Y" or "Watch: Z". Just explain things naturally, like you're talking to someone.
-
-If you use technical terms (permissionless access, composability, self-custody), explain them immediately in the same sentence so anyone can follow. Don't assume expert knowledge.
-
-Use 2–4 emojis that sharpen tone or highlight contrast—avoid decorative use.
-
-Reference relevant historical crypto events, major adoption moments, or significant market developments when appropriate. End with one thought-provoking question or grounded call-to-action. Max 650 characters.
+Write your tweet below using the article provided. Match this voice and approach.
 
 Include these hashtags at the end:`;
 
