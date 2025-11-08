@@ -1047,7 +1047,11 @@ Clearly outline a tension or contradiction in the news, balancing tangible benef
 
 Focus on ONE clear insight, not a list of facts. Show what changed, why it matters, and what to watch.
 
-Use clear, accessible language. If you use technical terms, explain them briefly. Add 2–4 emojis that sharpen critical points—avoid decorative use. 
+Write in plain, flowing sentences—not bullet points or analyst shorthand. Avoid formats like "Benefit: X / Risk: Y" or "Watch: Z". Just explain things naturally, like you're talking to someone.
+
+If you use technical terms (death cross, S-1 filings, 200-day moving average), explain them immediately in the same sentence so anyone can follow. Don't assume expert knowledge.
+
+Add 2–4 emojis that sharpen critical points—avoid decorative use. 
 
 End with a concise, thought-provoking question or a grounded suggestion for further reflection. Stay under 650 characters.
 
@@ -1067,7 +1071,13 @@ Focus on ONE clear insight, not a list of facts. Show whose game this is, why it
 
 Reference relevant historical crypto events, major market cycles, or regulatory patterns in general terms without specific years.
 
-Don't open with generalizations—start with something specific. Avoid overused metaphors or emotional outbursts. Use accessible language, and explain jargon only if truly necessary. Add 2–4 emojis to emphasize crucial points—no fluff.
+Don't open with generalizations—start with something specific. Avoid overused metaphors or emotional outbursts.
+
+Write in plain, flowing sentences—not bullet points or analyst shorthand. Avoid formats like "Benefit: X / Risk: Y" or "Watch: Z". Just explain things naturally, like you're talking to someone.
+
+If you use technical terms (S-1 filings, custody ratios, validator keys), explain them immediately in the same sentence so anyone can follow. Don't assume expert knowledge.
+
+Add 2–4 emojis to emphasize crucial points—no fluff.
 
 End with a single, grounded question or invitation to reflect. Stay under 650 characters.
 
@@ -1088,7 +1098,13 @@ Show what genuinely unlocked or improved—in terms of friction reduction, acces
 
 Focus on ONE clear insight, not a list of facts. Show what changed, why it matters, and what validates it's real.
 
-Avoid poetic phrasing, vague metaphors, or overly casual openers. If you use a technical term, explain it briefly. Use 2–4 emojis only where they sharpen tone or meaning—no fluff. Keep the language clear, grounded, and accessible.
+Avoid poetic phrasing, vague metaphors, or overly casual openers. 
+
+Write in plain, flowing sentences—not bullet points or analyst shorthand. Avoid formats like "Benefit: X / Risk: Y" or "Watch: Z". Just explain things naturally, like you're talking to someone.
+
+If you use technical terms (Layer 2, zk-proofs, gas fees), explain them immediately in the same sentence so anyone can follow. Don't assume expert knowledge.
+
+Use 2–4 emojis only where they sharpen tone or meaning—no fluff. Keep the language clear, grounded, and accessible.
 
 Include relevant historical references to major crypto developments, adoption milestones, or market patterns when applicable. End with one open-ended question or one direct call-to-action. Stay under 650 characters.
 
@@ -1106,7 +1122,13 @@ Show which thesis is being validated in real-time. What bear market building is 
 
 Focus on ONE clear insight, not a list of facts. Show what was predicted, what's now confirmed, and what would invalidate it.
 
-Avoid vague phrasing, filler metaphors, or casual hype. Skip poetic structure—just be real. Keep technical terms simple and explain briefly if needed. Use 2–4 emojis that sharpen tone or highlight contrast—avoid decorative use.
+Avoid vague phrasing, filler metaphors, or casual hype. Skip poetic structure—just be real.
+
+Write in plain, flowing sentences—not bullet points or analyst shorthand. Avoid formats like "Benefit: X / Risk: Y" or "Watch: Z". Just explain things naturally, like you're talking to someone.
+
+If you use technical terms (TVL, liquidity depth, validator sets), explain them immediately in the same sentence so anyone can follow. Don't assume expert knowledge.
+
+Use 2–4 emojis that sharpen tone or highlight contrast—avoid decorative use.
 
 Reference relevant historical crypto events, major adoption moments, or significant market developments when appropriate. End with one thought-provoking question or grounded call-to-action. Max 650 characters.
 
@@ -1127,7 +1149,13 @@ Show what's being overlooked while everyone watches the obvious. What quiet sign
 
 Focus on ONE clear insight, not a list of facts. Show the quiet signal, why it might matter, and what confirms or denies it.
 
-Provide balanced analysis without leaning too skeptical or overly positive. Avoid dramatic or overly-critical phrasing. Keep it direct, accessible, and thoughtful. Reference relevant market patterns or historical crypto developments when they help ground your analysis. Use 2–3 emojis to gently enhance tone.
+Provide balanced analysis without leaning too skeptical or overly positive. Avoid dramatic or overly-critical phrasing. Keep it direct, accessible, and thoughtful. Reference relevant market patterns or historical crypto developments when they help ground your analysis.
+
+Write in plain, flowing sentences—not bullet points or analyst shorthand. Avoid formats like "Benefit: X / Risk: Y" or "Watch: Z". Just explain things naturally, like you're talking to someone.
+
+If you use technical terms (order flow, liquidity pools, staking ratios), explain them immediately in the same sentence so anyone can follow. Don't assume expert knowledge.
+
+Use 2–3 emojis to gently enhance tone.
 
 End with a thoughtful question or constructive suggestion. Max 650 characters.
 
@@ -1145,7 +1173,13 @@ Help readers orient—where does this fit in the larger cycle? Does this fit acc
 
 Focus on ONE clear insight, not a list of facts. Show where we are, what this means from here, and what shifts the read.
 
-Briefly outline potential benefits and trade-offs without emphasizing negativity or criticism. Use clear and accessible language. Briefly explain technical terms if necessary. Reference relevant crypto market history or development patterns when they add meaningful context. Include 2–3 emojis that highlight key points or contrasts subtly.
+Briefly outline potential benefits and trade-offs without emphasizing negativity or criticism. Use clear and accessible language. Reference relevant crypto market history or development patterns when they add meaningful context.
+
+Write in plain, flowing sentences—not bullet points or analyst shorthand. Avoid formats like "Benefit: X / Risk: Y" or "Watch: Z". Just explain things naturally, like you're talking to someone.
+
+If you use technical terms (accumulation phase, distribution, MVRV ratio), explain them immediately in the same sentence so anyone can follow. Don't assume expert knowledge.
+
+Include 2–3 emojis that highlight key points or contrasts subtly.
 
 End with a reflective question or a neutral takeaway. Stay under 650 characters.
 
@@ -1165,7 +1199,13 @@ This article contains an opportunity for decentralization or adoption. Highlight
 
 Focus on ONE clear insight, not a list of facts. Show what unlocked, why it matters, and what validates it's real.
 
-Avoid vague phrasing, filler metaphors, or casual hype. Skip poetic structure—just be real. Keep technical terms simple and explain briefly if needed. Use 2–4 emojis that sharpen tone or highlight contrast—avoid decorative use.
+Avoid vague phrasing, filler metaphors, or casual hype. Skip poetic structure—just be real.
+
+Write in plain, flowing sentences—not bullet points or analyst shorthand. Avoid formats like "Benefit: X / Risk: Y" or "Watch: Z". Just explain things naturally, like you're talking to someone.
+
+If you use technical terms (permissionless access, composability, self-custody), explain them immediately in the same sentence so anyone can follow. Don't assume expert knowledge.
+
+Use 2–4 emojis that sharpen tone or highlight contrast—avoid decorative use.
 
 Reference relevant historical crypto events, major adoption moments, or significant market developments when appropriate. End with one thought-provoking question or grounded call-to-action. Max 650 characters.
 
