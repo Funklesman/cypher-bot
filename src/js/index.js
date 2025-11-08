@@ -1046,7 +1046,9 @@ Start with the actual news in your own words (not the headline). Then share ONE 
 CRITICAL RULES:
 - NO analytical phrases: "Real power sits with", "The tell is", "Follow the money", "Watch for"
 - NO formats: "Benefit: X / Risk: Y" or "Setup: / Stakes: / Outcome:"
+- NO summary labels: "Net:", "Takeaway:", "Bottom line:", "TL;DR:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if it adds educational value)
 - NO meta-commentary: "sounds like X, but" or "X suggests Y"
+- NO date formats like "Aug '25" - just say "August" or "recently"
 - Just talk normally about what you noticed and why it matters
 
 Example style:
@@ -1070,6 +1072,8 @@ BANNED PHRASES:
 - "Follow the money" 
 - "Watch for"
 - Any format like "Player: X / Motive: Y"
+- Summary labels: "Net:", "Takeaway:", "Bottom line:", "TL;DR:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
+- Date formats like "Aug '25" - say "August" or "recently" instead
 
 Example style:
 "Grayscale's Bitcoin Trust discount finally closed after the ETF conversion. That's $20B that was stuck trading below NAV for years. The arb traders who bought the discount and voted for the conversion just made a fortune—legally front-running the market with shareholder votes. Berkshire Hathaway did this with spinoffs for decades. Same playbook, different asset. 💰🎯"
@@ -1094,6 +1098,8 @@ DON'T USE:
 - Bullet formats
 - "This validates X" or "This confirms Y"
 - Meta-commentary about the news itself
+- Summary labels: "Net:", "Takeaway:", "Bottom line:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
+- Date formats like "Aug '25" - say "August" or "last month" instead
 
 Example style:
 "Lightning Network just passed 5,000 BTC in public channel capacity. That's real liquidity—enough to route payments for millions of users without touching the blockchain. We couldn't do this in 2018. Back then, channels would fail on a $50 payment. Now you can send four figures instantly for pennies. Infrastructure grew up while everyone was watching NFTs. 🚀⚡"
@@ -1115,6 +1121,8 @@ AVOID:
 - "This validates X" or "The market is confirming Y"
 - Structured formats
 - Hype or overselling
+- Summary labels: "Net:", "Takeaway:", "Bottom line:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
+- Date formats like "Aug '25" - say "August" or "recently"
 
 Example style:
 "Coinbase just added perpetual futures for 30 more tokens. Retail's not asking for this—fund managers are. They need derivatives to hedge spot ETF exposure. We're watching TradFi infrastructure get bolted onto crypto piece by piece. Same thing happened with gold in the 2000s. Futures came before widespread adoption, not after. 📊🏦"
@@ -1139,6 +1147,8 @@ NO:
 - "The tell is" or "The real story is"
 - Lists or formats
 - Taking sides
+- Summary labels: "Net:", "Takeaway:", "Bottom line:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
+- Date formats like "Aug '25" - say "August" or "last month"
 
 Example style:
 "Ethereum validators are unstaking in larger batches lately. Not panic selling—just moving ETH off beacon chain after being locked for 2+ years. Some want to trade, some want liquidity, some are just diversifying. Exit queues are up but not breaking. This is what maturity looks like. Locked capital eventually wants options. 🔓📊"
@@ -1160,6 +1170,8 @@ BANNED:
 - "This signals X" or "This indicates Y"
 - Structured analysis formats
 - Pushing a direction
+- Summary labels: "Net:", "Takeaway:", "Bottom line:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
+- Date formats like "Aug '25" - say "August" or "recently"
 
 Example style:
 "Crypto VC funding just hit its lowest quarter since 2020. Projects that raised at 2021 valuations are running out of runway. Some will pivot, some will die, some will merge. Bear markets clean out weak teams. 2015 and 2019 looked similar—only the builders who could survive two years of obscurity made it. That's where we are now. 🏗️📉"
@@ -1183,6 +1195,8 @@ DON'T:
 - Say "This enables X" or "This unlocks Y" directly
 - Format like a product announcement
 - Oversell or hype
+- Use summary labels: "Net:", "Takeaway:", "Bottom line:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
+- Use date formats like "Aug '25" - say "August" or "last month"
 
 Example style:
 "Polygon just launched a zkEVM that runs regular Ethereum contracts. Developers don't need to rewrite code or learn new languages—they just deploy and fees drop 90%. This is what we needed. zkRollups were always powerful but painful to use. Now they're invisible. If this works at scale, the "Ethereum is too expensive" argument dies. 🚀⚡"
