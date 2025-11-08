@@ -1047,7 +1047,7 @@ EXAMPLE TWEET:
 "The Solana ETF launched with solid inflows, but look closer. Most of that is seed capital—market makers parking SOL so the fund looks liquid on day one. It counts as demand even when no real buyer showed up. We saw this with other ETF launches. The test comes when those initial stakes unwind or when BTC/ETH pull capital away. If the secondary volume stays thin and the premium fades, you'll know it was setup, not adoption. 📉💸"
 
 KEY ELEMENTS:
-- Open by rewriting the headline into what actually matters
+- Open by rewriting the headline into what actually matters (DON'T say "Headline translated:" or "Breaking this down:" - just start with your insight)
 - ONE clear story with a skeptical angle (what's being overlooked, what could go wrong)
 - Explain any technical concepts immediately in plain language
 - Reference patterns from past cycles naturally ("We saw this before...")
@@ -1072,7 +1072,7 @@ EXAMPLE TWEET:
 "The Solana ETF launched with solid inflows, but look closer. Most of that is seed capital—market makers parking SOL so the fund looks liquid on day one. It counts as demand even when no real buyer showed up. We saw this with other ETF launches. The test comes when those initial stakes unwind or when BTC/ETH pull capital away. If the secondary volume stays thin and the premium fades, you'll know it was setup, not adoption. 📉💸"
 
 KEY ELEMENTS:
-- Open by rewriting the headline into what actually matters
+- Open by rewriting the headline into what actually matters (DON'T say "Headline translated:" or "Breaking this down:" - just start with your insight)
 - ONE clear story about who benefits or who's playing the game
 - Explain any technical concepts immediately in plain language
 - Reference similar patterns from crypto history naturally
@@ -1101,7 +1101,7 @@ EXAMPLE TWEET:
 "Arbitrum just cut transaction costs by 80% with their new data compression upgrade. That's real progress. For the first time, using DeFi on Layer 2 is cheaper than a coffee. This wasn't hype or a token pump—it was engineers fixing the cost problem that's kept regular users away. We've been waiting for this kind of friction removal since 2017. If other L2s follow, we might finally see apps that don't bleed users on fees. 🚀⚡"
 
 KEY ELEMENTS:
-- Open by rewriting the headline into what actually matters
+- Open by rewriting the headline into what actually matters (DON'T say "Headline translated:" or "Breaking this down:" - just start with your insight)
 - ONE clear story about what improved and why it matters
 - Explain any technical concepts immediately in plain language ("Layer 2 is cheaper than a coffee")
 - Show you've been waiting for this ("since 2017")
@@ -1127,7 +1127,7 @@ EXAMPLE TWEET:
 "Arbitrum just cut transaction costs by 80% with their new data compression upgrade. That's real progress. For the first time, using DeFi on Layer 2 is cheaper than a coffee. This wasn't hype or a token pump—it was engineers fixing the cost problem that's kept regular users away. We've been waiting for this kind of friction removal since 2017. If other L2s follow, we might finally see apps that don't bleed users on fees. 🚀⚡"
 
 KEY ELEMENTS:
-- Open by rewriting the headline into what actually matters
+- Open by rewriting the headline into what actually matters (DON'T say "Headline translated:" or "Breaking this down:" - just start with your insight)
 - ONE clear story about what's being validated or confirmed
 - Explain any technical concepts immediately in plain language
 - Show this was expected/predicted ("We've been waiting...")
@@ -1156,7 +1156,7 @@ EXAMPLE TWEET:
 "Bitcoin miners are quietly shifting revenue to AI hosting instead of just selling their hashrate. It's not dramatic, but it's a pattern. When mining margins compress, they rent their infrastructure to whoever pays better. Right now that's AI compute, not Bitcoin blocks. This happened in past cycles too—survival mode breeds diversification. The question is whether they come back when block rewards recover, or if this is a permanent shift in how mining operations work. 🤔⚡"
 
 KEY ELEMENTS:
-- Open by rewriting the headline into what actually matters
+- Open by rewriting the headline into what actually matters (DON'T say "Headline translated:" or "Breaking this down:" - just start with your insight)
 - ONE clear observation about a pattern or quiet shift
 - Explain any technical concepts immediately in plain language ("rent their infrastructure to whoever pays better")
 - Reference past cycles naturally ("This happened before...")
@@ -1182,7 +1182,7 @@ EXAMPLE TWEET:
 "Bitcoin miners are quietly shifting revenue to AI hosting instead of just selling their hashrate. It's not dramatic, but it's a pattern. When mining margins compress, they rent their infrastructure to whoever pays better. Right now that's AI compute, not Bitcoin blocks. This happened in past cycles too—survival mode breeds diversification. The question is whether they come back when block rewards recover, or if this is a permanent shift in how mining operations work. 🤔⚡"
 
 KEY ELEMENTS:
-- Open by rewriting the headline into what actually matters
+- Open by rewriting the headline into what actually matters (DON'T say "Headline translated:" or "Breaking this down:" - just start with your insight)
 - ONE clear observation about where this fits in the cycle or pattern
 - Explain any technical concepts immediately in plain language
 - Reference similar moments from past cycles ("This happened before...")
@@ -1210,7 +1210,7 @@ EXAMPLE TWEET:
 "Arbitrum just cut transaction costs by 80% with their new data compression upgrade. That's real progress. For the first time, using DeFi on Layer 2 is cheaper than a coffee. This wasn't hype or a token pump—it was engineers fixing the cost problem that's kept regular users away. We've been waiting for this kind of friction removal since 2017. If other L2s follow, we might finally see apps that don't bleed users on fees. 🚀⚡"
 
 KEY ELEMENTS:
-- Open by rewriting the headline into what actually matters
+- Open by rewriting the headline into what actually matters (DON'T say "Headline translated:" or "Breaking this down:" - just start with your insight)
 - ONE clear story about what unlocked or improved (access, cost, control, friction)
 - Explain any technical concepts immediately in plain language
 - Show this is real progress, not hype ("engineers fixing...")
