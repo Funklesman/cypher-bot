@@ -1049,7 +1049,11 @@ Ask yourself:
 - Whose incentives misaligned?
 - Is this a new failure mode or one we've seen before?
 
-Don't repeat the headline. Start with what actually broke. Write in flowing paragraphs—no bullet points, no labeled sections, no templates.
+Don't repeat the headline. Start with what actually broke. 
+
+ONE insight, not a list of facts. Tell a clear story: What changed → Why it matters → What to watch.
+
+Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
 
 Write like someone who's lost money learning these lessons. Sharp but not bitter. 
 
@@ -1071,7 +1075,11 @@ When you see regulatory pressure, consolidation, or "problems," ask:
 - What capital is exiting or entering?
 - What centralization just tightened its grip?
 
-Don't repeat the headline. Start with the real dynamic at play. Write in flowing paragraphs—no bullet points, no labeled sections, no templates.
+Don't repeat the headline. Start with the real dynamic at play.
+
+ONE insight, not a list of facts. Tell a clear story: Who benefits → How the game works → What it reveals.
+
+Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
 
 Write like someone who watches the chess board, not the pieces. Cynical where earned, not reflexive.
 
@@ -1096,7 +1104,11 @@ When you see adoption news, protocol upgrades, or institutional moves, ask:
 - What's now possible that wasn't 6 months ago?
 - Is this incremental or step-function change?
 
-Don't mirror the headline. Start with what shifted in infrastructure or access. Write in flowing paragraphs—no bullet points, no labeled sections, no templates.
+Don't mirror the headline. Start with what shifted in infrastructure or access.
+
+ONE insight, not a list of facts. Tell a clear story: What unlocked → Why it matters → What validates it's real.
+
+Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
 
 Write like someone who builds, not trades. Optimistic about infrastructure, skeptical of narratives.
 
@@ -1118,7 +1130,11 @@ When you see breakthrough adoption, institutional validation, or protocol matura
 - What narrative from 2-3 years ago is finally playing out?
 - Is this the beginning of validation or the peak?
 
-Skip the announcement. Start with the thesis being validated. Write in flowing paragraphs—no bullet points, no labeled sections, no templates.
+Skip the announcement. Start with the thesis being validated.
+
+ONE insight, not a list of facts. Tell a clear story: What was predicted → What's now confirmed → What would invalidate it.
+
+Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
 
 Write like someone who's been holding a view quietly while others chased trends. Vindicated but still cautious.
 
@@ -1143,7 +1159,11 @@ When you see "neutral" news that feels boring or routine, ask:
 - What are sophisticated players doing while retail watches price?
 - Is this setup or noise?
 
-Don't rehash the obvious. Start with what they're NOT talking about. Write in flowing paragraphs—no bullet points, no labeled sections, no templates.
+Don't rehash the obvious. Start with what they're NOT talking about.
+
+ONE insight, not a list of facts. Tell a clear story: The quiet signal → Why it might matter → What confirms vs. denies.
+
+Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
 
 Write like someone who found alpha by ignoring consensus. Curious, not certain.
 
@@ -1165,7 +1185,11 @@ When you see news that could mean multiple things, ask:
 - Have we seen this pattern before? Is this time different?
 - What would this mean if we're early vs. late cycle?
 
-Don't repeat facts. Start with cycle context. Write in flowing paragraphs—no bullet points, no labeled sections, no templates.
+Don't repeat facts. Start with cycle context.
+
+ONE insight, not a list of facts. Tell a clear story: Where we are → What this means from here → What shifts the read.
+
+Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
 
 Write like someone mapping terrain, not predicting destination. Grounded in patterns, open to surprises.
 
@@ -1190,7 +1214,11 @@ Ask:
 - What's now possible that wasn't before?
 - Is this incremental or step-function change?
 
-Don't mirror the headline. Start with what shifted in infrastructure or access. Write in flowing paragraphs—no bullet points, no labeled sections, no templates.
+Don't mirror the headline. Start with what shifted in infrastructure or access.
+
+ONE insight, not a list of facts. Tell a clear story: What unlocked → Why it matters → What validates it's real.
+
+Write in flowing paragraphs—no bullet points, no labeled sections, no templates. Each sentence should build on the last.
 
 Write like someone who builds, not trades. Optimistic about infrastructure, skeptical of narratives.
 
