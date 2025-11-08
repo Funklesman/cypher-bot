@@ -1529,7 +1529,7 @@ async function saveToFile(content) {
 }
 
 // Function to post a single item
-async function postSingleItem(maxAgeHours = 6) {
+async function postSingleItem(maxAgeHours = 72) {
     try {
         // Check MongoDB connectivity first
         const isHealthy = await dbClient.isHealthy();
