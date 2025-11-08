@@ -203,7 +203,7 @@ async function getCachedOrFreshData(sourceKey) {
 }
 
 // Main function to replace the original fetchNews
-async function fetchNews(maxAgeHours = 12) {
+async function fetchNews(maxAgeHours = 72) {
   console.log(`🔍 Fetching news from ${Object.keys(RSS_SOURCES).length} RSS sources...`);
   
   const sources = Object.keys(RSS_SOURCES);

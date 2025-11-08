@@ -537,7 +537,7 @@ function determineSentimentByKeywords(title, description) {
 }
 
 // Combined fetch news function
-async function fetchNews(maxAgeHours = 6) {
+async function fetchNews(maxAgeHours = 72) {
     try {
         // Use improved RSS-based news fetching (already filtered and sorted)
         console.log('🔄 Using improved RSS-based news sources...');
