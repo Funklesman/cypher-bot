@@ -80,8 +80,16 @@ async function postToX(content, mediaFiles = [], options = {}) {
   console.log('🚀 Posting to X via browser automation...');
   
   const browser = await puppeteer.launch({ 
-    headless: false, // Set to false for debugging - will show browser window
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    headless: 'new', // Use new headless mode (optimized)
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--disable-gpu'
+    ]
   });
   
   const page = await browser.newPage();
@@ -998,8 +1006,16 @@ async function testXCredentials() {
   }
   
   const browser = await puppeteer.launch({ 
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    headless: 'new',
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--disable-gpu'
+    ]
   });
   
   const page = await browser.newPage();
