@@ -540,7 +540,7 @@ function determineSentimentByKeywords(title, description) {
 }
 
 // Combined fetch news function
-async function fetchNews(maxAgeHours = 72) {
+async function fetchNews(maxAgeHours = 12) {
     try {
         // Use improved RSS-based news fetching (already filtered and sorted)
         console.log('🔄 Using improved RSS-based news sources...');
@@ -1060,15 +1060,15 @@ function selectTweetMode(sentiment, urgencyScore = 0) {
         return 'negative';
     }
     
-    if (sentiment === 'positive') {
+        if (sentiment === 'positive') {
         console.log('📈 Positive sentiment → Positive mode');
         return 'positive';
     }
     
-    // Default to neutral
+            // Default to neutral
     console.log('📊 Neutral sentiment → Neutral mode');
     return 'neutral';
-    
+        
     // Future modes (not active in Phase 1):
     // - 'opportunity': when hasOpportunity flag is re-enabled
     // - 'confirmation': when isExpectedOutcome detection is added
@@ -1368,7 +1368,7 @@ async function saveToFile(content) {
 }
 
 // Function to post a single item
-async function postSingleItem(maxAgeHours = 72) {
+async function postSingleItem(maxAgeHours = 12) {
     try {
         // Check MongoDB connectivity first
         const isHealthy = await dbClient.isHealthy();
@@ -1623,7 +1623,7 @@ function startTestingMode() {
     cron.schedule('0 */6 * * *', async () => {
         console.log('⏰ Running scheduled 6-hour test post...');
         process.env.MASTODON_POST_ENABLED = 'true';
-        await postSingleItem(72); // Use 72-hour news window
+        await postSingleItem(12); // Use 12-hour news window
     });
     
     // Urgent scanning removed - integrated into regular posting cycle
@@ -1633,7 +1633,7 @@ function startTestingMode() {
     console.log('🚀 Running initial post immediately...');
     console.log('===================================================\n');
     process.env.MASTODON_POST_ENABLED = 'true';
-    postSingleItem(72);
+    postSingleItem(12);
 }
 
 // Wisdom topics for educational tweets (rotated)
@@ -1806,22 +1806,22 @@ function scheduleNextWisdomTweet() {
     }, wisdomDelay);
 }
 
-// Start the bot in production mode (posts every 9-12 hours with randomization)
+// Start the bot in production mode (posts every 5-7 hours with randomization)
 function startProductionMode() {
     console.log('🚀 Starting TweetBot in PRODUCTION mode');
-    console.log('📅 Tweets will be posted every 9-12 HOURS (randomized for organic feel)');
+    console.log('📅 Tweets will be posted every 5-7 HOURS (randomized for organic feel)');
     console.log('🎓 Wisdom tweets will be posted once per day (randomized timing)');
     console.log('📔 Crypto Diary will be generated EVERY 2 DAYS at 8 PM');
-    console.log('🎯 Optimized for 2-3 news posts/day + 1 wisdom tweet/day + diary every 2 days');
+    console.log('🎯 Optimized for 3-5 news posts/day + 1 wisdom tweet/day + diary every 2 days');
     
     // Clean Redis cache on startup
     cleanupRedisCache();
     
     // Schedule next post with organic timing
     function scheduleNextPost() {
-        // Random interval between 9-12 hours (9*60*60*1000 to 12*60*60*1000 milliseconds)
-        const minHours = 9;
-        const maxHours = 12;
+        // Random interval between 5-7 hours (5*60*60*1000 to 7*60*60*1000 milliseconds)
+        const minHours = 5;
+        const maxHours = 7;
         const randomHours = Math.random() * (maxHours - minHours) + minHours;
         const nextPostDelay = randomHours * 60 * 60 * 1000; // Convert to milliseconds
         
@@ -1832,7 +1832,7 @@ function startProductionMode() {
         setTimeout(async () => {
             console.log('⏰ Running scheduled organic post...');
             process.env.MASTODON_POST_ENABLED = 'true';
-            await postSingleItem(72);
+            await postSingleItem(12);
             lastNewsTweetTime = Date.now(); // Track timing for wisdom tweet collision avoidance
             
             // Schedule the next post
@@ -1850,7 +1850,7 @@ function startProductionMode() {
     // Run initial post immediately
     console.log('🚀 Running initial post...');
     process.env.MASTODON_POST_ENABLED = 'true';
-    postSingleItem(72);
+    postSingleItem(12);
     lastNewsTweetTime = Date.now(); // Track initial post timing
     
     // Start organic scheduling after initial post
@@ -1869,7 +1869,7 @@ validateEnvVariables();
 async function runNewsPost() {
     console.log('📡 API triggered news post generation');
     process.env.MASTODON_POST_ENABLED = 'true';
-    await postSingleItem(72);
+    await postSingleItem(12);
     lastNewsTweetTime = Date.now();
 }
 

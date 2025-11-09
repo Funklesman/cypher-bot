@@ -13,7 +13,7 @@ git pull origin main
 echo "🚀 Starting PM2 process with fresh code..."
 pm2 start tweetbot
 
-echo "✅ Done! The bot is now running with 72-hour window and cleared cache."
+echo "✅ Done! The bot is now running with 12-hour window and cleared cache."
 echo "📊 Monitoring logs..."
 pm2 logs tweetbot --lines 50
 
