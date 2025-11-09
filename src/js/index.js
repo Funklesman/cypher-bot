@@ -54,6 +54,9 @@ const processingArticles = new Map(); // Track articles currently being processe
 
 // Import ContentDeduplicator
 const ContentDeduplicator = require('./content_deduplicator');
+
+// Import V2 prompt system
+const promptsV2 = require('./tweet_prompts_v2');
 const contentDeduplicator = new ContentDeduplicator();
 
 // Validate environment variables
@@ -1031,267 +1034,55 @@ function pickRandom(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// 6 PROMPTS - Distinct Analytical Voices for Variety
-// Each prompt has: ONE mission, specific lens, emotional resonance, distinct voice
+// ============================================================================
+// V2 PROMPT SYSTEM - MODE SELECTION
+// ============================================================================
 
-const negativePrompts = [
-    // NEGATIVE VARIATION 1 - Skeptical/Cautious Voice
-    `
-You're a crypto veteran tweeting about news. Don't write analysis—write like you're texting a friend who asked "what do you think about this?"
-
-IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
-
-Start with the actual news in your own words (not the headline). Then share ONE skeptical observation. Keep it conversational.
-
-CRITICAL RULES:
-- NO analytical phrases: "Real power sits with", "The tell is", "Follow the money", "Watch for"
-- NO formats: "Benefit: X / Risk: Y" or "Setup: / Stakes: / Outcome:"
-- NO summary labels: "Net:", "Takeaway:", "Bottom line:", "TL;DR:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if it adds educational value)
-- NO meta-labels: "One observation:", "The point is:", "Here's the thing:", "Key insight:", "Skeptic:", "Optimist:", "Neutral:", "My take:"
-- NO framework phrases: "this phase", "this cycle", "this pattern" - say it more specifically
-- NO meta-commentary: "sounds like X, but" or "X suggests Y"
-- NO date formats like "Aug '25" - just say "August" or "recently"
-- Just talk normally about what you noticed and why it matters
-
-Example style:
-"Tether keeps minting USDT while their reserves get hazier. They're sitting on $100B worth of IOUs backed by... commercial paper and "other investments" they won't detail. We've seen this movie before with bank runs—opacity works until it doesn't. Every cycle, someone's holding the hot potato when trust breaks. 💸🎲"
-
-Write naturally. Explain jargon in the same breath you use it. End on what this means or what to watch. 2-4 emojis. Max 650 chars.
-
-Include these hashtags at the end:
-`,
-    // NEGATIVE VARIATION 2 - Follow the Money Voice
-    `
-You're tweeting about crypto news. Write like you're explaining the incentives to someone who doesn't see them yet.
-
-IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
-
-Start with what happened (in plain words), then show who benefits or where the leverage sits. ONE insight. Natural sentences.
-
-BANNED PHRASES:
-- "Real power sits with"
-- "The tell is"
-- "Follow the money" 
-- "Watch for"
-- Any format like "Player: X / Motive: Y"
-- Summary labels: "Net:", "Takeaway:", "Bottom line:", "TL;DR:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
-- Meta-labels: "One observation:", "The point is:", "Here's the thing:", "Key insight:", "Skeptic:", "Optimist:", "My take:"
-- Framework phrases: "this phase", "this cycle", "this pattern" - be more specific
-- Date formats like "Aug '25" - say "August" or "recently" instead
-
-Example style:
-"Grayscale's Bitcoin Trust discount finally closed after the ETF conversion. That's $20B that was stuck trading below NAV for years. The arb traders who bought the discount and voted for the conversion just made a fortune—legally front-running the market with shareholder votes. Berkshire Hathaway did this with spinoffs for decades. Same playbook, different asset. 💰🎯"
-
-Explain any jargon immediately. Show who wins. Keep it conversational. 2-4 emojis. Max 650 chars.
-
-Include these hashtags at the end:
-`
-];
-
-const positivePrompts = [
-    // POSITIVE VARIATION 1 - Genuine Progress Voice
-    `
-You're tweeting about crypto news that's actually positive. Write like you're telling someone "hey, this thing we've been waiting for finally happened."
-
-IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
-
-Start with what improved (in plain words). Then explain why it matters. ONE story. Natural voice.
-
-DON'T USE:
-- Analytical framing phrases
-- Bullet formats
-- "This validates X" or "This confirms Y"
-- Meta-commentary about the news itself
-- Summary labels: "Net:", "Takeaway:", "Bottom line:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
-- Meta-labels: "One observation:", "The point is:", "Here's the thing:", "Key insight:", "Skeptic:", "Optimist:", "My take:"
-- Vague phrases: "this phase", "this cycle" - be specific about what you mean
-- Date formats like "Aug '25" - say "August" or "last month" instead
-
-Example style:
-"Lightning Network just passed 5,000 BTC in public channel capacity. That's real liquidity—enough to route payments for millions of users without touching the blockchain. We couldn't do this in 2018. Back then, channels would fail on a $50 payment. Now you can send four figures instantly for pennies. Infrastructure grew up while everyone was watching NFTs. 🚀⚡"
-
-Explain jargon as you go. Show this is progress without hype. End on what's now possible. 2-4 emojis. Max 650 chars.
-
-Include these hashtags at the end:
-`,
-    // POSITIVE VARIATION 2 - Quiet Validation Voice
-    `
-You're tweeting about news that confirms something you've been watching. Write like you're calmly noting "yep, this is playing out."
-
-IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
-
-Start with what happened. Then connect it to what you expected. ONE observation. Keep it calm and grounded.
-
-AVOID:
-- Analyst language
-- "This validates X" or "The market is confirming Y"
-- Structured formats
-- Hype or overselling
-- Summary labels: "Net:", "Takeaway:", "Bottom line:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
-- Meta-labels: "One observation:", "The point is:", "Key insight:", "Skeptic:", "Optimist:", "My take:"
-- Vague phrases: "this phase", "this cycle" - say what you actually mean
-- Date formats like "Aug '25" - say "August" or "recently"
-
-Example style:
-"Coinbase just added perpetual futures for 30 more tokens. Retail's not asking for this—fund managers are. They need derivatives to hedge spot ETF exposure. We're watching TradFi infrastructure get bolted onto crypto piece by piece. Same thing happened with gold in the 2000s. Futures came before widespread adoption, not after. 📊🏦"
-
-Explain jargon immediately. Show you saw this coming. End on what happens next or a reflection. 2-3 emojis. Max 650 chars.
-
-Include these hashtags at the end:
-`
-];
-
-const neutralPrompts = [
-    // NEUTRAL VARIATION 1 - Observational Voice
-    `
-You're tweeting about crypto news that shows a pattern. Write like you're pointing out something others might miss.
-
-IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
-
-Start with what's happening. Then show the pattern. ONE observation. Natural, balanced tone.
-
-NO:
-- Analytical framing
-- "The tell is" or "The real story is"
-- Lists or formats
-- Taking sides
-- Summary labels: "Net:", "Takeaway:", "Bottom line:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
-- Meta-labels: "One observation:", "The point is:", "Here's what matters:", "Key insight:", "Skeptic:", "Optimist:", "My take:"
-- Vague phrases: "this phase", "this cycle" - be specific
-- Date formats like "Aug '25" - say "August" or "last month"
-
-Example style:
-"Ethereum validators are unstaking in larger batches lately. Not panic selling—just moving ETH off beacon chain after being locked for 2+ years. Some want to trade, some want liquidity, some are just diversifying. Exit queues are up but not breaking. This is what maturity looks like. Locked capital eventually wants options. 🔓📊"
-
-Explain any jargon. Show the shift without pushing a view. End with a question or what to notice. 2-3 emojis. Max 650 chars.
-
-Include these hashtags at the end:
-`,
-    // NEUTRAL VARIATION 2 - Cycle Context Voice
-    `
-You're tweeting about crypto news and showing where it fits in the cycle. Write like you're helping someone orient—no bullish or bearish spin.
-
-IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
-
-Start with what happened. Then show where this sits in the pattern. ONE observation. Balanced.
-
-BANNED:
-- Framework language
-- "This signals X" or "This indicates Y"
-- Structured analysis formats
-- Pushing a direction
-- Summary labels: "Net:", "Takeaway:", "Bottom line:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
-- Meta-labels: "One observation:", "The key point:", "Here's the thing:", "Key insight:", "Skeptic:", "Optimist:", "My take:"
-- Vague phrases: "this phase", "this cycle" - be concrete
-- Date formats like "Aug '25" - say "August" or "recently"
-
-Example style:
-"Crypto VC funding just hit its lowest quarter since 2020. Projects that raised at 2021 valuations are running out of runway. Some will pivot, some will die, some will merge. Bear markets clean out weak teams. 2015 and 2019 looked similar—only the builders who could survive two years of obscurity made it. That's where we are now. 🏗️📉"
-
-Explain jargon naturally. Show the cycle position. End with what this phase does or an open question. 2-3 emojis. Max 650 chars.
-
-Include these hashtags at the end:
-`
-];
-
-// Special opportunity override prompt - for decentralization/adoption opportunities
-const opportunityPrompt = `
-You're tweeting about crypto news that shows real progress for adoption or decentralization. Write like you're excited but staying grounded.
-
-IMPORTANT: The article content is limited. Use your knowledge of recent crypto events, market conditions, and ongoing developments to fill in context and construct a complete understanding. Connect this news to what's actually happening in crypto right now.
-
-Start with what unlocked or improved. Then show why it matters. ONE story. Natural, optimistic but realistic.
-
-DON'T:
-- Use analytical frameworks
-- Say "This enables X" or "This unlocks Y" directly
-- Format like a product announcement
-- Oversell or hype
-- Use summary labels: "Net:", "Takeaway:", "Bottom line:" (EXCEPTION: "Kodex Takeaway:" or "Kodex Learning:" is OK if educational)
-- Use meta-labels: "One observation:", "Key point:", "Here's what matters:", "Skeptic:", "Optimist:", "My take:"
-- Use vague phrases: "this phase", "this cycle" - be specific about what's happening
-- Use date formats like "Aug '25" - say "August" or "last month"
-
-Example style:
-"Polygon just launched a zkEVM that runs regular Ethereum contracts. Developers don't need to rewrite code or learn new languages—they just deploy and fees drop 90%. This is what we needed. zkRollups were always powerful but painful to use. Now they're invisible. If this works at scale, the "Ethereum is too expensive" argument dies. 🚀⚡"
-
-Explain jargon immediately. Show what changed without hype. End on what's now possible. 2-4 emojis. Max 650 chars.
-
-Include these hashtags at the end:`;
-
-// Generate a dynamic system prompt based on sentiment analysis
-async function generateDynamicSystemPrompt(hashtags, title, description, sentiment = 'neutral', hasOpportunity = false) {
-    try {
-        let promptVariation = 1;
-        
-        // Special case: If neutral with opportunity, use special opportunity prompt
-        if (sentiment === 'neutral' && hasOpportunity) {
-            console.log('📈 Neutral content with opportunity detected, using opportunity override prompt');
-            
-            // Return the special opportunity prompt
-            return {
-                prompt: opportunityPrompt,
-                type: 'positive-opportunity'
-            };
-        }
-        
-        // For negative and positive sentiment, use different splits
-        if (sentiment === 'positive') {
-            const useSecondVariation = Math.random() < 0.65; // Keep 65/35 split for positive
-            promptVariation = useSecondVariation ? 2 : 1;
-        } else if (sentiment === 'negative') {
-            const useSecondVariation = Math.random() < 0.5; // Changed to 50/50 split for negative
-            promptVariation = useSecondVariation ? 2 : 1;
-        } else {
-            // For neutral, keep 50/50 random selection
-            const useSecondVariation = Math.random() > 0.5;
-            if (useSecondVariation) {
-                promptVariation = 2;
-            }
-        }
-        
-        // Select the appropriate prompt array based on sentiment
-        let promptArray;
-        if (sentiment === 'positive') {
-            promptArray = positivePrompts;
-        } else if (sentiment === 'negative') {
-            promptArray = negativePrompts;
-        } else {
-            // Default to neutral
-            promptArray = neutralPrompts;
-        }
-        
-        // Get the prompt based on the variation (account for zero-based index)
-        const chosenPrompt = promptArray[promptVariation - 1];
-        
-        // Return the prompt and information about which variation was used
-        return {
-            prompt: chosenPrompt,
-            type: `${sentiment}-variation-${promptVariation}`
-        };
-    } catch (error) {
-        console.error('Error generating dynamic system prompt:', error);
-        return {
-            prompt: "You are \"The Crypto Professor\" from Kodex Academy. Write a thoughtful, raw, first-person reflection on this news. Keep it under 650 characters.",
-            type: 'neutral-fallback'
-        };
+/**
+ * Select tweet mode based on sentiment and urgency
+ * Phase 1: negative, positive, neutral, breaking (4 modes)
+ * Future: opportunity, confirmation (6 modes total)
+ * 
+ * @param {string} sentiment - 'positive', 'negative', or 'neutral'
+ * @param {number} urgencyScore - 1-10 urgency score from article analysis
+ * @returns {string} Mode name: 'negative'|'positive'|'neutral'|'breaking'
+ */
+function selectTweetMode(sentiment, urgencyScore = 0) {
+    // Breaking news takes priority (urgency >= 9)
+    if (urgencyScore >= 9) {
+        console.log(`🚨 High urgency (${urgencyScore}/10) → Breaking mode`);
+        return 'breaking';
     }
+    
+    // Sentiment-based routing
+    if (sentiment === 'negative') {
+        console.log('📉 Negative sentiment → Negative mode');
+        return 'negative';
+    }
+    
+    if (sentiment === 'positive') {
+        console.log('📈 Positive sentiment → Positive mode');
+        return 'positive';
+    }
+    
+    // Default to neutral
+    console.log('📊 Neutral sentiment → Neutral mode');
+    return 'neutral';
+    
+    // Future modes (not active in Phase 1):
+    // - 'opportunity': when hasOpportunity flag is re-enabled
+    // - 'confirmation': when isExpectedOutcome detection is added
 }
 
-// Make prompts accessible for testing
-module.exports.getPromptVariation = function(sentiment, variation) {
-    let promptArray;
-    if (sentiment === 'positive') {
-        promptArray = positivePrompts;
-    } else if (sentiment === 'negative') {
-        promptArray = negativePrompts;
-    } else {
-        promptArray = neutralPrompts;
-    }
-    return promptArray[variation - 1];
-};
+// ============================================================================
+// OLD PROMPT SYSTEM (V1) - DEPRECATED
+// Kept for reference during transition, will be removed after V2 testing
+// ============================================================================
+// Lines 1077-1335 removed: negativePrompts, positivePrompts, neutralPrompts,
+// opportunityPrompt, generateDynamicSystemPrompt(), getPromptVariation()
+// Replaced by V2 system using tweet_prompts_v2.js
 
-// Generate tweet content using OpenAI with dynamic components
+// Generate tweet content using OpenAI with dynamic components (V2 System)
 async function generateTweet(event, retryCount = 0) {
     try {
         // 1. Generate relevant hashtags
@@ -1303,55 +1094,33 @@ async function generateTweet(event, retryCount = 0) {
         const sentiment = analysis.sentiment;
         console.log('Content sentiment:', sentiment);
         
-        // Log opportunity information
-        if (analysis.hasOpportunity) {
-            console.log('📈 Content contains opportunity for decentralization or adoption');
-        }
-        
         // Exit early if content is not crypto-relevant
         if (!analysis.isRelevant) {
             console.log('⏭️ Skipping non-crypto article');
             return null;
         }
         
-        // 3. Generate a dynamic system prompt using the sentiment and opportunity flag
-        const promptInfo = await generateDynamicSystemPrompt(hashtags, event.title, event.description, sentiment, analysis.hasOpportunity);
-        const systemPrompt = promptInfo.prompt;
+        // 3. Select tweet mode based on sentiment and urgency (V2 System)
+        const urgencyScore = event.urgencyScore || 0;
+        const selectedMode = selectTweetMode(sentiment, urgencyScore);
         
-        // Store which prompt variation was used
-        const promptType = promptInfo.type || `${sentiment}-default`;
-        console.log(`Using prompt type: ${promptType}`);
+        // 4. Build V2 system prompt for selected mode
+        const systemPrompt = promptsV2.buildSystemPrompt(selectedMode);
+        const promptType = `v2-${selectedMode}`;
+        console.log(`✅ Using V2 prompt system: ${promptType}`);
         
-        // 4. GPT-5 only supports default temperature (1.0)
-        // const tweetTemperature = 1.0; // GPT-5 default
-        
-        // 5. Add special hashtag for neutral with opportunity case
-        let finalHashtags = [...hashtags];
-        if (promptType === 'positive-opportunity') {
-            // Use 50/50 chance to choose between #EarlySigns and #HopeSignal
-            const opportunityTag = Math.random() > 0.5 ? '#EarlySigns' : '#HopeSignal';
-            
-            // Replace one of the existing hashtags with our opportunity tag
-            if (finalHashtags.length > 0) {
-                finalHashtags[finalHashtags.length - 1] = opportunityTag;
-            } else {
-                finalHashtags.push(opportunityTag);
-            }
-            
-            console.log(`📝 Added special opportunity hashtag: ${opportunityTag}`);
-        }
-        
-        // 6. Generate the tweet content - minimal user prompt to let system prompt lead
+        // 5. Build minimal user prompt (let system prompt lead)
         const userPrompt = `Article Title: ${event.title}
 
 Context: ${event.description}
 
-${event.content ? `Article Content: ${event.content}` : ''}
+${event.content ? `Additional context: ${event.content.substring(0, 500)}` : ''}
 
 Source: ${event.source}
 
-Hashtags to include: ${finalHashtags.join(' ')}`;
+Hashtags to include: ${hashtags.join(' ')}`;
         
+        // 6. Generate the tweet content
         const response = await openai.chat.completions.create({
             model: "gpt-5",
             messages: [
@@ -1364,12 +1133,101 @@ Hashtags to include: ${finalHashtags.join(' ')}`;
                     content: userPrompt,
                 },
             ],
-            max_completion_tokens: 4000, // GPT-5 uses reasoning tokens + output tokens (needs high limit)
+            max_completion_tokens: 4000,
         });
+        
         let content = response.choices[0].message.content.trim();
         console.log(`📏 Content length: ${content.length} characters`);
         
-        // Content will be stored in post_history when posted (removed redundant contentTest storage)
+        // 7. SERVER-SIDE VALIDATION: Check for banned patterns (V2 System)
+        
+        // Primary check: Colon-labels (e.g., "What happened:", "Pattern:")
+        const colonLabelRegex = /^(?:[A-Za-z][A-Za-z ]{0,24}|Who|What|Why|Pattern|Translation|Observation)\s*:\s/m;
+        const midSentenceRegex = /(?:^|\.\s)([A-Za-z ]{2,24}):\s/g;
+        
+        // Secondary check: Soft meta-phrases (e.g., "The tell is", "Follow the money")
+        const metaPhraseRegex = /\b(the tell is|follow the money|watch for|the point is|here's the thing|key insight|one observation|one insight|my take|the real story|bottom line|takeaway|net effect|in short|tl;dr)\b/gi;
+        
+        const hasColonLabel = colonLabelRegex.test(content) || midSentenceRegex.test(content);
+        const hasMetaPhrase = metaPhraseRegex.test(content);
+        const hasAnyViolation = hasColonLabel || hasMetaPhrase;
+        
+        if (hasAnyViolation && retryCount === 0) {
+            // Determine what type of violation occurred
+            let violationType = [];
+            let correctionPrompt = 'CRITICAL: Your previous output contained banned patterns.\n\n';
+            
+            if (hasColonLabel) {
+                violationType.push('colon-labels');
+                const colonMatches = content.match(colonLabelRegex) || [];
+                const midMatches = content.match(midSentenceRegex) || [];
+                console.log('⚠️ Colon-labels detected:', [...colonMatches, ...midMatches].join(', '));
+                correctionPrompt += 'NO colon-labels: Remove phrases like "What happened:", "Pattern:", "Translation:" at line start or after periods.\n';
+            }
+            
+            if (hasMetaPhrase) {
+                violationType.push('meta-phrases');
+                const metaMatches = content.match(metaPhraseRegex) || [];
+                console.log('⚠️ Meta-phrases detected:', metaMatches.join(', '));
+                correctionPrompt += 'NO meta-phrases: Remove analytical scaffolding like "The tell is", "Follow the money", "Watch for", "Here\'s the thing".\n';
+            }
+            
+            console.log(`⚠️ Violations found: ${violationType.join(' + ')} - triggering rewrite...`);
+            
+            // Retry with explicit correction
+            correctionPrompt += '\nRewrite the tweet with natural flowing sentences. Just explain what happened and why it matters, without analytical framing.';
+            
+            const retryResponse = await openai.chat.completions.create({
+                model: "gpt-5",
+                messages: [
+                    {
+                        role: "system",
+                        content: systemPrompt + "\n\n" + correctionPrompt,
+                    },
+                    {
+                        role: "user",
+                        content: userPrompt,
+                    },
+                ],
+                max_completion_tokens: 4000,
+            });
+            
+            content = retryResponse.choices[0].message.content.trim();
+            console.log(`🔄 Rewrite complete. New length: ${content.length} characters`);
+            
+            // Check again after rewrite
+            const stillHasColonLabel = colonLabelRegex.test(content) || midSentenceRegex.test(content);
+            const stillHasMetaPhrase = metaPhraseRegex.test(content);
+            const stillHasViolation = stillHasColonLabel || stillHasMetaPhrase;
+            
+            if (stillHasViolation) {
+                console.log('❌ Rewrite still contains violations. Discarding this article.');
+                if (stillHasColonLabel) {
+                    console.log('🔍 Remaining colon-labels:', content.match(colonLabelRegex) || content.match(midSentenceRegex));
+                }
+                if (stillHasMetaPhrase) {
+                    console.log('🔍 Remaining meta-phrases:', content.match(metaPhraseRegex));
+                }
+                return null; // Article will be skipped
+            }
+            
+            console.log('✅ Rewrite successful - no violations detected');
+        } else if (hasAnyViolation && retryCount > 0) {
+            console.log('❌ Violations persist after retry. Discarding article.');
+            return null;
+        } else if (!hasAnyViolation) {
+            console.log('✅ No violations detected - content passes validation');
+        }
+        
+        // 8. Additional validation checks
+        const emojiCount = (content.match(/[\u{1F300}-\u{1F9FF}]/gu) || []).length;
+        if (emojiCount < 2 || emojiCount > 4) {
+            console.log(`⚠️ Emoji count: ${emojiCount} (expected 2-4)`);
+        }
+        
+        if (content.length > 650) {
+            console.log(`⚠️ Content exceeds 650 chars: ${content.length}`);
+        }
         
         // Check if urgent
         await dbClient.checkUrgentNews(event);
@@ -2028,7 +1886,6 @@ module.exports = {
     generateTweet,
     postToMastodon,
     fetchNews,
-    generateDynamicSystemPrompt,
     generateUrgentTweet,
     analyzeArticleContent,
     
