@@ -40,7 +40,11 @@ Closing moves (pick one):
 - A grounded "what it likely means next" in one clause.
 - A reflective line that ties to market structure.
 
-Emojis: place naturally inside the text, not as separators. 2–4 total. Hashtags only at the end and only those you're told to include.`;
+Emojis: place naturally inside the text, not as separators. 2–4 total.
+
+Add one blank line before the final emojis and hashtags at the end.
+
+Hashtags only at the end and only those you're told to include.`;
 
 // ============================================================================
 // MODE DEFINITIONS (tone anchors, not structural steps)
