@@ -7,7 +7,14 @@
 
 const { MongoClient } = require('mongodb');
 
-const MONGO_URI = process.env.MONGODB_URI || 'mongodb+srv://funkle:IqyTHXDNtyBAYX8q@cypheru.4jeexhk.mongodb.net/?retryWrites=true&w=majority&appName=CypherU';
+// MongoDB configuration - MUST be set in .env file
+if (!process.env.MONGODB_URI) {
+    console.error('❌ ERROR: MONGODB_URI environment variable is not set!');
+    console.error('Please set MONGODB_URI in your .env file');
+    process.exit(1);
+}
+
+const MONGO_URI = process.env.MONGODB_URI;
 const DB_NAME = 'TweetBot';
 
 async function clearProcessedArticles() {
