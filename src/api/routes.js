@@ -171,6 +171,46 @@ router.post('/generate-news', async (req, res) => {
 });
 
 /**
+ * POST /api/clear-caches
+ * Clear all Redis deduplication caches and MongoDB post_history
+ */
+router.post('/clear-caches', async (req, res) => {
+    try {
+        const { exec } = require('child_process');
+        const { promisify } = require('util');
+        const execAsync = promisify(exec);
+
+        console.log('🧹 Admin triggered cache clearing via API...');
+        
+        // Run both cache clearing scripts
+        const cacheCommand = 'node scripts/clear-all-caches.js';
+        const mongoCommand = 'node scripts/clear-processed-articles.js';
+        
+        // Execute both commands
+        const { stdout: cacheOutput } = await execAsync(cacheCommand);
+        const { stdout: mongoOutput } = await execAsync(mongoCommand);
+        
+        console.log('✅ Cache clearing completed');
+        console.log('Redis output:', cacheOutput);
+        console.log('MongoDB output:', mongoOutput);
+        
+        res.json({
+            success: true,
+            message: 'All caches cleared successfully',
+            redis: cacheOutput,
+            mongodb: mongoOutput
+        });
+    } catch (error) {
+        console.error('Error clearing caches:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to clear caches',
+            error: error.message
+        });
+    }
+});
+
+/**
  * POST /api/generate-wisdom
  * Trigger immediate wisdom tweet generation
  */
