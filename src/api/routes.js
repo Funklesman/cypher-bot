@@ -32,6 +32,7 @@ router.get('/status', async (req, res) => {
         // Get bot state from module
         const status = {
             running: true, // If API responds, bot is running
+            botSchedulerRunning: bot.isBotRunning || false, // Whether scheduler is active
             nextNewsPost: bot.nextScheduledPost || null,
             nextWisdomPost: bot.nextWisdomPost || null,
             lastNewsPostTime: bot.lastNewsPostTime || null,
@@ -370,6 +371,70 @@ router.post('/settings/toggle-bluesky', (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Failed to toggle Bluesky posting',
+            error: error.message
+        });
+    }
+});
+
+/**
+ * POST /api/bot/stop
+ * Stop the tweet bot scheduler
+ */
+router.post('/bot/stop', async (req, res) => {
+    try {
+        console.log('🛑 Admin requested bot stop via API');
+        const bot = getBotModule();
+        
+        if (typeof bot.stopBot === 'function') {
+            const result = bot.stopBot();
+            res.json({
+                success: true,
+                message: result.message,
+                timestamp: new Date().toISOString()
+            });
+        } else {
+            res.status(503).json({
+                success: false,
+                message: 'Bot stop function not available'
+            });
+        }
+    } catch (error) {
+        console.error('Error stopping bot:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to stop bot',
+            error: error.message
+        });
+    }
+});
+
+/**
+ * POST /api/bot/start
+ * Start the tweet bot scheduler
+ */
+router.post('/bot/start', async (req, res) => {
+    try {
+        console.log('▶️ Admin requested bot start via API');
+        const bot = getBotModule();
+        
+        if (typeof bot.startBot === 'function') {
+            const result = bot.startBot();
+            res.json({
+                success: result.success,
+                message: result.message,
+                timestamp: new Date().toISOString()
+            });
+        } else {
+            res.status(503).json({
+                success: false,
+                message: 'Bot start function not available'
+            });
+        }
+    } catch (error) {
+        console.error('Error starting bot:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to start bot',
             error: error.message
         });
     }

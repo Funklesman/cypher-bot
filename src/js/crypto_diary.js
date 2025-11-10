@@ -2,7 +2,7 @@
  * Crypto Diary Generator
  * 
  * Creates a daily summary of the most important crypto news
- * in the voice of The Crypto Professor from Cypher University.
+ * in the voice of The Crypto Professor from Kodex Academy.
  */
 
 // Load environment variables
@@ -16,6 +16,12 @@ const path = require('path');
 const cron = require('node-cron');
 const Mastodon = require('mastodon-api');
 const { MongoClient } = require('mongodb');
+
+// Import bot state checker
+let getBotRunningState = null;
+function setBotStateChecker(checker) {
+  getBotRunningState = checker;
+}
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -49,6 +55,12 @@ if (isMastodonConfigured && Mastodon) {
  */
 async function generateCryptoDiary() {
   console.log('🔍 Generating Crypto Diary for ' + new Date().toLocaleDateString());
+  
+  // Check if bot is running
+  if (getBotRunningState && !getBotRunningState()) {
+    console.log('🛑 Bot is stopped, aborting diary generation');
+    return;
+  }
   
   try {
     // 1. Get recent articles from the post_history collection
@@ -441,5 +453,6 @@ async function storeDiaryInMongoDB(diaryContent, articles, mastodonPostData) {
 // Export functions
 module.exports = {
   generateCryptoDiary,
-  scheduleDailyCryptoDiary
+  scheduleDailyCryptoDiary,
+  setBotStateChecker
 }; 

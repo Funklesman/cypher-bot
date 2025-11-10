@@ -15,7 +15,7 @@ puppeteer.use(StealthPlugin());
 
 // Create screenshots directory for debugging if it doesn't exist
 const SCREENSHOTS_DIR = path.join(__dirname, '../../../screenshots');
-const COOKIES_PATH = path.join(__dirname, '../../../.x-cookies.json');
+const COOKIES_PATH = path.join(__dirname, '../../../x-cookies.json');
 
 /**
  * Ensure screenshots directory exists
@@ -124,21 +124,16 @@ async function postToX(content, mediaFiles = [], options = {}) {
     
     // Login if needed
     if (!loggedIn) {
-      // 1. Navigate to X login page
-      console.log('Navigating to X login page...');
-      await page.goto('https://twitter.com/i/flow/login', { waitUntil: 'networkidle2' });
-      await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '1-login-page.png') });
-      
-      // 2. Log in to X
-      console.log('Logging in to X...');
-      const loginSuccess = await loginToX(page, process.env.X_USERNAME, process.env.X_PASSWORD);
-      
-      if (!loginSuccess) {
-        throw new Error('Failed to log in to X');
-      }
-      
-      // Save cookies after successful login
-      await saveCookies(page);
+      console.log('');
+      console.log('❌ ERROR: No valid X session found!');
+      console.log('');
+      console.log('To fix this, run the manual login script:');
+      console.log('  node scripts/x-manual-login.js');
+      console.log('');
+      console.log('This will open a browser where you can log in manually.');
+      console.log('Your session will be saved and automated posting will work.');
+      console.log('');
+      throw new Error('X session cookies not found or expired. Please run: node scripts/x-manual-login.js');
     }
     
     // 3. Navigate to compose tweet page - try different possible URLs
@@ -1034,7 +1029,7 @@ async function testXCredentials() {
     console.log('Testing login with provided credentials...');
     const loginSuccess = await loginToX(
       page, 
-      process.env.X_USERNAME, 
+      process.env.X_LOGIN || process.env.X_USERNAME, 
       process.env.X_PASSWORD
     );
     

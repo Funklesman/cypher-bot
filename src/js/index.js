@@ -1,5 +1,5 @@
 /**
- * Cypher University TweetBot - Main Module
+ * Kodex Academy TweetBot - Main Module
  * 
  * This file brings together all the bot's functionality and
  * exports a clean interface for the scripts to use.
@@ -1370,6 +1370,12 @@ async function saveToFile(content) {
 // Function to post a single item
 async function postSingleItem(maxAgeHours = 12) {
     try {
+        // Check if bot is running
+        if (!botIsRunning) {
+            console.log('🛑 Bot is stopped, aborting post generation');
+            return;
+        }
+        
         // Check MongoDB connectivity first
         const isHealthy = await dbClient.isHealthy();
         if (!isHealthy) {
@@ -1717,6 +1723,12 @@ Wisdom topic to expand:`;
 // Generate and post a wisdom tweet
 async function postWisdomTweet() {
     try {
+        // Check if bot is running
+        if (!botIsRunning) {
+            console.log('🛑 Bot is stopped, aborting wisdom tweet generation');
+            return;
+        }
+        
         console.log('🎓 Generating wisdom tweet for Kodex Academy...');
         
         // Get next topic (rotate through the list)
@@ -1775,6 +1787,13 @@ async function postWisdomTweet() {
     }
 }
 
+// Store active timeouts for bot control
+let activeTimeouts = {
+    newsPost: null,
+    wisdomPost: null
+};
+let botIsRunning = false;
+
 // Schedule wisdom tweets with smart timing to avoid collision with news tweets
 function scheduleNextWisdomTweet() {
     // Random time in next 18-30 hours (to ensure once per day but varied)
@@ -1797,12 +1816,14 @@ function scheduleNextWisdomTweet() {
     nextWisdomPost = nextWisdomTime; // Store for API access
     console.log(`🎓 Next wisdom tweet scheduled for: ${nextWisdomTime.toLocaleString()} (${(wisdomDelay / 1000 / 60 / 60).toFixed(1)} hours from now)`);
     
-    setTimeout(async () => {
+    activeTimeouts.wisdomPost = setTimeout(async () => {
         console.log('🎓 Running scheduled wisdom tweet...');
         await postWisdomTweet();
         
         // Schedule the next wisdom tweet
-        scheduleNextWisdomTweet();
+        if (botIsRunning) {
+            scheduleNextWisdomTweet();
+        }
     }, wisdomDelay);
 }
 
@@ -1817,6 +1838,9 @@ function startProductionMode() {
     // Clean Redis cache on startup
     cleanupRedisCache();
     
+    // Set bot as running
+    botIsRunning = true;
+    
     // Schedule next post with organic timing
     function scheduleNextPost() {
         // Random interval between 6-8 hours (6*60*60*1000 to 8*60*60*1000 milliseconds)
@@ -1829,19 +1853,22 @@ function startProductionMode() {
         nextScheduledPost = nextPostTime; // Store for API access
         console.log(`⏰ Next post scheduled for: ${nextPostTime.toLocaleString()} (${randomHours.toFixed(1)} hours from now)`);
         
-        setTimeout(async () => {
+        activeTimeouts.newsPost = setTimeout(async () => {
             console.log('⏰ Running scheduled organic post...');
             process.env.MASTODON_POST_ENABLED = 'true';
             await postSingleItem(12);
             lastNewsTweetTime = Date.now(); // Track timing for wisdom tweet collision avoidance
             
             // Schedule the next post
-            scheduleNextPost();
+            if (botIsRunning) {
+                scheduleNextPost();
+            }
         }, nextPostDelay);
     }
     
     // Schedule crypto diary generation every 2 days at 8 PM
-    const { scheduleDailyCryptoDiary } = require('./crypto_diary');
+    const { scheduleDailyCryptoDiary, setBotStateChecker } = require('./crypto_diary');
+    setBotStateChecker(() => botIsRunning); // Pass bot running state checker to diary module
     scheduleDailyCryptoDiary();
     console.log('📅 Scheduled crypto diary for 8 PM every 2 days');
     
@@ -1873,6 +1900,41 @@ async function runNewsPost() {
     lastNewsTweetTime = Date.now();
 }
 
+// Function to stop the bot
+function stopBot() {
+    console.log('🛑 Stopping TweetBot...');
+    botIsRunning = false;
+    
+    // Clear all active timeouts
+    if (activeTimeouts.newsPost) {
+        clearTimeout(activeTimeouts.newsPost);
+        activeTimeouts.newsPost = null;
+        console.log('✅ Cleared news post scheduler');
+    }
+    
+    if (activeTimeouts.wisdomPost) {
+        clearTimeout(activeTimeouts.wisdomPost);
+        activeTimeouts.wisdomPost = null;
+        console.log('✅ Cleared wisdom post scheduler');
+    }
+    
+    console.log('✅ TweetBot stopped');
+    return { success: true, message: 'Bot stopped successfully' };
+}
+
+// Function to start the bot (uses production mode by default)
+function startBot() {
+    console.log('▶️ Starting TweetBot...');
+    
+    if (botIsRunning) {
+        console.log('⚠️ Bot is already running');
+        return { success: false, message: 'Bot is already running' };
+    }
+    
+    startProductionMode();
+    return { success: true, message: 'Bot started successfully' };
+}
+
 module.exports = {
     // Runner functions
     startTestingMode,
@@ -1880,7 +1942,8 @@ module.exports = {
     postSingleItem,
     postWisdomTweet,
     runNewsPost,
-
+    stopBot,
+    startBot,
     
     // Helper functions
     generateTweet,
@@ -1896,7 +1959,8 @@ module.exports = {
     // State for API access
     get nextScheduledPost() { return nextScheduledPost; },
     get nextWisdomPost() { return nextWisdomPost; },
-    get lastNewsPostTime() { return lastNewsTweetTime; }
+    get lastNewsPostTime() { return lastNewsTweetTime; },
+    get isBotRunning() { return botIsRunning; }
 };
 
 

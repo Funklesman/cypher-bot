@@ -126,10 +126,10 @@ function formatContentForX(htmlContent, options = {}) {
       
       // Add hashtags followed by attribution
       formattedContent += extractedHashtags.join(' ');
-      formattedContent += '\nBrought to you by Cypher U - http://cypheruniversity.com';
+      formattedContent += '\nBrought to you by Kodex Academy - https://kodex.academy';
     }
     
-    console.log('Using real hashtags with Cypher University attribution');
+    console.log('Using real hashtags with Kodex Academy attribution');
     return formattedContent;
   }
 }

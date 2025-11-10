@@ -1,0 +1,107 @@
+[
+    {
+        "name": "__cuid",
+        "value": "ba66d571c8e34ff39b13806c9f521b7e",
+        "domain": "x.com",
+        "path": "/",
+        "secure": true,
+        "sameSite": "None"
+    },
+    {
+        "name": "lang",
+        "value": "en",
+        "domain": "x.com",
+        "path": "/",
+        "secure": true,
+        "sameSite": "None"
+    },
+    {
+        "name": "d_prefs",
+        "value": "MToxLGNvbnNlbnRfdmVyc2lvbjoyLHRleHRfdmVyc2lvbjoxMDAw",
+        "domain": "x.com",
+        "path": "/",
+        "secure": true,
+        "sameSite": "None"
+    },
+    {
+        "name": "guest_id_ads",
+        "value": "v1%3A174305988233259478",
+        "domain": "x.com",
+        "path": "/",
+        "secure": true,
+        "sameSite": "None"
+    },
+    {
+        "name": "guest_id_marketing",
+        "value": "v1%3A174305988233259478",
+        "domain": "x.com",
+        "path": "/",
+        "secure": true,
+        "sameSite": "None"
+    },
+    {
+        "name": "personalization_id",
+        "value": "\"v1_ubReIK/HZI9dcXyUh21h1Q==\"",
+        "domain": "x.com",
+        "path": "/",
+        "secure": true,
+        "sameSite": "None"
+    },
+    {
+        "name": "dnt",
+        "value": "1",
+        "domain": "x.com",
+        "path": "/",
+        "secure": true,
+        "sameSite": "None"
+    },
+    {
+        "name": "guest_id",
+        "value": "v1%3A176275723974699840",
+        "domain": "x.com",
+        "path": "/",
+        "secure": true,
+        "sameSite": "None"
+    },
+    {
+        "name": "gt",
+        "value": "1987774052241379438",
+        "domain": "x.com",
+        "path": "/",
+        "secure": true,
+        "sameSite": "None"
+    },
+    {
+        "name": "g_state",
+        "value": "{\"i_l\":0,\"i_ll\":1762757319717,\"i_b\":\"MDSfbk4+G7oa12As9985CcYjUONvVLiimCQK7F846/I\"}",
+        "domain": "x.com",
+        "path": "/",
+        "secure": true,
+        "sameSite": "None"
+    },
+    {
+        "name": "ct0",
+        "value": "e060db9c3d6edd94d8909b3e35e69a36efdc9b9b611bf06d0b6ffed7028d170ca380b8912f34aeab9c5f703f7c8a0e83362b57ff9d248949e8b62c3b7cd570da949e8c01816d0cf7a9648e3c6fbaaf3c",
+        "domain": "x.com",
+        "path": "/",
+        "secure": true,
+        "sameSite": "None"
+    },
+    {
+        "name": "twid",
+        "value": "u%3D1781030111204065281",
+        "domain": "x.com",
+        "path": "/",
+        "secure": true,
+        "sameSite": "None"
+    },
+    {
+        "name": "auth_token",
+        "value": "0e0bfdfecda1685ef664b25a0dbe5788ae5b9632",
+        "domain": "x.com",
+        "path": "/",
+        "secure": true,
+        "httpOnly": true,
+        "sameSite": "None"
+    }
+]
