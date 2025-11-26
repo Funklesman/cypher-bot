@@ -251,7 +251,7 @@ Think about:
 
 ## ✅ Format:
 - Markdown for web/Mastodon
-- Max 1500 words
+- Max 1200 words
 - Flowing paragraphs (no bullets, no headers in the output)
 - Start mid-thought, end with something that lingers
 
