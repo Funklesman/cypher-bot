@@ -264,7 +264,7 @@ ${JSON.stringify(articlesData, null, 2)}`;
     // Call OpenAI API
     const response = await openai.chat.completions.create({
       model: "gpt-5.1",
-      max_completion_tokens: 2200,
+      max_completion_tokens: 3500,
       messages: [
         { role: "system", content: prompt }
       ]
