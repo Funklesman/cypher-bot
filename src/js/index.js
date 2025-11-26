@@ -212,7 +212,7 @@ async function analyzeArticleContent(title, description, source) {
         if (source === 'Defiant') {
             try {
                 const sentimentResponse = await openai.chat.completions.create({
-                    model: "gpt-5",
+                    model: "gpt-5.1",
                     messages: [
                         {
                             role: "system",
@@ -296,7 +296,7 @@ Respond with a JSON object containing:
         // For other crypto-specific sources, analyze sentiment and opportunity
         try {
             const sentimentResponse = await openai.chat.completions.create({
-                model: "gpt-5",
+                model: "gpt-5.1",
                 messages: [
                     {
                         role: "system",
@@ -382,7 +382,7 @@ Description: ${description}`
         console.log('🔍 Article found relevant by keyword detection');
         try {
                     const sentimentResponse = await openai.chat.completions.create({
-            model: "gpt-5",
+            model: "gpt-5.1",
                 messages: [
                     {
                         role: "system",
@@ -418,7 +418,7 @@ Description: ${description}`
     // For all other non-obvious cases, use full AI analysis
     try {
         const response = await openai.chat.completions.create({
-            model: "gpt-5",
+            model: "gpt-5.1",
             messages: [
                 {
                     role: "system",
@@ -698,7 +698,7 @@ function scoreArticle(article) {
 async function analyzeArticleComprehensive(article) {
     try {
         const response = await openai.chat.completions.create({
-            model: "gpt-5",
+            model: "gpt-5.1",
             messages: [
                 {
                     role: "system",
@@ -1122,7 +1122,7 @@ Hashtags to include: ${hashtags.join(' ')}`;
         
         // 6. Generate the tweet content
         const response = await openai.chat.completions.create({
-            model: "gpt-5",
+            model: "gpt-5.1",
             messages: [
                 {
                     role: "system",
@@ -1178,7 +1178,7 @@ Hashtags to include: ${hashtags.join(' ')}`;
             correctionPrompt += '\nRewrite the tweet with natural flowing sentences. Just explain what happened and why it matters, without analytical framing.';
             
             const retryResponse = await openai.chat.completions.create({
-                model: "gpt-5",
+                model: "gpt-5.1",
                 messages: [
                     {
                         role: "system",
@@ -1739,7 +1739,7 @@ async function postWisdomTweet() {
         
         // Generate the wisdom tweet
         const response = await openai.chat.completions.create({
-            model: "gpt-5",
+            model: "gpt-5.1",
             messages: [
                 {
                     role: "system",
