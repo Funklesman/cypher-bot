@@ -37,7 +37,7 @@ Go to: https://console.hetzner.cloud/
 **Click "Create & Buy Now"**
 
 ### 1.3 Note Your New IP Address
-Once created, note the **IPv4 address** (e.g., `5.78.131.130`)
+Once created, note the **IPv4 address** (e.g., `5.161.250.11`)
 
 ---
 
@@ -56,7 +56,7 @@ Click **DNS** in the left sidebar
 
 **If `social` A record exists:**
 1. Click **Edit** on the existing `social` A record
-2. Update **IPv4 address** to: `46.62.208.186`
+2. Update **IPv4 address** to: `5.161.250.11`
 3. Set **Proxy status**: **DNS only** (gray cloud) ⚠️ Important!
 4. Click **Save**
 
@@ -64,7 +64,7 @@ Click **DNS** in the left sidebar
 1. Click **Add record**
 2. **Type**: A
 3. **Name**: social
-4. **IPv4 address**: 46.62.208.186
+4. **IPv4 address**: 5.161.250.11
 5. **Proxy status**: **DNS only** (gray cloud) ⚠️ Important!
 6. **TTL**: Auto
 7. Click **Save**
@@ -79,7 +79,7 @@ Check DNS propagation (usually 1-5 minutes with Cloudflare):
 dig social.cypheruniversity.com
 ```
 
-Should show: `46.62.208.186`
+Should show: `5.161.250.11`
 
 ---
 

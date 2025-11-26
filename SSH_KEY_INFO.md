@@ -45,7 +45,7 @@ In the Hetzner "Add an SSH key" dialog:
 
 ### 2. Connecting to Your Server
 
-Once server is created with IP address (e.g., 5.78.131.130):
+Once server is created with IP address (e.g., 5.161.250.11):
 
 ```bash
 ssh -i ~/.ssh/hetzner_mastodon_new root@YOUR_SERVER_IP

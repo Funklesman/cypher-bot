@@ -1830,10 +1830,10 @@ function scheduleNextWisdomTweet() {
 // Start the bot in production mode (posts every 6-8 hours with randomization)
 function startProductionMode() {
     console.log('🚀 Starting TweetBot in PRODUCTION mode');
-    console.log('📅 Tweets will be posted every 6-8 HOURS (randomized for organic feel)');
+    console.log('📅 Tweets will be posted every 8-12 HOURS (randomized for organic feel)');
     console.log('🎓 Wisdom tweets will be posted once per day (randomized timing)');
     console.log('📔 Crypto Diary will be generated EVERY 2 DAYS at 8 PM');
-    console.log('🎯 Optimized for 3-4 news posts/day + 1 wisdom tweet/day + diary every 2 days');
+    console.log('🎯 Optimized for 2-3 news posts/day + 1 wisdom tweet/day + diary every 2 days');
     
     // Clean Redis cache on startup
     cleanupRedisCache();
@@ -1843,9 +1843,9 @@ function startProductionMode() {
     
     // Schedule next post with organic timing
     function scheduleNextPost() {
-        // Random interval between 6-8 hours (6*60*60*1000 to 8*60*60*1000 milliseconds)
-        const minHours = 6;
-        const maxHours = 8;
+        // Random interval between 8-12 hours for 2-3 posts per day
+        const minHours = 8;
+        const maxHours = 12;
         const randomHours = Math.random() * (maxHours - minHours) + minHours;
         const nextPostDelay = randomHours * 60 * 60 * 1000; // Convert to milliseconds
         

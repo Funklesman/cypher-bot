@@ -3,11 +3,11 @@
 ## Quick SSH Command
 
 ```bash
-ssh -i ~/.ssh/hetzner_mastodon_new root@46.62.208.186
+ssh -i ~/.ssh/hetzner_mastodon_new root@5.161.250.11
 ```
 
 ## Server Details
-- **IP Address**: `46.62.208.186`
+- **IP Address**: `5.161.250.11`
 - **Username**: `root`
 - **SSH Key**: `~/.ssh/hetzner_mastodon_new`
 - **Server**: Hetzner Cloud CX22 `#110599164 cypher-mastodon`
@@ -20,7 +20,7 @@ ssh -i ~/.ssh/hetzner_mastodon_new root@46.62.208.186
 If you get a "host key verification" prompt, type `yes` to accept:
 
 ```
-The authenticity of host '5.78.131.130 (5.78.131.130)' can't be established.
+The authenticity of host '5.161.250.11 (5.161.250.11)' can't be established.
 ED25519 key fingerprint is SHA256:VGB/q9R/tz9mQyxE0biJuwakGsgac0r8cyVmlwPdOvA.
 Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
 ```
@@ -38,7 +38,7 @@ If you see this error:
 
 Clear the old host key:
 ```bash
-ssh-keygen -R 5.78.131.130
+ssh-keygen -R 5.161.250.11
 ```
 
 Then try connecting again.
@@ -55,7 +55,7 @@ chmod 700 ~/.ssh
 
 If you need to bypass host key checking:
 ```bash
-ssh -o StrictHostKeyChecking=no -i ~/.ssh/hetzner_mastodon root@5.78.131.130
+ssh -o StrictHostKeyChecking=no -i ~/.ssh/hetzner_mastodon_new root@5.161.250.11
 ```
 
 ## Hetzner Rescue System
@@ -71,7 +71,7 @@ If you need to access rescue mode:
 
 2. **Connect to Rescue**:
    ```bash
-   ssh root@5.78.131.130
+   ssh root@5.161.250.11
    # Use the rescue password when prompted
    ```
 

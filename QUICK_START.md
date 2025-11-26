@@ -24,7 +24,7 @@
    - **Type**: CPX11 (2GB RAM)
    - **SSH Key**: Upload `~/.ssh/hetzner_mastodon.pub`
 4. Click **"Create & Buy"**
-5. **Copy the IP address** (e.g., 5.78.131.130)
+5. **Copy the IP address** (e.g., 5.161.250.11)
 
 ---
 
@@ -34,7 +34,7 @@
 2. Click on `cypheruniversity.com` domain
 3. Go to **DNS** settings
 4. Edit the A record for `social`:
-   - IPv4 address: **46.62.208.186**
+   - IPv4 address: **5.161.250.11**
    - Proxy status: **DNS only** (gray cloud) ⚠️
 5. Save
 

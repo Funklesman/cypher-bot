@@ -16,7 +16,7 @@
 | **RAM** | 4 GB |
 | **Storage** | 40 GB SSD |
 | **Location** | Helsinki (hel1) |
-| **IPv4** | `46.62.208.186` |
+| **IPv4** | `5.161.250.11` |
 | **IPv6** | `2a01:4f9:c013:5553::/64` |
 | **Domain** | social.cypheruniversity.com |
 
@@ -37,7 +37,7 @@
 
 **Quick Command:**
 ```bash
-ssh -i ~/.ssh/hetzner_mastodon_new root@46.62.208.186
+ssh -i ~/.ssh/hetzner_mastodon_new root@5.161.250.11
 ```
 
 **SSH Key Details:**
@@ -58,7 +58,7 @@ ssh -i ~/.ssh/hetzner_mastodon_new root@46.62.208.186
 ```
 Type: A
 Name: social
-IPv4 address: 46.62.208.186
+IPv4 address: 5.161.250.11
 Proxy status: DNS only (gray cloud) - IMPORTANT for initial setup
 TTL: Auto
 ```
@@ -70,7 +70,7 @@ TTL: Auto
 dig social.cypheruniversity.com
 ```
 
-Expected output should show: `46.62.208.186`
+Expected output should show: `5.161.250.11`
 
 ---
 
@@ -226,7 +226,7 @@ free -h
 
 - [x] Server created
 - [x] SSH key configured
-- [ ] DNS updated to point to 46.62.208.186
+- [x] DNS updated to point to 5.161.250.11
 - [ ] SSH connection tested
 - [ ] Deployment script uploaded
 - [ ] Deployment script executed
