@@ -28,6 +28,7 @@ function getCryptoDiaryModule() {
 router.get('/status', async (req, res) => {
     try {
         const bot = getBotModule();
+        const diary = getCryptoDiaryModule();
         
         // Get bot state from module
         const status = {
@@ -35,6 +36,7 @@ router.get('/status', async (req, res) => {
             botSchedulerRunning: bot.isBotRunning || false, // Whether scheduler is active
             nextNewsPost: bot.nextScheduledPost || null,
             nextWisdomPost: bot.nextWisdomPost || null,
+            nextDiary: diary.nextDiary || null,
             lastNewsPostTime: bot.lastNewsPostTime || null,
             uptime: process.uptime(),
             memory: {

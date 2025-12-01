@@ -23,6 +23,9 @@ function setBotStateChecker(checker) {
   getBotRunningState = checker;
 }
 
+// Track next diary generation time
+let nextDiary = null;
+
 // Initialize OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -358,10 +361,40 @@ async function postDiaryToMastodon(content) {
 }
 
 /**
+ * Calculate next diary time (every 2 days at 8 PM)
+ */
+function calculateNextDiaryTime(isAfterRun = false) {
+  const now = new Date();
+  const next = new Date();
+  
+  // Set to 8 PM today
+  next.setHours(20, 0, 0, 0);
+  
+  // If it's already past 8 PM today, move to tomorrow
+  if (now >= next) {
+    next.setDate(next.getDate() + 1);
+  }
+  
+  // Add 1 more day for 2-day interval (if after a run, add 2 days)
+  if (isAfterRun) {
+    next.setDate(next.getDate() + 2);
+  } else {
+    // On startup, add 1 day to get to next run
+    next.setDate(next.getDate() + 1);
+  }
+  
+  return next;
+}
+
+/**
  * Schedule the diary to run every 2 days at 8 PM
  */
 function scheduleDailyCryptoDiary() {
   let dayCounter = 0;
+  
+  // Calculate initial next diary time
+  nextDiary = calculateNextDiaryTime(false);
+  console.log(`📅 Next Crypto Diary scheduled for: ${nextDiary.toLocaleString()}`);
   
   // Schedule for 8 PM local time every day, but only execute every 2 days
   cron.schedule('0 20 * * *', async () => {
@@ -369,9 +402,15 @@ function scheduleDailyCryptoDiary() {
     
     if (dayCounter % 2 === 0) {
       console.log('⏰ Running scheduled Crypto Diary generation (every 2 days)...');
-    await generateCryptoDiary();
+      await generateCryptoDiary();
+      
+      // Update next diary time after run
+      nextDiary = calculateNextDiaryTime(true);
+      console.log(`📅 Next Crypto Diary scheduled for: ${nextDiary.toLocaleString()}`);
     } else {
       console.log('⏸️ Skipping Crypto Diary today (runs every 2 days)');
+      // Update next diary time (tomorrow at 8 PM)
+      nextDiary = calculateNextDiaryTime(false);
     }
   });
   
@@ -463,5 +502,6 @@ async function storeDiaryInMongoDB(diaryContent, articles, mastodonPostData) {
 module.exports = {
   generateCryptoDiary,
   scheduleDailyCryptoDiary,
-  setBotStateChecker
+  setBotStateChecker,
+  get nextDiary() { return nextDiary; }
 }; 
