@@ -194,6 +194,15 @@ class MongoDBClient {
     await this.initPromise;
     return this.mongoService.getPostHistoryBetweenDates(startDate, endDate, limit);
   }
+  
+  /**
+   * Get the last tweet opener for variety enforcement
+   * @returns {Promise<Object|null>} - { firstWords, firstWord, category, content } or null
+   */
+  async getLastTweetOpener() {
+    await this.initPromise;
+    return this.mongoService.getLastTweetOpener();
+  }
 }
 
 module.exports = MongoDBClient; 

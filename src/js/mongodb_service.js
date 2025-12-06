@@ -579,6 +579,57 @@ class MongoDBService {
   }
 
   /**
+   * Get the most recent tweet's opening words (for variety enforcement)
+   * @returns {Promise<Object|null>} - { firstWords, content } or null
+   */
+  async getLastTweetOpener() {
+    try {
+      const lastPost = await this.collections.postHistory.findOne(
+        { postSuccess: true, content: { $exists: true, $ne: '' } },
+        { sort: { postedAt: -1 } }
+      );
+      
+      if (!lastPost || !lastPost.content) {
+        return null;
+      }
+      
+      // Extract first 5 words
+      const words = lastPost.content.trim().split(/\s+/).slice(0, 5);
+      const firstWords = words.join(' ');
+      
+      // Detect opener category
+      let category = 'unknown';
+      const firstWord = words[0] || '';
+      
+      if (/^\$/.test(firstWord)) {
+        category = 'NUMBER';
+      } else if (/^(Since|Four|Three|Two|Back|Last|After|Before|During)/.test(firstWord)) {
+        category = 'TIME';
+      } else if (/^(The|Those|That|This|These)/.test(firstWord)) {
+        category = 'THING';
+      } else if (/^(Most|Interesting|Hard|Feels|Looks|Seems|Everyone|Quietly|Meanwhile|Underneath)/.test(firstWord)) {
+        category = 'OBSERVATION';  // Also catches "Everyone's" which is overused
+      } else if (/^(Pulled|Drained|Split|Shifted|Moved|Pushed|Dumped|Flooded|Crashed)/.test(firstWord)) {
+        category = 'ACTION';
+      } else if (/^[A-Z][a-z]+/.test(firstWord) && !/^(The|Those|That|This|These|Most|Interesting|Everyone|Feels|Looks|Seems|Quietly|Meanwhile|Underneath)/.test(firstWord)) {
+        category = 'NAME';
+      }
+      
+      console.log(`📝 Last tweet opener: "${firstWords}..." (category: ${category})`);
+      
+      return {
+        firstWords,
+        firstWord,
+        category,
+        content: lastPost.content.substring(0, 100)
+      };
+    } catch (error) {
+      console.error('Error getting last tweet opener:', error);
+      return null;
+    }
+  }
+
+  /**
    * Get posts from the last X days
    * @param {number} days - Number of days to look back
    * @returns {Promise<Array>} - List of posted articles

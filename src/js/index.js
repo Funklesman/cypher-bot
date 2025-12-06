@@ -1040,12 +1040,11 @@ function pickRandom(arr) {
 
 /**
  * Select tweet mode based on sentiment and urgency
- * Phase 1: negative, positive, neutral, breaking (4 modes)
- * Future: opportunity, confirmation (6 modes total)
+ * Now includes TONE ROTATION to prevent all-negative feeds
  * 
  * @param {string} sentiment - 'positive', 'negative', or 'neutral'
  * @param {number} urgencyScore - 1-10 urgency score from article analysis
- * @returns {string} Mode name: 'negative'|'positive'|'neutral'|'breaking'
+ * @returns {string} Mode name: 'negative'|'positive'|'neutral'|'breaking'|'opportunity'
  */
 function selectTweetMode(sentiment, urgencyScore = 0) {
     // Breaking news takes priority (urgency >= 9)
@@ -1054,24 +1053,39 @@ function selectTweetMode(sentiment, urgencyScore = 0) {
         return 'breaking';
     }
     
-    // Sentiment-based routing
+    // TONE ROTATION: Even negative news can be framed constructively
+    // 30% chance to flip negative → opportunity (find the silver lining)
+    // 20% chance to flip negative → neutral (just observe, no doom)
     if (sentiment === 'negative') {
+        const roll = Math.random();
+        if (roll < 0.30) {
+            console.log('📉 Negative sentiment BUT flipping → Opportunity mode (find the upside)');
+            return 'opportunity';
+        } else if (roll < 0.50) {
+            console.log('📉 Negative sentiment BUT flipping → Neutral mode (just observe)');
+            return 'neutral';
+        }
         console.log('📉 Negative sentiment → Negative mode');
         return 'negative';
     }
     
-        if (sentiment === 'positive') {
+    // Positive stays positive, but occasionally flip to opportunity for variety
+    if (sentiment === 'positive') {
+        if (Math.random() < 0.30) {
+            console.log('📈 Positive sentiment → Opportunity mode (emphasize the door opening)');
+            return 'opportunity';
+        }
         console.log('📈 Positive sentiment → Positive mode');
         return 'positive';
     }
     
-            // Default to neutral
+    // Neutral: sometimes flip to opportunity to add energy
+    if (Math.random() < 0.25) {
+        console.log('📊 Neutral sentiment → Opportunity mode (find something interesting)');
+        return 'opportunity';
+    }
     console.log('📊 Neutral sentiment → Neutral mode');
     return 'neutral';
-        
-    // Future modes (not active in Phase 1):
-    // - 'opportunity': when hasOpportunity flag is re-enabled
-    // - 'confirmation': when isExpectedOutcome detection is added
 }
 
 // ============================================================================
@@ -1105,9 +1119,35 @@ async function generateTweet(event, retryCount = 0) {
         const selectedMode = selectTweetMode(sentiment, urgencyScore);
         
         // 4. Build V2 system prompt for selected mode
-        const systemPrompt = promptsV2.buildSystemPrompt(selectedMode);
+        let systemPrompt = promptsV2.buildSystemPrompt(selectedMode);
         const promptType = `v2-${selectedMode}`;
         console.log(`✅ Using V2 prompt system: ${promptType}`);
+        
+        // 4b. Get last tweet opener to enforce variety
+        const lastTweetOpener = await dbClient.getLastTweetOpener();
+        if (lastTweetOpener) {
+            const varietyInstruction = `
+
+🚨 VARIETY ENFORCEMENT — YOUR LAST TWEET STARTED WITH:
+"${lastTweetOpener.firstWords}..."
+Category: ${lastTweetOpener.category}
+
+THIS TWEET MUST:
+- Start with a COMPLETELY DIFFERENT first word (not "${lastTweetOpener.firstWord}")
+- Use a DIFFERENT opener category (not ${lastTweetOpener.category})
+- Have a DIFFERENT sentence structure
+
+If your last tweet started with a ${lastTweetOpener.category}, pick from: ${
+    lastTweetOpener.category === 'NAME' ? 'NUMBER, TIME, ACTION, THING, or OBSERVATION' :
+    lastTweetOpener.category === 'NUMBER' ? 'NAME, TIME, ACTION, THING, or OBSERVATION' :
+    lastTweetOpener.category === 'TIME' ? 'NAME, NUMBER, ACTION, THING, or OBSERVATION' :
+    lastTweetOpener.category === 'ACTION' ? 'NAME, NUMBER, TIME, THING, or OBSERVATION' :
+    lastTweetOpener.category === 'THING' ? 'NAME, NUMBER, TIME, ACTION, or OBSERVATION' :
+    'NAME, NUMBER, TIME, ACTION, or THING'
+}`;
+            systemPrompt += varietyInstruction;
+            console.log(`🔄 Variety enforcement: Last tweet was ${lastTweetOpener.category}, must use different category`);
+        }
         
         // 5. Build minimal user prompt (let system prompt lead)
         const userPrompt = `Article Title: ${event.title}

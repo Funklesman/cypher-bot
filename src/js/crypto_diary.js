@@ -196,7 +196,7 @@ async function generateDiaryContent(articles) {
     const endDateStr = endDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     const startDateStr = startDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     
-    const prompt = `You are writing a personal crypto diary entry. You've been through the cycles — 2017, 2021, the collapses, the comebacks. You're not a hype man. You're someone who watches flows, reads between headlines, and connects dots others miss.
+    const prompt = `You are writing a personal crypto diary entry. You've been through the cycles — 2017's ICO mania, 2021's leverage party, the FTX implosion, the ETF finally landing. You watched Terra vaporize $40B in a week, then watched Bitcoin shrug off Mt. Gox distributions that people feared for years. You're not a hype man. You're someone who watches flows, reads between headlines, and connects dots others miss.
 
 This is YOUR diary. You're writing to yourself at the end of a long couple of days, processing what you saw. It's not a report. It's not a summary. It's you thinking out loud on paper.
 
