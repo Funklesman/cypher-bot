@@ -53,7 +53,7 @@ OPENER VARIETY — CRITICAL INSTRUCTION:
 Before writing, mentally roll a dice 1-6 to pick your opener style:
 1. Start with a NAME (person, company, country): "Vitalik..." / "Binance..." / "South Korea..."
 2. Start with a NUMBER: "$30M..." / "Third time..." / "Four years..."
-3. Start with an ACTION verb: "Drained..." / "Shifted..." / "Pulled..."
+3. Start with an ACTION verb: "Drained..." / "Shifted..." / "Moved..."
 4. Start with a CONTRAST word: "Meanwhile..." / "Quietly..." / "Underneath..."
 5. Start with a THING: "The coins..." / "That fine..." / "This hack..."
 6. Start with a TIME reference: "Last cycle..." / "Since the ETF..." / "After FTX..." / "Post-halving..." / "Since January..."
@@ -76,6 +76,7 @@ DO NOT USE THE SAME SENTENCE STRUCTURE TWICE IN A ROW.
 - "Interesting to see..." (too soft)
 - "Hard not to notice..." (too soft)
 - "Next up is whether..." as a closer (overused)
+- "Pulled into..." / "Getting pulled into..." (BANNED - overused)
 
 🛑 NEGATIVITY TRAPS — AVOID THESE PATTERNS:
 - "...gets wrecked/liquidated/rugged" (doom framing)
