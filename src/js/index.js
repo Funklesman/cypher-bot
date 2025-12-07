@@ -1184,7 +1184,7 @@ Return JSON: {"scores": {"punchLine": 0-2, "insight": 0-2, "stance": 0-2, "fresh
                 }
             ],
             response_format: { type: "json_object" },
-            max_tokens: 300
+            max_completion_tokens: 300
         });
 
         const result = JSON.parse(response.choices[0].message.content);
@@ -1326,14 +1326,29 @@ async function generateTweet(event, retryCount = 0) {
         const hashtags = await generateDynamicHashtags(event.title, event.description);
         console.log('Generated hashtags:', hashtags);
         
-        // 1b. Topic cooldown check — don't tweet about same topic twice in a row
-        if (hashtags && hashtags.length > 0) {
-            const primaryHashtag = hashtags[0].replace('#', '').toLowerCase();
-            const recentHashtags = await dbClient.getRecentPrimaryHashtags(3);
+        // 1b. Topic cooldown check — use SPECIFIC hashtag, not generic ones like #Bitcoin
+        if (hashtags && hashtags.length > 1) {
+            // Generic hashtags that shouldn't trigger cooldown (they're in almost every tweet)
+            const genericHashtags = ['bitcoin', 'btc', 'ethereum', 'eth', 'crypto', 'cryptocurrency'];
             
-            if (recentHashtags.includes(primaryHashtag)) {
-                console.log(`⚠️ Topic cooldown: #${primaryHashtag} was tweeted recently. Skipping to avoid repetition.`);
-                return null;
+            // Find the first specific (non-generic) hashtag
+            let topicHashtag = null;
+            for (const tag of hashtags) {
+                const cleanTag = tag.replace('#', '').toLowerCase();
+                if (!genericHashtags.includes(cleanTag)) {
+                    topicHashtag = cleanTag;
+                    break;
+                }
+            }
+            
+            // Only apply cooldown if we found a specific topic hashtag
+            if (topicHashtag) {
+                const recentHashtags = await dbClient.getRecentPrimaryHashtags(3);
+                if (recentHashtags.includes(topicHashtag)) {
+                    console.log(`⚠️ Topic cooldown: #${topicHashtag} was tweeted recently. Skipping to avoid repetition.`);
+                    return null;
+                }
+                console.log(`📌 Topic hashtag for cooldown check: #${topicHashtag}`);
             }
         }
         
@@ -1423,9 +1438,9 @@ Hashtags to include: ${hashtags.join(' ')}`;
         const colonLabelRegex = /^(?:[A-Za-z][A-Za-z ]{0,24}|Who|What|Why|Pattern|Translation|Observation)\s*:\s/m;
         const aggressiveOpenerRegex = /^(Pulled|Drained|Ripped|Crushed|Yanked|Stripped|Torn|Gutted|Slammed|Shattered)\b/i;
         const doomCloserRegex = /(or go underground|becomes a crime scene|nowhere soft to land|this won't end well|nowhere to hide)\s*[.!?\s]*[#\u{1F300}-\u{1F9FF}]*\s*$/iu;
-        
+            
         const hasViolation = colonLabelRegex.test(content) || aggressiveOpenerRegex.test(content) || doomCloserRegex.test(content);
-        
+            
         if (hasViolation) {
             console.log('⚠️ S-Class output still has hard violations - rejecting');
             return null;

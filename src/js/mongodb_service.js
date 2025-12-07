@@ -646,12 +646,18 @@ class MongoDBService {
       }
       
       const hashtags = [];
+      const genericHashtags = ['bitcoin', 'btc', 'ethereum', 'eth', 'crypto', 'cryptocurrency'];
+      
       for (const post of recentPosts) {
         const content = post.content || '';
-        // Extract first hashtag (primary topic)
-        const match = content.match(/#([A-Za-z0-9]+)/);
-        if (match) {
-          hashtags.push(match[1].toLowerCase());
+        // Extract all hashtags and find the first SPECIFIC one (not generic)
+        const allMatches = content.match(/#([A-Za-z0-9]+)/g) || [];
+        for (const match of allMatches) {
+          const tag = match.replace('#', '').toLowerCase();
+          if (!genericHashtags.includes(tag)) {
+            hashtags.push(tag);
+            break; // Only take first specific hashtag per post
+          }
         }
       }
       
