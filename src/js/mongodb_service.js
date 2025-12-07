@@ -630,6 +630,94 @@ class MongoDBService {
   }
 
   /**
+   * Get primary hashtags from recent tweets for topic cooldown
+   * @param {number} count - Number of recent tweets to check
+   * @returns {Promise<string[]>} - Array of primary hashtags
+   */
+  async getRecentPrimaryHashtags(count = 3) {
+    try {
+      const recentPosts = await this.collections.postHistory.find(
+        { postSuccess: true, content: { $exists: true, $ne: '' } },
+        { sort: { postedAt: -1 }, limit: count }
+      ).toArray();
+      
+      if (!recentPosts || recentPosts.length === 0) {
+        return [];
+      }
+      
+      const hashtags = [];
+      for (const post of recentPosts) {
+        const content = post.content || '';
+        // Extract first hashtag (primary topic)
+        const match = content.match(/#([A-Za-z0-9]+)/);
+        if (match) {
+          hashtags.push(match[1].toLowerCase());
+        }
+      }
+      
+      console.log(`📌 Recent primary hashtags:`, hashtags);
+      return hashtags;
+    } catch (error) {
+      console.error('Error getting recent hashtags:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get key phrases from recent tweets to avoid repetition
+   * @param {number} count - Number of recent tweets to check
+   * @returns {Promise<string[]>} - Array of distinctive phrases
+   */
+  async getRecentPhrases(count = 5) {
+    try {
+      const recentPosts = await this.collections.postHistory.find(
+        { postSuccess: true, content: { $exists: true, $ne: '' } },
+        { sort: { postedAt: -1 }, limit: count }
+      ).toArray();
+      
+      if (!recentPosts || recentPosts.length === 0) {
+        return [];
+      }
+      
+      const phrases = [];
+      
+      // Patterns to extract distinctive phrases
+      const phrasePatterns = [
+        /Same \d+ [A-Z]+ on-chain[^.]+/gi,           // "Same 1 BTC on-chain..."
+        /Post-[A-Z][a-zA-Z]+/g,                       // "Post-FTX", "Post-ETF"
+        /Since the [A-Z][a-zA-Z]+/gi,                 // "Since the ETF..."
+        /from [a-z]+ rails to [a-z]+ rails/gi,        // "from degen rails to compliant rails"
+        /suits instead of [a-z]+ [A-Z]+s/gi,          // "suits instead of anon PFPs"
+        /shadow [a-z]+s?:/gi,                         // "shadow regulators"
+        /regime change/gi,
+        /What I'm watching/gi,
+      ];
+      
+      for (const post of recentPosts) {
+        const content = post.content || '';
+        for (const pattern of phrasePatterns) {
+          const matches = content.match(pattern);
+          if (matches) {
+            phrases.push(...matches.map(m => m.trim()));
+          }
+        }
+      }
+      
+      // Deduplicate and limit
+      const uniquePhrases = [...new Set(phrases)].slice(0, 10);
+      
+      if (uniquePhrases.length > 0) {
+        console.log(`🔍 Found ${uniquePhrases.length} recent phrases to avoid:`, uniquePhrases);
+      }
+      
+      return uniquePhrases;
+    } catch (error) {
+      console.error('Error getting recent phrases:', error);
+      return [];
+    }
+  }
+
+  /**
    * Get posts from the last X days
    * @param {number} days - Number of days to look back
    * @returns {Promise<Array>} - List of posted articles

@@ -203,6 +203,26 @@ class MongoDBClient {
     await this.initPromise;
     return this.mongoService.getLastTweetOpener();
   }
+
+  /**
+   * Get recent phrases to avoid repetition
+   * @param {number} count - Number of recent tweets to check
+   * @returns {Promise<string[]>} - Array of distinctive phrases
+   */
+  async getRecentPhrases(count = 5) {
+    await this.initPromise;
+    return this.mongoService.getRecentPhrases(count);
+  }
+
+  /**
+   * Get recent primary hashtags for topic cooldown
+   * @param {number} count - Number of recent tweets to check
+   * @returns {Promise<string[]>} - Array of primary hashtags
+   */
+  async getRecentPrimaryHashtags(count = 3) {
+    await this.initPromise;
+    return this.mongoService.getRecentPrimaryHashtags(count);
+  }
 }
 
 module.exports = MongoDBClient; 

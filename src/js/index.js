@@ -1096,12 +1096,246 @@ function selectTweetMode(sentiment, urgencyScore = 0) {
 // opportunityPrompt, generateDynamicSystemPrompt(), getPromptVariation()
 // Replaced by V2 system using tweet_prompts_v2.js
 
+// ============================================================================
+// S-CLASS QUALITY SYSTEM
+// ============================================================================
+
+/**
+ * Evaluate tweet quality on S-class criteria
+ * Returns score 1-10 and specific improvement feedback
+ */
+async function evaluateTweetQuality(tweet, recentPhrases = []) {
+    try {
+        // FIRST: Check for hard rule violations (automatic penalties)
+        const colonLabelRegex = /^(?:[A-Za-z][A-Za-z ]{0,24}|Who|What|Why|Pattern|Translation|Observation)\s*:\s/m;
+        const aggressiveOpenerRegex = /^(Pulled|Drained|Ripped|Crushed|Yanked|Stripped|Torn|Gutted|Slammed|Shattered)\b/i;
+        const doomCloserRegex = /(or go underground|becomes a crime scene|nowhere soft to land|this won't end well|nowhere to hide)\s*[.!?\s]*[#\u{1F300}-\u{1F9FF}]*\s*$/iu;
+        
+        let rulePenalty = 0;
+        let ruleViolations = [];
+        
+        if (colonLabelRegex.test(tweet)) {
+            rulePenalty += 3;
+            ruleViolations.push('colon-label');
+        }
+        if (aggressiveOpenerRegex.test(tweet)) {
+            rulePenalty += 3;
+            ruleViolations.push('aggressive-opener');
+        }
+        if (doomCloserRegex.test(tweet)) {
+            rulePenalty += 2;
+            ruleViolations.push('doom-closer');
+        }
+        
+        // Check for repeated phrases from recent tweets
+        const lowerTweet = tweet.toLowerCase();
+        for (const phrase of recentPhrases) {
+            if (lowerTweet.includes(phrase.toLowerCase())) {
+                rulePenalty += 2;
+                ruleViolations.push(`repeated-phrase: "${phrase}"`);
+                break; // Only penalize once for repetition
+            }
+        }
+        
+        if (ruleViolations.length > 0) {
+            console.log(`⚠️ Rule violations detected: ${ruleViolations.join(', ')} (penalty: -${rulePenalty})`);
+        }
+        
+        // SECOND: AI quality evaluation
+        const response = await openai.chat.completions.create({
+            model: "gpt-5-mini",
+            messages: [
+                {
+                    role: "system",
+                    content: `You are a harsh tweet quality evaluator for a crypto news account. Rate this tweet on S-CLASS criteria.
+
+Score each dimension 0-2 points:
+
+1. PUNCH LINE (0-2): Is there ONE line quotable enough to screenshot?
+   - 0: No memorable line
+   - 1: Decent line but not screenshot-worthy
+   - 2: Sharp, quotable, makes you think "damn"
+
+2. INSIGHT (0-2): Does it add value beyond what any headline says?
+   - 0: Just rephrases the news
+   - 1: Adds some context
+   - 2: Reveals something only someone paying attention would notice
+
+3. STANCE (0-2): Does it take a clear position?
+   - 0: Wishy-washy, hedge-y, "we'll see"
+   - 1: Has a lean but plays it safe
+   - 2: Clear take, not afraid to be wrong
+
+4. FRESHNESS (0-2): Original metaphors/phrases, not recycled?
+   - 0: Uses clichés or generic crypto phrases
+   - 1: Mostly fresh but some generic parts
+   - 2: Every phrase feels original and earned
+
+5. STRUCTURE (0-2): Good opener, closer, length, flow?
+   - 0: Formulaic, awkward, or too long/short
+   - 1: Solid but predictable
+   - 2: Flows naturally, surprising structure
+
+Return JSON: {"scores": {"punchLine": 0-2, "insight": 0-2, "stance": 0-2, "freshness": 0-2, "structure": 0-2}, "total": 0-10, "weakest": "dimension name", "improvement": "specific fix for weakest dimension"}`
+                },
+                {
+                    role: "user",
+                    content: `Rate this tweet:\n\n${tweet}`
+                }
+            ],
+            response_format: { type: "json_object" },
+            max_tokens: 300
+        });
+
+        const result = JSON.parse(response.choices[0].message.content);
+        const rawScore = result.total;
+        
+        // Apply rule penalties to the score
+        const adjustedTotal = Math.max(0, rawScore - rulePenalty);
+        
+        // If rule violations exist, they become the weakest point
+        if (ruleViolations.length > 0) {
+            result.weakest = ruleViolations[0];
+            result.improvement = `Fix rule violation: ${ruleViolations[0]}`;
+        }
+        
+        result.total = adjustedTotal;
+        result.rawScore = rawScore;
+        result.ruleViolations = ruleViolations;
+        
+        console.log(`📊 Quality Score: ${adjustedTotal}/10 (raw: ${rawScore}, penalty: -${rulePenalty}) | Weakest: ${result.weakest}`);
+        return result;
+    } catch (error) {
+        console.error('Error evaluating tweet quality:', error);
+        // Default to passing if evaluation fails
+        return { total: 8, weakest: 'unknown', improvement: 'Could not evaluate', ruleViolations: [] };
+    }
+}
+
+/**
+ * Generate improvement prompt based on quality evaluation
+ */
+function buildImprovementPrompt(evaluation) {
+    // Handle rule violations first (they're the priority)
+    if (evaluation.ruleViolations && evaluation.ruleViolations.length > 0) {
+        const violation = evaluation.ruleViolations[0];
+        
+        if (violation === 'colon-label') {
+            return `CRITICAL RULE VIOLATION: You used colon-labels (like "Pattern:", "Translation:"). Remove ALL colon-labels. Write flowing sentences instead. Start mid-thought, not with a category label.`;
+        }
+        if (violation === 'aggressive-opener') {
+            return `CRITICAL RULE VIOLATION: You started with an aggressive doom verb ("Pulled", "Drained", "Crushed", etc.). Start with a NEUTRAL verb: "Shifted", "Moved", "Split", "Launched", "Added". Or start with a name, number, or time reference.`;
+        }
+        if (violation === 'doom-closer') {
+            return `CRITICAL RULE VIOLATION: You ended with doom prediction ("won't end well", "nowhere to hide", etc.). End with what to WATCH, what CHANGED, or what CHOICES actors face. Not doom.`;
+        }
+        if (violation.startsWith('repeated-phrase')) {
+            return `CRITICAL: You reused a phrase from recent tweets. Create COMPLETELY FRESH metaphors. Every phrase must feel original to this tweet.`;
+        }
+    }
+    
+    // Handle quality dimension weaknesses
+    const prompts = {
+        punchLine: `CRITICAL: Your tweet lacks a PUNCH LINE. Add ONE line that's sharp enough to screenshot. Example: "Same 1 BTC on-chain, very different 1 BTC in the eyes of compliance." Make it hit hard.`,
+        insight: `CRITICAL: Your tweet just rephrases the news. Add YOUR insight — what do YOU know about this that the headline doesn't say? What pattern does this connect to?`,
+        stance: `CRITICAL: Your tweet is too hedge-y. Take a CLEAR STANCE. Not doom, but a real opinion. "This matters because..." or "Everyone thinks X, but actually Y."`,
+        freshness: `CRITICAL: Your tweet uses recycled phrases. Create ORIGINAL metaphors. Don't use: "What I'm watching is...", "Same X on-chain", or any phrase from recent tweets.`,
+        structure: `CRITICAL: Your tweet structure is formulaic. Try a different opener category. Try a different closer style. Make it flow naturally, not predictably.`
+    };
+    
+    return prompts[evaluation.weakest] || evaluation.improvement;
+}
+
+/**
+ * S-Class tweet generation with quality gate
+ * Will retry up to 3 times to get a quality tweet (score 8+)
+ * @param {Object} event - The article event
+ * @param {string} systemPrompt - The system prompt (already includes phrase bans)
+ * @param {string} userPrompt - The user prompt
+ * @param {Array} hashtags - Generated hashtags
+ * @param {string} promptType - The prompt type identifier
+ * @param {Array} recentPhrases - Recently used phrases (passed from caller to avoid duplicate DB call)
+ */
+async function generateSClassTweet(event, systemPrompt, userPrompt, hashtags, promptType, recentPhrases = []) {
+    const MAX_ATTEMPTS = 3;
+    const QUALITY_THRESHOLD = 8;
+    
+    let bestTweet = null;
+    let bestScore = 0;
+    let attempts = [];
+    
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+        console.log(`\n🎯 S-Class Generation Attempt ${attempt}/${MAX_ATTEMPTS}`);
+        
+        // Build prompt with any improvement feedback from previous attempts
+        let currentPrompt = systemPrompt;
+        if (attempts.length > 0) {
+            const lastAttempt = attempts[attempts.length - 1];
+            const improvementPrompt = buildImprovementPrompt(lastAttempt.evaluation);
+            currentPrompt += `\n\n🚨 IMPROVEMENT REQUIRED:\n${improvementPrompt}\n\nYour previous attempt scored ${lastAttempt.evaluation.total}/10. You need ${QUALITY_THRESHOLD}+ to pass.`;
+        }
+        
+        // Generate tweet
+        const response = await openai.chat.completions.create({
+            model: "gpt-5.1",
+            messages: [
+                { role: "system", content: currentPrompt },
+                { role: "user", content: userPrompt }
+            ],
+            max_completion_tokens: 4000
+        });
+        
+        let content = response.choices[0].message.content.trim();
+        console.log(`📏 Generated: ${content.length} chars`);
+        
+        // Evaluate quality
+        const evaluation = await evaluateTweetQuality(content, recentPhrases);
+        
+        attempts.push({ content, evaluation });
+        
+        // Track best attempt
+        if (evaluation.total > bestScore) {
+            bestScore = evaluation.total;
+            bestTweet = content;
+        }
+        
+        // Check if we passed
+        if (evaluation.total >= QUALITY_THRESHOLD) {
+            console.log(`✅ S-Class achieved! Score: ${evaluation.total}/10`);
+            return { content, promptType, qualityScore: evaluation.total, attempts: attempt };
+        }
+        
+        console.log(`⚠️ Score ${evaluation.total}/10 below threshold ${QUALITY_THRESHOLD}. ${attempt < MAX_ATTEMPTS ? 'Retrying...' : 'Using best attempt.'}`);
+    }
+    
+    // If no attempt passed, use the best one if it's at least 6
+    if (bestScore >= 6) {
+        console.log(`📉 No S-Class achieved. Using best attempt (score: ${bestScore}/10)`);
+        return { content: bestTweet, promptType, qualityScore: bestScore, attempts: MAX_ATTEMPTS };
+    }
+    
+    // If even best attempt is below 6, reject
+    console.log(`❌ All attempts below quality floor. Best score: ${bestScore}/10. Skipping article.`);
+    return null;
+}
+
 // Generate tweet content using OpenAI with dynamic components (V2 System)
 async function generateTweet(event, retryCount = 0) {
     try {
         // 1. Generate relevant hashtags
         const hashtags = await generateDynamicHashtags(event.title, event.description);
         console.log('Generated hashtags:', hashtags);
+        
+        // 1b. Topic cooldown check — don't tweet about same topic twice in a row
+        if (hashtags && hashtags.length > 0) {
+            const primaryHashtag = hashtags[0].replace('#', '').toLowerCase();
+            const recentHashtags = await dbClient.getRecentPrimaryHashtags(3);
+            
+            if (recentHashtags.includes(primaryHashtag)) {
+                console.log(`⚠️ Topic cooldown: #${primaryHashtag} was tweeted recently. Skipping to avoid repetition.`);
+                return null;
+            }
+        }
         
         // 2. Analyze sentiment and relevance
         const analysis = await analyzeArticleContent(event.title, event.description, event.source);
@@ -1149,6 +1383,18 @@ If your last tweet started with a ${lastTweetOpener.category}, pick from: ${
             console.log(`🔄 Variety enforcement: Last tweet was ${lastTweetOpener.category}, must use different category`);
         }
         
+        // 4c. Get recent phrases to avoid repetition
+        const recentPhrases = await dbClient.getRecentPhrases(5);
+        if (recentPhrases && recentPhrases.length > 0) {
+            const phraseInstruction = `
+
+🚫 RECENTLY USED PHRASES — DO NOT REUSE:
+${recentPhrases.map(p => `- "${p}"`).join('\n')}
+
+Each tweet needs FRESH metaphors and phrases. Don't recycle.`;
+            systemPrompt += phraseInstruction;
+        }
+        
         // 5. Build minimal user prompt (let system prompt lead)
         const userPrompt = `Article Title: ${event.title}
 
@@ -1160,134 +1406,32 @@ Source: ${event.source}
 
 Hashtags to include: ${hashtags.join(' ')}`;
         
-        // 6. Generate the tweet content
-        const response = await openai.chat.completions.create({
-            model: "gpt-5.1",
-            messages: [
-                {
-                    role: "system",
-                    content: systemPrompt,
-                },
-                {
-                    role: "user",
-                    content: userPrompt,
-                },
-            ],
-            max_completion_tokens: 4000,
-        });
+        // 6. S-CLASS QUALITY GENERATION
+        // Uses quality scoring, multiple retries, and improvement feedback
+        console.log('\n🎯 Starting S-Class tweet generation...');
+        const sClassResult = await generateSClassTweet(event, systemPrompt, userPrompt, hashtags, promptType, recentPhrases);
         
-        let content = response.choices[0].message.content.trim();
-        console.log(`📏 Content length: ${content.length} characters`);
-        
-        // 7. SERVER-SIDE VALIDATION: Check for banned patterns (V2 System)
-        
-        // Primary check: Colon-labels (e.g., "What happened:", "Pattern:")
-        const colonLabelRegex = /^(?:[A-Za-z][A-Za-z ]{0,24}|Who|What|Why|Pattern|Translation|Observation)\s*:\s/m;
-        const midSentenceRegex = /(?:^|\.\s)([A-Za-z ]{2,24}):\s/g;
-        
-        // Secondary check: Soft meta-phrases (e.g., "The tell is", "Follow the money")
-        const metaPhraseRegex = /\b(the tell is|follow the money|watch for|the point is|here's the thing|key insight|one observation|one insight|my take|the real story|bottom line|takeaway|net effect|in short|tl;dr)\b/gi;
-        
-        // NEW: Aggressive opener check (first word sets doom tone)
-        const aggressiveOpenerRegex = /^(Pulled|Drained|Ripped|Crushed|Yanked|Stripped|Torn|Gutted|Slammed|Shattered)\b/i;
-        
-        // NEW: Doom closer check (ending with doom predictions)
-        const doomCloserRegex = /(or go underground|becomes a crime scene|nowhere soft to land|this won't end well|nowhere to hide|and that's when things get ugly|won't end well|before it's too late|while you still can|the clock is ticking)\s*[.!?\s]*[#\u{1F300}-\u{1F9FF}]*\s*$/iu;
-        
-        const hasColonLabel = colonLabelRegex.test(content) || midSentenceRegex.test(content);
-        const hasMetaPhrase = metaPhraseRegex.test(content);
-        const hasAggressiveOpener = aggressiveOpenerRegex.test(content);
-        const hasDoomCloser = doomCloserRegex.test(content);
-        const hasAnyViolation = hasColonLabel || hasMetaPhrase || hasAggressiveOpener || hasDoomCloser;
-        
-        if (hasAnyViolation && retryCount === 0) {
-            // Determine what type of violation occurred
-            let violationType = [];
-            let correctionPrompt = 'CRITICAL: Your previous output contained banned patterns.\n\n';
-            
-            if (hasColonLabel) {
-                violationType.push('colon-labels');
-                const colonMatches = content.match(colonLabelRegex) || [];
-                const midMatches = content.match(midSentenceRegex) || [];
-                console.log('⚠️ Colon-labels detected:', [...colonMatches, ...midMatches].join(', '));
-                correctionPrompt += 'NO colon-labels: Remove phrases like "What happened:", "Pattern:", "Translation:" at line start or after periods.\n';
-            }
-            
-            if (hasMetaPhrase) {
-                violationType.push('meta-phrases');
-                const metaMatches = content.match(metaPhraseRegex) || [];
-                console.log('⚠️ Meta-phrases detected:', metaMatches.join(', '));
-                correctionPrompt += 'NO meta-phrases: Remove analytical scaffolding like "The tell is", "Follow the money", "Watch for", "Here\'s the thing".\n';
-            }
-            
-            if (hasAggressiveOpener) {
-                violationType.push('aggressive-opener');
-                const openerMatch = content.match(aggressiveOpenerRegex);
-                console.log('⚠️ Aggressive opener detected:', openerMatch ? openerMatch[0] : 'unknown');
-                correctionPrompt += 'NO aggressive openers: Do NOT start with "Pulled", "Drained", "Ripped", "Crushed", etc. Use neutral verbs like "Shifted", "Moved", "Split", "Added", "Launched".\n';
-            }
-            
-            if (hasDoomCloser) {
-                violationType.push('doom-closer');
-                const doomMatch = content.match(doomCloserRegex);
-                console.log('⚠️ Doom closer detected:', doomMatch ? doomMatch[0] : 'unknown');
-                correctionPrompt += 'NO doom predictions at the end: Do NOT end with "or go underground", "becomes a crime scene", "nowhere soft to land". End with what to WATCH FOR, what CHANGED, or what CHOICES actors face.\n';
-            }
-            
-            console.log(`⚠️ Violations found: ${violationType.join(' + ')} - triggering rewrite...`);
-            
-            // Retry with explicit correction
-            correctionPrompt += '\nRewrite the tweet with natural flowing sentences. Use a neutral opener and end with observation, not doom prediction.';
-            
-            const retryResponse = await openai.chat.completions.create({
-                model: "gpt-5.1",
-                messages: [
-                    {
-                        role: "system",
-                        content: systemPrompt + "\n\n" + correctionPrompt,
-                    },
-                    {
-                        role: "user",
-                        content: userPrompt,
-                    },
-                ],
-                max_completion_tokens: 4000,
-            });
-            
-            content = retryResponse.choices[0].message.content.trim();
-            console.log(`🔄 Rewrite complete. New length: ${content.length} characters`);
-            
-            // Check again after rewrite
-            const stillHasColonLabel = colonLabelRegex.test(content) || midSentenceRegex.test(content);
-            const stillHasMetaPhrase = metaPhraseRegex.test(content);
-            const stillHasAggressiveOpener = aggressiveOpenerRegex.test(content);
-            const stillHasDoomCloser = doomCloserRegex.test(content);
-            const stillHasViolation = stillHasColonLabel || stillHasMetaPhrase || stillHasAggressiveOpener || stillHasDoomCloser;
-            
-            if (stillHasViolation) {
-                console.log('❌ Rewrite still contains violations. Discarding this article.');
-                if (stillHasColonLabel) {
-                    console.log('🔍 Remaining colon-labels:', content.match(colonLabelRegex) || content.match(midSentenceRegex));
-                }
-                if (stillHasMetaPhrase) {
-                    console.log('🔍 Remaining meta-phrases:', content.match(metaPhraseRegex));
-                }
-                if (stillHasAggressiveOpener) {
-                    console.log('🔍 Remaining aggressive opener:', content.match(aggressiveOpenerRegex));
-                }
-                if (stillHasDoomCloser) {
-                    console.log('🔍 Remaining doom closer:', content.match(doomCloserRegex));
-                }
-                return null; // Article will be skipped
-            }
-            
-            console.log('✅ Rewrite successful - no violations detected');
-        } else if (hasAnyViolation && retryCount > 0) {
-            console.log('❌ Violations persist after retry. Discarding article.');
+        if (!sClassResult) {
+            console.log('❌ S-Class generation failed - no quality tweet produced');
             return null;
-        } else if (!hasAnyViolation) {
-            console.log('✅ No violations detected - content passes validation');
         }
+        
+        let content = sClassResult.content;
+        console.log(`📊 Final quality score: ${sClassResult.qualityScore}/10 (${sClassResult.attempts} attempts)`);
+        
+        // 7. FINAL SAFETY CHECK: Hard rule violations (should be rare after S-Class)
+        const colonLabelRegex = /^(?:[A-Za-z][A-Za-z ]{0,24}|Who|What|Why|Pattern|Translation|Observation)\s*:\s/m;
+        const aggressiveOpenerRegex = /^(Pulled|Drained|Ripped|Crushed|Yanked|Stripped|Torn|Gutted|Slammed|Shattered)\b/i;
+        const doomCloserRegex = /(or go underground|becomes a crime scene|nowhere soft to land|this won't end well|nowhere to hide)\s*[.!?\s]*[#\u{1F300}-\u{1F9FF}]*\s*$/iu;
+        
+        const hasViolation = colonLabelRegex.test(content) || aggressiveOpenerRegex.test(content) || doomCloserRegex.test(content);
+        
+        if (hasViolation) {
+            console.log('⚠️ S-Class output still has hard violations - rejecting');
+            return null;
+        }
+        
+        console.log('✅ S-Class tweet passed all checks');
         
         // 8. Additional validation checks
         const emojiCount = (content.match(/[\u{1F300}-\u{1F9FF}]/gu) || []).length;
@@ -1302,10 +1446,12 @@ Hashtags to include: ${hashtags.join(' ')}`;
         // Check if urgent
         await dbClient.checkUrgentNews(event);
         
-        // Return both the content and the prompt type
+        // Return both the content and the prompt type with quality metadata
         return {
             content: content,
-            promptType: promptType
+            promptType: sClassResult.promptType,
+            qualityScore: sClassResult.qualityScore,
+            attempts: sClassResult.attempts
         };
     } catch (error) {
         console.error('Error generating tweet:', error);
@@ -1355,10 +1501,10 @@ async function postToMastodon(content, article, skipDuplicateCheck = false) {
                 return null;
             }
 
-            // Check topic similarity
+            // Check topic similarity (lowered threshold to catch more duplicates)
             const topicSimilarity = await contentDeduplicator.calculateTopicSimilarity(article);
-            if (topicSimilarity > 0.7) {
-                console.log('⚠️ Similar topic recently covered, skipping...');
+            if (topicSimilarity > 0.5) {
+                console.log(`⚠️ Similar topic recently covered (similarity: ${topicSimilarity.toFixed(2)}), skipping...`);
                 return null;
             }
         } else {
@@ -1551,12 +1697,15 @@ async function postSingleItem(maxAgeHours = 12) {
                     console.log(`✅ Posted to Mastodon: ${result.url}`);
                     console.log(`📱 View your post at: ${result.url}`);
                     
-                    // Make sure the article has the scores explicitly set (this ensures they get passed to MongoDB)
-                    if (event.importanceScore) {
-                        console.log(`📊 Storing importance score: ${event.importanceScore}/10`);
+                    // Log quality and importance metrics
+                    if (contentObj.qualityScore) {
+                        console.log(`⭐ S-Class Quality Score: ${contentObj.qualityScore}/10`);
                     }
-                    if (event.urgencyScore) {
-                        console.log(`🚨 Storing urgency score: ${event.urgencyScore}/10`);
+                    if (event.importanceScore) {
+                        console.log(`📊 Article Importance: ${event.importanceScore}/10`);
+                    }
+                    if (contentObj.attempts && contentObj.attempts > 1) {
+                        console.log(`🔄 Generation attempts: ${contentObj.attempts}`);
                     }
                 }
             } else {
