@@ -1188,9 +1188,17 @@ Hashtags to include: ${hashtags.join(' ')}`;
         // Secondary check: Soft meta-phrases (e.g., "The tell is", "Follow the money")
         const metaPhraseRegex = /\b(the tell is|follow the money|watch for|the point is|here's the thing|key insight|one observation|one insight|my take|the real story|bottom line|takeaway|net effect|in short|tl;dr)\b/gi;
         
+        // NEW: Aggressive opener check (first word sets doom tone)
+        const aggressiveOpenerRegex = /^(Pulled|Drained|Ripped|Crushed|Yanked|Stripped|Torn|Gutted|Slammed|Shattered)\b/i;
+        
+        // NEW: Doom closer check (ending with doom predictions)
+        const doomCloserRegex = /(or go underground|becomes a crime scene|nowhere soft to land|this won't end well|nowhere to hide|and that's when things get ugly|won't end well|before it's too late|while you still can|the clock is ticking)\s*[.!?\s]*[#\u{1F300}-\u{1F9FF}]*\s*$/iu;
+        
         const hasColonLabel = colonLabelRegex.test(content) || midSentenceRegex.test(content);
         const hasMetaPhrase = metaPhraseRegex.test(content);
-        const hasAnyViolation = hasColonLabel || hasMetaPhrase;
+        const hasAggressiveOpener = aggressiveOpenerRegex.test(content);
+        const hasDoomCloser = doomCloserRegex.test(content);
+        const hasAnyViolation = hasColonLabel || hasMetaPhrase || hasAggressiveOpener || hasDoomCloser;
         
         if (hasAnyViolation && retryCount === 0) {
             // Determine what type of violation occurred
@@ -1212,10 +1220,24 @@ Hashtags to include: ${hashtags.join(' ')}`;
                 correctionPrompt += 'NO meta-phrases: Remove analytical scaffolding like "The tell is", "Follow the money", "Watch for", "Here\'s the thing".\n';
             }
             
+            if (hasAggressiveOpener) {
+                violationType.push('aggressive-opener');
+                const openerMatch = content.match(aggressiveOpenerRegex);
+                console.log('⚠️ Aggressive opener detected:', openerMatch ? openerMatch[0] : 'unknown');
+                correctionPrompt += 'NO aggressive openers: Do NOT start with "Pulled", "Drained", "Ripped", "Crushed", etc. Use neutral verbs like "Shifted", "Moved", "Split", "Added", "Launched".\n';
+            }
+            
+            if (hasDoomCloser) {
+                violationType.push('doom-closer');
+                const doomMatch = content.match(doomCloserRegex);
+                console.log('⚠️ Doom closer detected:', doomMatch ? doomMatch[0] : 'unknown');
+                correctionPrompt += 'NO doom predictions at the end: Do NOT end with "or go underground", "becomes a crime scene", "nowhere soft to land". End with what to WATCH FOR, what CHANGED, or what CHOICES actors face.\n';
+            }
+            
             console.log(`⚠️ Violations found: ${violationType.join(' + ')} - triggering rewrite...`);
             
             // Retry with explicit correction
-            correctionPrompt += '\nRewrite the tweet with natural flowing sentences. Just explain what happened and why it matters, without analytical framing.';
+            correctionPrompt += '\nRewrite the tweet with natural flowing sentences. Use a neutral opener and end with observation, not doom prediction.';
             
             const retryResponse = await openai.chat.completions.create({
                 model: "gpt-5.1",
@@ -1238,7 +1260,9 @@ Hashtags to include: ${hashtags.join(' ')}`;
             // Check again after rewrite
             const stillHasColonLabel = colonLabelRegex.test(content) || midSentenceRegex.test(content);
             const stillHasMetaPhrase = metaPhraseRegex.test(content);
-            const stillHasViolation = stillHasColonLabel || stillHasMetaPhrase;
+            const stillHasAggressiveOpener = aggressiveOpenerRegex.test(content);
+            const stillHasDoomCloser = doomCloserRegex.test(content);
+            const stillHasViolation = stillHasColonLabel || stillHasMetaPhrase || stillHasAggressiveOpener || stillHasDoomCloser;
             
             if (stillHasViolation) {
                 console.log('❌ Rewrite still contains violations. Discarding this article.');
@@ -1247,6 +1271,12 @@ Hashtags to include: ${hashtags.join(' ')}`;
                 }
                 if (stillHasMetaPhrase) {
                     console.log('🔍 Remaining meta-phrases:', content.match(metaPhraseRegex));
+                }
+                if (stillHasAggressiveOpener) {
+                    console.log('🔍 Remaining aggressive opener:', content.match(aggressiveOpenerRegex));
+                }
+                if (stillHasDoomCloser) {
+                    console.log('🔍 Remaining doom closer:', content.match(doomCloserRegex));
                 }
                 return null; // Article will be skipped
             }
