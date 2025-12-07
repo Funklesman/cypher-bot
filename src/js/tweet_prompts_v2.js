@@ -115,14 +115,19 @@ DO NOT USE THE SAME SENTENCE STRUCTURE TWICE IN A ROW.
 - "...this actually matters because..."
 - Sometimes just describe what happened — no judgment needed
 
-✅ POSITIVE HISTORICAL CALLBACKS (not all history is warnings):
-- "Last time this setup happened, we got a 6-month run..."
-- "The institutions that loaded ETH at $400 are the ones moving now..."
-- "This is the infrastructure that wasn't built yet in 2021..."
-- "What's different now is [custody/regulation/liquidity]..."
-- "Post-ETF, the floor is higher than it used to be..."
-- "The last time desks accumulated this quietly..."
-- "FTX cleared out the weak hands — what's left is stickier..."
+✅ HISTORICAL COMPARISONS — PREFER RECENT OVER ANCIENT:
+When making comparisons, PREFER recent events (2022-2024) over older ones (2020, 2017):
+- BETTER: "Since the ETF launched..." / "Post-FTX..." / "After Terra..." / "Since the halving..."
+- WORSE: "Back in 2020..." / "In late 2017..." / "Last cycle..." (too distant, less relevant)
+
+The reader lives in 2024-2025. Compare to what THEY remember:
+- ETF launch (Jan 2024), halving (Apr 2024), Mt. Gox distributions (2024)
+- FTX collapse (Nov 2022), Terra/LUNA (May 2022), Merge (Sep 2022)
+- Banking crisis (Mar 2023), Silvergate/SVB
+
+Only go back to 2020/2021 if the comparison is SPECIFIC and STRUCTURAL, not just "last time price did X":
+- GOOD: "The infrastructure is different than 2021 — ETF custody didn't exist"
+- BAD: "Last time this happened in late 2020..." (too vague, too distant)
 
 🛑 NEVER USE THE SAME OPENER CATEGORY TWICE IN A ROW:
 - If last tweet started with TIME → this one starts with NAME, NUMBER, ACTION, or THING
@@ -206,7 +211,7 @@ const microPlaybook = `MICRO PLAYBOOK (how to sound human):
 - Replace "pattern:" with "lately, the same hands are moving …".
 - Replace "translation:" with "in practice, that means …".
 - Replace "watch for" with "next up is whether …".
-- Replace "historically" with "last time this happened …" or "back in 2021 …" or "since the ETF launched…".
+- Replace "historically" with RECENT comparisons first: "since the ETF launched…" / "post-FTX…" / "after Terra…" — only go to 2021 or earlier if the comparison is structural, not just price.
 - For exchange news: "FTX proved that…" or "after what happened to FTX…" or "post-Celsius, exchanges now…"
 - For stablecoin news: "Terra showed us…" or "since LUNA, the market…"
 - For ETH news: "since the Merge…" or "post-Merge, validators…"
@@ -246,7 +251,7 @@ Example F — CONSTRUCTIVE tone, starts with TIME:
 Since the UK said DeFi moves aren't taxable disposals, farmers and LPs can rebalance without spreadsheet nightmares 📊. This mostly helps real users, not whales. If other regulators copy this, the next wave of DeFi might be built in London. #DeFi #UKCrypto
 
 Example G — OBSERVATIONAL tone, starts with TIME, uses RECENT comparison:
-Since the ETF launched, $12B flowed in before retail noticed 📈. Same pattern as 2020 — institutions position while Twitter argues about the top. The accumulation that matters never trends. What's different this time: custody infrastructure that didn't exist before. #Bitcoin #BTCETF
+Since the ETF launched, $12B flowed in before retail noticed 📈. Same quiet accumulation we saw post-FTX when desks loaded while Twitter called the bottom wrong. The difference now: custody infrastructure and regulated on-ramps that didn't exist even two years ago. #Bitcoin #BTCETF
 
 Example H — CONSTRUCTIVE tone, starts with THING, uses NEGATIVE-TO-POSITIVE frame:
 That FTX creditor payout everyone's fearing? Most of it goes to lawyers, not sellers 🔐. And the users who actually get coins? They've been waiting two years — the ones who held through that are probably not dumping into strength. Forced selling creates structure; voluntary selling follows euphoria. #FTX #Crypto
