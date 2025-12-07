@@ -1137,6 +1137,18 @@ async function evaluateTweetQuality(tweet, recentPhrases = []) {
             }
         }
         
+        // Check for line breaks (must be single paragraph)
+        if (tweet.includes('\n')) {
+            rulePenalty += 2;
+            ruleViolations.push('line-break');
+        }
+        
+        // Check for thread-starter patterns
+        if (/👇|the real story is this|here's the thing|thread|\d+\/\d+/i.test(tweet)) {
+            rulePenalty += 2;
+            ruleViolations.push('thread-starter');
+        }
+        
         if (ruleViolations.length > 0) {
             console.log(`⚠️ Rule violations detected: ${ruleViolations.join(', ')} (penalty: -${rulePenalty})`);
         }
@@ -1231,6 +1243,12 @@ function buildImprovementPrompt(evaluation) {
         }
         if (violation.startsWith('repeated-phrase')) {
             return `CRITICAL: You reused a phrase from recent tweets. Create COMPLETELY FRESH metaphors. Every phrase must feel original to this tweet.`;
+        }
+        if (violation === 'line-break') {
+            return `CRITICAL RULE VIOLATION: Your tweet has line breaks. Write ONE FLOWING PARAGRAPH. No line breaks, no bullet points, no thread format.`;
+        }
+        if (violation === 'thread-starter') {
+            return `CRITICAL RULE VIOLATION: Your tweet looks like a thread starter (👇, "the real story is this", etc.). This is a SELF-CONTAINED single tweet, not a thread. Remove thread-starter patterns.`;
         }
     }
     
@@ -1432,6 +1450,15 @@ Hashtags to include: ${hashtags.join(' ')}`;
         }
         
         let content = sClassResult.content;
+        
+        // STRUCTURAL FIX: Force single paragraph (remove line breaks)
+        content = content.replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim();
+        
+        // STRUCTURAL FIX: Remove thread-starter patterns
+        content = content.replace(/👇🏽?|👇🏼?|👇🏻?|👇🏾?|👇🏿?|👇/g, '');
+        content = content.replace(/\s*(the real story is this|here's the thing|thread|1\/\d+)\s*:?\s*/gi, ' ');
+        content = content.replace(/\s+/g, ' ').trim();
+        
         console.log(`📊 Final quality score: ${sClassResult.qualityScore}/10 (${sClassResult.attempts} attempts)`);
         
         // 7. FINAL SAFETY CHECK: Hard rule violations (should be rare after S-Class)
