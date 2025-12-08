@@ -1143,8 +1143,8 @@ async function evaluateTweetQuality(tweet, recentPhrases = []) {
             ruleViolations.push('line-break');
         }
         
-        // Check for thread-starter patterns
-        if (/👇|the real story is this|here's the thing|thread|\d+\/\d+/i.test(tweet)) {
+        // Check for thread-starter patterns and meta-phrases
+        if (/👇|the real story is this|here's the thing|the punch\s?line|thread|\d+\/\d+/i.test(tweet)) {
             rulePenalty += 2;
             ruleViolations.push('thread-starter');
         }
@@ -1456,7 +1456,7 @@ Hashtags to include: ${hashtags.join(' ')}`;
         
         // STRUCTURAL FIX: Remove thread-starter patterns
         content = content.replace(/👇🏽?|👇🏼?|👇🏻?|👇🏾?|👇🏿?|👇/g, '');
-        content = content.replace(/\s*(the real story is this|here's the thing|thread|1\/\d+)\s*:?\s*/gi, ' ');
+        content = content.replace(/\s*(the real story is this|here's the thing|the punch\s?line|thread|1\/\d+)\s*:?\s*/gi, ' ');
         content = content.replace(/\s+/g, ' ').trim();
         
         console.log(`📊 Final quality score: ${sClassResult.qualityScore}/10 (${sClassResult.attempts} attempts)`);
