@@ -1460,7 +1460,7 @@ Hashtags to include: ${hashtags.join(' ')}`;
         content = content.replace(/\s+/g, ' ').trim();
         
         console.log(`📊 Final quality score: ${sClassResult.qualityScore}/10 (${sClassResult.attempts} attempts)`);
-        
+            
         // 7. FINAL SAFETY CHECK: Hard rule violations (should be rare after S-Class)
         const colonLabelRegex = /^(?:[A-Za-z][A-Za-z ]{0,24}|Who|What|Why|Pattern|Translation|Observation)\s*:\s/m;
         const aggressiveOpenerRegex = /^(Pulled|Drained|Ripped|Crushed|Yanked|Stripped|Torn|Gutted|Slammed|Shattered)\b/i;
