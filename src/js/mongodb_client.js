@@ -223,6 +223,16 @@ class MongoDBClient {
     await this.initPromise;
     return this.mongoService.getRecentPrimaryHashtags(count);
   }
+
+  /**
+   * Get recently used wisdom topics to avoid repetition
+   * @param {number} days - Number of days to look back
+   * @returns {Promise<string[]>} - Array of recently used topic descriptions
+   */
+  async getRecentWisdomTopics(days = 14) {
+    await this.initPromise;
+    return this.mongoService.getRecentWisdomTopics(days);
+  }
 }
 
 module.exports = MongoDBClient; 

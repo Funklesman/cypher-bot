@@ -1903,8 +1903,9 @@ function startTestingMode() {
     postSingleItem(12);
 }
 
-// Wisdom topics for educational tweets (rotated)
+// Wisdom topics for educational tweets (60 topics, smart rotation)
 const wisdomTopics = [
+    // Original 30
     "Trading psychology: Most crypto losses come from buying good tech at bad prices during FOMO. The pattern repeats every cycle.",
     "Risk management: Position sizing matters more than entry timing. You can be right about the asset and still lose everything.",
     "Market cycles: Bull markets teach you what's possible. Bear markets teach you what's real. Learn to tell the difference.",
@@ -1934,12 +1935,42 @@ const wisdomTopics = [
     "Protocol economics: Token price doesn't mean protocol health. Revenue, retention, and real usage do. Learn to read the difference.",
     "Scaling trade-offs: Every blockchain makes trade-offs between decentralization, security, and speed. There's no free lunch—just different costs.",
     "Smart money moves: Institutional money moves slowly and telegraphs early. Learn to read the signals before the headlines confirm.",
-    "Bear market building: The best projects ship in bear markets when attention is low and competition is gone. That's when foundations get built."
+    "Bear market building: The best projects ship in bear markets when attention is low and competition is gone. That's when foundations get built.",
+    // New 30
+    "Self-custody: Not your keys, not your coins isn't just a slogan. Every exchange collapse proved it. The inconvenience of self-custody is the price of sovereignty.",
+    "Survivorship bias: You hear about the 100x winners. You don't hear about the 1000 projects that went to zero. Adjust your expectations accordingly.",
+    "Liquidity awareness: The price you see isn't the price you get. Slippage on thin order books has destroyed more portfolios than bad picks.",
+    "Stablecoin risks: Not all stablecoins are stable. Algorithmic, fractional, fully-backed—each has different failure modes. Know what you're holding.",
+    "Gas optimization: In DeFi, transaction costs eat returns. The best traders batch, time, and route transactions like it's part of the strategy.",
+    "Airdrop farming: Free money isn't free. The time, gas, and capital locked up have opportunity costs. Calculate your real hourly rate.",
+    "Yield sustainability: If you can't explain where the yield comes from, you are the yield. Real returns need real revenue.",
+    "MEV awareness: Bots are watching your transactions. Front-running, sandwich attacks, and arbitrage extract value from retail. Use protection.",
+    "Bridge risks: Cross-chain bridges are honeypots. More value has been lost to bridge hacks than exchange hacks. Minimize exposure.",
+    "Governance participation: Token voting isn't democracy—it's plutocracy. Whales decide. But watching governance tells you where protocols are heading.",
+    "Layer 2 trade-offs: L2s are faster and cheaper, but they're not L1. Understand the security assumptions and withdrawal delays before you commit.",
+    "Oracle dependence: DeFi runs on price feeds. When oracles fail or get manipulated, cascades happen. Know your protocol's oracle setup.",
+    "Token unlock schedules: VCs and teams have vesting schedules. When big unlocks hit, supply increases. Track unlock calendars like earnings dates.",
+    "Narrative surfing: Catching narratives early is profitable. Riding them too long is dangerous. The exit is always more crowded than the entrance.",
+    "On-chain analysis: Blockchain data doesn't lie, but it can mislead. Learn to read wallet movements, but don't over-interpret noise as signal.",
+    "Counterparty risk: Every CeFi product has counterparty risk. Every DeFi product has smart contract risk. Pick your poison and size accordingly.",
+    "Dollar-cost averaging: DCA removes timing pressure but doesn't remove the need to think. It's a method, not a strategy.",
+    "Profit taking: Nobody went broke taking profits. The portfolios that survive take chips off the table during euphoria, even when it feels wrong.",
+    "Macro correlation: Crypto used to be uncorrelated. Now it moves with risk assets. Understand the macro regime before sizing positions.",
+    "Founder watching: The founder's Twitter activity tells you more than the roadmap. Radio silence during bear markets is a red flag.",
+    "Tokenomics literacy: Inflation schedules, burn mechanisms, staking yields—these determine long-term price pressure. Learn to model them.",
+    "Privacy trade-offs: On-chain transparency means your portfolio is public. Privacy tools exist but add complexity and regulatory risk.",
+    "Social layer attacks: Hacks aren't always technical. Social engineering, phishing, and impersonation steal more than exploits. Guard youropsec.",
+    "Benchmark yourself: Beating Bitcoin is the real benchmark. Most altcoin portfolios underperform BTC over full cycles. Track your BTC-denominated returns.",
+    "Concentration vs diversification: Concentration builds wealth, diversification protects it. Know which phase you're in and size accordingly.",
+    "Regulatory arbitrage: Crypto moves to friendly jurisdictions. Today's haven might be tomorrow's crackdown. Geographic risk is real.",
+    "Fee sensitivity: Trading fees, funding rates, withdrawal fees—they compound. The best traders obsess over fee efficiency.",
+    "Mental accounting: Treating 'house money' differently than 'real money' leads to reckless bets. All your capital is real. Act like it.",
+    "Diminishing returns: The first 10x is luck. The second 10x is skill. The third 10x is increasingly unlikely. Adjust expectations as portfolios grow.",
+    "Exit strategy clarity: Before you enter any position, know exactly what would make you exit. Write it down. Stick to it."
 ];
 
 let lastWisdomTweetTime = 0;
 let lastNewsTweetTime = 0;
-let wisdomTopicIndex = 0;
 
 // State for API access
 let nextScheduledPost = null;
@@ -1992,9 +2023,26 @@ async function postWisdomTweet() {
         
         console.log('🎓 Generating wisdom tweet for Kodex Academy...');
         
-        // Get next topic (rotate through the list)
-        const topic = wisdomTopics[wisdomTopicIndex];
-        wisdomTopicIndex = (wisdomTopicIndex + 1) % wisdomTopics.length;
+        // SMART TOPIC SELECTION: Avoid topics used in last 14 days
+        const recentTopics = await dbClient.getRecentWisdomTopics(14);
+        
+        // Find topics that haven't been used recently
+        const availableTopics = wisdomTopics.filter(topic => 
+            !recentTopics.some(recent => recent && topic.includes(recent.split(':')[0]))
+        );
+        
+        let topic;
+        if (availableTopics.length > 0) {
+            // Pick random from available topics
+            const randomIndex = Math.floor(Math.random() * availableTopics.length);
+            topic = availableTopics[randomIndex];
+            console.log(`🎯 Selected from ${availableTopics.length} available topics (${wisdomTopics.length - availableTopics.length} used recently)`);
+        } else {
+            // All topics used recently - pick random from full list
+            const randomIndex = Math.floor(Math.random() * wisdomTopics.length);
+            topic = wisdomTopics[randomIndex];
+            console.log(`⚠️ All topics used recently, picking random from full list`);
+        }
         
         console.log(`📚 Topic: ${topic.substring(0, 80)}...`);
         

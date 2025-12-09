@@ -724,6 +724,37 @@ class MongoDBService {
   }
 
   /**
+   * Get recently used wisdom topics to avoid repetition
+   * @param {number} days - Number of days to look back
+   * @returns {Promise<string[]>} - Array of recently used topic descriptions
+   */
+  async getRecentWisdomTopics(days = 14) {
+    try {
+      const daysAgo = new Date();
+      daysAgo.setDate(daysAgo.getDate() - days);
+      
+      const recentWisdom = await this.collections.postHistory.find(
+        { 
+          promptType: 'wisdom-tweet',
+          postedAt: { $gte: daysAgo }
+        },
+        { sort: { postedAt: -1 } }
+      ).toArray();
+      
+      // Extract the topic descriptions (stored in 'description' field)
+      const topics = recentWisdom
+        .map(post => post.articleDescription || post.description)
+        .filter(Boolean);
+      
+      console.log(`🎓 Found ${topics.length} wisdom topics used in last ${days} days`);
+      return topics;
+    } catch (error) {
+      console.error('Error getting recent wisdom topics:', error);
+      return [];
+    }
+  }
+
+  /**
    * Get posts from the last X days
    * @param {number} days - Number of days to look back
    * @returns {Promise<Array>} - List of posted articles
