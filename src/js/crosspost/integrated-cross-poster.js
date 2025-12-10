@@ -124,12 +124,11 @@ function formatContentForX(htmlContent, options = {}) {
         }
       }
       
-      // Add hashtags followed by attribution
+      // Add hashtags at the end
       formattedContent += extractedHashtags.join(' ');
-      formattedContent += '\nBrought to you by Kodex Academy - https://kodex.academy';
     }
     
-    console.log('Using real hashtags with Kodex Academy attribution');
+    console.log('Using real hashtags');
     return formattedContent;
   }
 }
