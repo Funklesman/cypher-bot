@@ -21,6 +21,11 @@ try {
 
 require('dotenv').config();
 
+// Set default for WISDOM_POST_ENABLED if not defined (default to disabled)
+if (process.env.WISDOM_POST_ENABLED === undefined) {
+    process.env.WISDOM_POST_ENABLED = 'false';
+}
+
 // Import MongoDB client factory
 const DBClientFactory = require('./db_client_factory');
 const dbClient = DBClientFactory.createClient();
@@ -2021,6 +2026,12 @@ async function postWisdomTweet() {
             return;
         }
         
+        // Check if wisdom posting is enabled
+        if (process.env.WISDOM_POST_ENABLED !== 'true') {
+            console.log('🛑 Wisdom posting is disabled, skipping');
+            return;
+        }
+        
         console.log('🎓 Generating wisdom tweet for Kodex Academy...');
         
         // SMART TOPIC SELECTION: Avoid topics used in last 14 days
@@ -2126,21 +2137,25 @@ function scheduleNextWisdomTweet() {
     console.log(`🎓 Next wisdom tweet scheduled for: ${nextWisdomTime.toLocaleString()} (${(wisdomDelay / 1000 / 60 / 60).toFixed(1)} hours from now)`);
     
     activeTimeouts.wisdomPost = setTimeout(async () => {
-        console.log('🎓 Running scheduled wisdom tweet...');
-        await postWisdomTweet();
+        if (process.env.WISDOM_POST_ENABLED === 'true') {
+            console.log('🎓 Running scheduled wisdom tweet...');
+            await postWisdomTweet();
+        } else {
+            console.log('🎓 Wisdom posting is disabled, skipping scheduled post');
+        }
         
-        // Schedule the next wisdom tweet
+        // Schedule the next wisdom tweet (keeps checking even if disabled)
         if (botIsRunning) {
             scheduleNextWisdomTweet();
         }
     }, wisdomDelay);
 }
 
-// Start the bot in production mode (posts every 6-8 hours with randomization)
+// Start the bot in production mode (posts every 7-10 hours with randomization)
 function startProductionMode() {
     console.log('🚀 Starting TweetBot in PRODUCTION mode');
-    console.log('📅 Tweets will be posted every 8-12 HOURS (randomized for organic feel)');
-    console.log('🎓 Wisdom tweets will be posted once per day (randomized timing)');
+    console.log('📅 News tweets will be posted every 7-10 HOURS (randomized for organic feel)');
+    console.log(`🎓 Wisdom tweets: ${process.env.WISDOM_POST_ENABLED === 'true' ? 'ENABLED' : 'DISABLED'} (once per day, randomized timing)`);
     console.log('📔 Crypto Diary will be generated EVERY 2 DAYS at 8 PM');
     console.log('🎯 Optimized for 2-3 news posts/day + 1 wisdom tweet/day + diary every 2 days');
     
@@ -2152,9 +2167,9 @@ function startProductionMode() {
     
     // Schedule next post with organic timing
     function scheduleNextPost() {
-        // Random interval between 8-12 hours for 2-3 posts per day
-        const minHours = 8;
-        const maxHours = 12;
+        // Random interval between 7-10 hours for 2-3 posts per day
+        const minHours = 7;
+        const maxHours = 10;
         const randomHours = Math.random() * (maxHours - minHours) + minHours;
         const nextPostDelay = randomHours * 60 * 60 * 1000; // Convert to milliseconds
         

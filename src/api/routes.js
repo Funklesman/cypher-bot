@@ -295,14 +295,15 @@ router.post('/generate-diary', async (req, res) => {
 
 /**
  * GET /api/settings
- * Get current bot settings (X, Bluesky toggles)
+ * Get current bot settings (X, Bluesky, Wisdom toggles)
  */
 router.get('/settings', (req, res) => {
     try {
         const settings = {
             xPostEnabled: process.env.X_POST_ENABLED === 'true',
             blueskyPostEnabled: process.env.BLUESKY_POST_ENABLED === 'true',
-            mastodonPostEnabled: process.env.MASTODON_POST_ENABLED !== 'false'
+            mastodonPostEnabled: process.env.MASTODON_POST_ENABLED !== 'false',
+            wisdomPostEnabled: process.env.WISDOM_POST_ENABLED === 'true'
         };
 
         res.json({
@@ -373,6 +374,35 @@ router.post('/settings/toggle-bluesky', (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Failed to toggle Bluesky posting',
+            error: error.message
+        });
+    }
+});
+
+/**
+ * POST /api/settings/toggle-wisdom
+ * Toggle Wisdom posting on/off
+ */
+router.post('/settings/toggle-wisdom', (req, res) => {
+    try {
+        const { enabled } = req.body;
+        
+        // Update environment variable
+        process.env.WISDOM_POST_ENABLED = enabled ? 'true' : 'false';
+        
+        console.log(`🎓 Admin ${enabled ? 'enabled' : 'disabled'} Wisdom posting`);
+
+        res.json({
+            success: true,
+            message: `Wisdom posting ${enabled ? 'enabled' : 'disabled'}`,
+            data: { wisdomPostEnabled: enabled },
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error('Error toggling Wisdom posting:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to toggle Wisdom posting',
             error: error.message
         });
     }
