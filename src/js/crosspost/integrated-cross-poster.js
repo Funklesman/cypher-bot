@@ -128,6 +128,9 @@ function formatContentForX(htmlContent, options = {}) {
       formattedContent += extractedHashtags.join(' ');
     }
     
+    // Add closing tagline
+    formattedContent += '\n\nThe signal remembers. The noise forgets.';
+    
     console.log('Using real hashtags');
     return formattedContent;
   }
