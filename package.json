@@ -1,6 +1,10 @@
 {
   "name": "tweet-bot",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=20.19.0",
+    "npm": ">=10.0.0"
+  },
   "main": "src/js/index.js",
   "scripts": {
     "test": "jest",
@@ -25,7 +29,11 @@
     "test:optimize": "node scripts/test-content-optimization.js",
     "test:mastodon-optimize": "node scripts/test-mastodon-optimize.js",
     "test:content-crosspost": "node scripts/test-content-crosspost.js",
-    "test:webflow": "node scripts/test-webflow.js"
+    "test:webflow": "node scripts/test-webflow.js",
+    "security:audit": "npm audit",
+    "security:fix": "npm audit fix",
+    "deps:check": "npm outdated",
+    "deps:update": "npm update"
   },
   "keywords": [
     "crypto",
