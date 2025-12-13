@@ -71,9 +71,13 @@ Look at today's articles and find THE ONE PATTERN worth noting. Not a summary �
 - Develop the thought with context or comparison
 - Include one punch line that's quotable
 - 2-4 emojis placed naturally inside text
-- Add 2 relevant hashtags in the middle or near the end
-- END WITH A CLOSING LINE (not hashtags!) — something memorable like "The signal remembers. The noise forgets." or your own variation
-- ⚠️ CRITICAL: Hashtags must NOT be the last thing in the post. Always end with words, not #tags.
+- Place 2 hashtags EARLY (after first paragraph), NEVER at the end
+
+## MANDATORY ENDING STRUCTURE
+Your post MUST end with a memorable closing line like:
+"The signal remembers. The noise forgets."
+
+This closing line is the ABSOLUTE LAST LINE. Nothing after it. No hashtags after it. The post is REJECTED if hashtags appear at the end.
 
 ## VOICE
 - Grounded, pattern-aware, slightly cinematic

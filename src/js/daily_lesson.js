@@ -254,9 +254,14 @@ ${JSON.stringify(content, null, 2)}
 - Develop the principle with context or example
 - Include one quotable insight
 - 2-4 emojis placed naturally
-- Add 2 relevant hashtags in the middle or before the link
-- END WITH: "Learn more → [URL] 🎓" (the link must be the last thing, not hashtags)
-- ⚠️ CRITICAL: Hashtags must NOT be the last thing in the post. Always end with the learn more link.
+- Place 2 hashtags EARLY (after first paragraph), NEVER at the end
+
+## MANDATORY ENDING STRUCTURE
+Your post MUST end EXACTLY like this:
+
+Learn more → ${content.url} 🎓
+
+The link with 🎓 is the ABSOLUTE LAST LINE. Nothing after it. No hashtags after it. The post is REJECTED if hashtags appear at the end.
 
 ## VOICE
 - Mentor, not lecturer
