@@ -1114,6 +1114,7 @@ async function evaluateTweetQuality(tweet, recentPhrases = []) {
         // FIRST: Check for hard rule violations (automatic penalties)
         const colonLabelRegex = /^(?:[A-Za-z][A-Za-z ]{0,24}|Who|What|Why|Pattern|Translation|Observation)\s*:\s/m;
         const aggressiveOpenerRegex = /^(Pulled|Drained|Ripped|Crushed|Yanked|Stripped|Torn|Gutted|Slammed|Shattered)\b/i;
+        const overusedOpenerRegex = /^Quietly[,\s]/i;  // "Quietly" is heavily overused
         const doomCloserRegex = /(or go underground|becomes a crime scene|nowhere soft to land|this won't end well|nowhere to hide)\s*[.!?\s]*[#\u{1F300}-\u{1F9FF}]*\s*$/iu;
         
         let rulePenalty = 0;
@@ -1126,6 +1127,10 @@ async function evaluateTweetQuality(tweet, recentPhrases = []) {
         if (aggressiveOpenerRegex.test(tweet)) {
             rulePenalty += 3;
             ruleViolations.push('aggressive-opener');
+        }
+        if (overusedOpenerRegex.test(tweet)) {
+            rulePenalty += 3;
+            ruleViolations.push('overused-opener-quietly');
         }
         if (doomCloserRegex.test(tweet)) {
             rulePenalty += 2;
@@ -1242,6 +1247,9 @@ function buildImprovementPrompt(evaluation) {
         }
         if (violation === 'aggressive-opener') {
             return `CRITICAL RULE VIOLATION: You started with an aggressive doom verb ("Pulled", "Drained", "Crushed", etc.). Start with a NEUTRAL verb: "Shifted", "Moved", "Split", "Launched", "Added". Or start with a name, number, or time reference.`;
+        }
+        if (violation === 'overused-opener-quietly') {
+            return `CRITICAL RULE VIOLATION: "Quietly" is BANNED as an opener — it's been overused. Start with: a NAME (Vitalik, Binance), a NUMBER ($30M, Third time), an ACTION (Shifted, Moved), a THING (The coins, That fine), or TIME (Since, After). NOT "Quietly."`;
         }
         if (violation === 'doom-closer') {
             return `CRITICAL RULE VIOLATION: You ended with doom prediction ("won't end well", "nowhere to hide", etc.). End with what to WATCH, what CHANGED, or what CHOICES actors face. Not doom.`;
