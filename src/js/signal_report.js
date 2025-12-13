@@ -131,7 +131,7 @@ async function generateSignalReport() {
       mastodonPostData = await postReportToMastodon(reportContent);
       
       // 4. Cross-post to X if enabled
-      if (mastodonPostData && crossPostToSocialMedia) {
+      if (mastodonPostData && crossPostToSocialMedia && process.env.X_POST_ENABLED === 'true') {
         try {
           await crossPostToSocialMedia(mastodonPostData, {
             includeMedia: false,

@@ -374,8 +374,8 @@ async function generateDailyLesson() {
     if (process.env.MASTODON_POST_ENABLED === 'true') {
       mastodonPostData = await postLessonToMastodon(lessonContent);
       
-      // 6. Cross-post to X
-      if (mastodonPostData && crossPostToSocialMedia) {
+      // 6. Cross-post to X if enabled
+      if (mastodonPostData && crossPostToSocialMedia && process.env.X_POST_ENABLED === 'true') {
         try {
           await crossPostToSocialMedia(mastodonPostData, {
             includeMedia: false,
