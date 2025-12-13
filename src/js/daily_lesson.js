@@ -400,8 +400,27 @@ The link should feel like a natural invitation to learn more, not a sales pitch.
 // This module focuses on content selection from CONTENT_LIBRARY based on suggested topic
 
 /**
+ * Sort content to prefer "Part 1" items in multi-part series
+ * URLs ending in 1 come before 2, 3, etc.
+ */
+function sortContentByPartOrder(content) {
+  return content.sort((a, b) => {
+    const urlA = a.url || '';
+    const urlB = b.url || '';
+    
+    // Extract trailing numbers from URLs
+    const numA = urlA.match(/(\d+)$/)?.[1] || '0';
+    const numB = urlB.match(/(\d+)$/)?.[1] || '0';
+    
+    // Part 1 (or no number) comes first
+    return parseInt(numA) - parseInt(numB);
+  });
+}
+
+/**
  * Get relevant content for topic (maps topic to Kodex Academy content)
  * Uses unified service for content URL freshness filtering
+ * Prefers "Part 1" content in multi-part series
  */
 async function getRelevantContent(topic, recentContentUrls = []) {
   // Map unified topic names to CONTENT_LIBRARY event types
@@ -436,23 +455,34 @@ async function getRelevantContent(topic, recentContentUrls = []) {
     allContent = fallbackOptions;
   }
   
+  // Sort to prefer Part 1 content
+  allContent = sortContentByPartOrder(allContent);
+  
   // Use unified service for content freshness filtering
   const freshContent = await deduplication.filterFreshContent(allContent);
   
   if (freshContent.length > 0) {
-    return freshContent[Math.floor(Math.random() * freshContent.length)];
+    // Sort fresh content too, then pick from top options (Part 1 preferred)
+    const sortedFresh = sortContentByPartOrder(freshContent);
+    // 70% chance to pick Part 1 (first item), 30% chance random from rest
+    if (Math.random() < 0.7 && sortedFresh.length > 0) {
+      console.log(`📖 Preferring Part 1 content: ${sortedFresh[0].name}`);
+      return sortedFresh[0];
+    }
+    return sortedFresh[Math.floor(Math.random() * sortedFresh.length)];
   }
   
   // If all content used recently, try fallback
   const freshFallback = await deduplication.filterFreshContent(fallbackOptions);
   if (freshFallback.length > 0) {
     console.log(`⚠️ All topic content used recently, using fresh fallback`);
-    return freshFallback[Math.floor(Math.random() * freshFallback.length)];
+    const sortedFallback = sortContentByPartOrder(freshFallback);
+    return sortedFallback[0]; // Prefer Part 1
   }
   
-  // Last resort: just pick something
-  console.log(`⚠️ All content used recently, picking randomly anyway`);
-  return allContent[Math.floor(Math.random() * allContent.length)];
+  // Last resort: just pick Part 1 of something
+  console.log(`⚠️ All content used recently, picking Part 1 anyway`);
+  return allContent[0];
 }
 
 /**
