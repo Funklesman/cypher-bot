@@ -2204,6 +2204,18 @@ function startProductionMode() {
     scheduleDailyCryptoDiary();
     console.log('📅 Scheduled crypto diary for 8 PM every 2 days');
     
+    // Schedule Signal Report - daily at 10 PM
+    const signalReport = require('./signal_report');
+    signalReport.setBotStateChecker(() => botIsRunning);
+    signalReport.scheduleSignalReport();
+    console.log('🎬 Scheduled Signal Report for 10 PM daily');
+    
+    // Schedule Daily Lesson - daily at 10 AM
+    const dailyLesson = require('./daily_lesson');
+    dailyLesson.setBotStateChecker(() => botIsRunning);
+    dailyLesson.scheduleDailyLesson();
+    console.log('📚 Scheduled Daily Lesson for 10 AM daily');
+    
     // Urgent scanning removed - integrated into regular posting cycle
     
     // Run initial post immediately
