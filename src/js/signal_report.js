@@ -56,6 +56,13 @@ if (isMastodonConfigured && Mastodon) {
 }
 
 // ============================================================================
+// UNIFIED DEDUPLICATION SERVICE
+// ============================================================================
+
+// Import unified deduplication service (single source of truth)
+const deduplication = require('./content_deduplication');
+
+// ============================================================================
 // SIGNAL REPORT PROMPT
 // ============================================================================
 
@@ -164,20 +171,36 @@ async function generateSignalReport() {
     
     console.log(`📚 Found ${articles.length} articles for Signal Report`);
     
-    // 2. Generate the report content using OpenAI
-    const reportContent = await generateReportContent(articles);
+    // 2. Use unified deduplication service to suggest best topic
+    const topicSuggestion = await deduplication.suggestTopic(articles, {
+      callerType: 'signalReport',
+      checkSameDayConflict: true
+    });
+    
+    console.log(`🎯 Topic suggestion: ${topicSuggestion.topic} (${topicSuggestion.reason})`);
+    if (topicSuggestion.warning) {
+      console.log(`⚠️ ${topicSuggestion.warning}`);
+    }
+    
+    // 3. Generate the report content using OpenAI
+    const reportContent = await generateReportContent(articles, {
+      suggestedTopic: topicSuggestion.topic,
+      topicReason: topicSuggestion.reason,
+      alternatives: topicSuggestion.alternatives,
+      hasConflict: topicSuggestion.reason === 'same_day_conflict'
+    });
     
     if (!reportContent) {
       console.log('❌ Failed to generate Signal Report content');
       return null;
     }
     
-    // 3. Post to Mastodon
+    // 6. Post to Mastodon
     let mastodonPostData = null;
     if (process.env.MASTODON_POST_ENABLED === 'true') {
       mastodonPostData = await postReportToMastodon(reportContent);
       
-      // 4. Cross-post to X if enabled
+      // 7. Cross-post to X if enabled
       if (mastodonPostData && crossPostToSocialMedia && process.env.X_POST_ENABLED === 'true') {
         try {
           await crossPostToSocialMedia(mastodonPostData, {
@@ -191,8 +214,8 @@ async function generateSignalReport() {
       }
     }
     
-    // 5. Store in MongoDB
-    await storeReportInMongoDB(reportContent, articles, mastodonPostData);
+    // 8. Store in MongoDB (with topic from suggestion)
+    await storeReportInMongoDB(reportContent, articles, mastodonPostData, topicSuggestion.topic);
     
     return reportContent;
   } catch (error) {
@@ -234,7 +257,7 @@ async function getTodaysArticles() {
 /**
  * Generate report content using OpenAI
  */
-async function generateReportContent(articles) {
+async function generateReportContent(articles, context = {}) {
   try {
     console.log('🤖 Generating Signal Report content...');
     
@@ -246,7 +269,14 @@ async function generateReportContent(articles) {
       importanceScore: article.importanceScore || 0
     }));
     
-    const fullPrompt = buildSignalReportPrompt(articlesData);
+    let fullPrompt = buildSignalReportPrompt(articlesData);
+    
+    // Add deduplication context to prompt
+    if (context.hasConflict) {
+      fullPrompt += `\n\n⚠️ IMPORTANT: Today's Daily Lesson already covered a similar topic. Focus on "${context.suggestedTopic}" or choose from alternatives: ${context.alternatives?.join(', ') || 'any fresh angle'}. Bring a DIFFERENT perspective to avoid repetition.`;
+    } else if (context.suggestedTopic && context.suggestedTopic !== 'general') {
+      fullPrompt += `\n\n🎯 Suggested focus: "${context.suggestedTopic}" appears most relevant in today's news.`;
+    }
 
     const response = await openai.chat.completions.create({
       model: "gpt-5.1",
@@ -307,7 +337,7 @@ async function postReportToMastodon(content) {
 /**
  * Store report in MongoDB
  */
-async function storeReportInMongoDB(content, articles, mastodonPostData) {
+async function storeReportInMongoDB(content, articles, mastodonPostData, topic = 'general') {
   try {
     const mongoUri = process.env.MONGODB_URI;
     if (!mongoUri) return null;
@@ -321,6 +351,7 @@ async function storeReportInMongoDB(content, articles, mastodonPostData) {
     const reportEntry = {
       type: 'signal_report',
       content: content,
+      topic: topic, // Store topic for deduplication
       articleCount: articles.length,
       articles: articles.map(a => ({
         title: a.title,

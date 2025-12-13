@@ -57,6 +57,13 @@ if (isMastodonConfigured && Mastodon) {
 }
 
 // ============================================================================
+// UNIFIED DEDUPLICATION SERVICE
+// ============================================================================
+
+// Import unified deduplication service (single source of truth)
+const deduplication = require('./content_deduplication');
+
+// ============================================================================
 // CONTENT LIBRARY - Courses and Articles Mapping
 // ============================================================================
 
@@ -389,77 +396,23 @@ The link should feel like a natural invitation to learn more, not a sales pitch.
 // MAIN FUNCTIONS
 // ============================================================================
 
-/**
- * Detect event type from articles
- */
-function detectEventType(articles) {
-  const allText = articles
-    .map(a => `${a.title} ${a.description || ''} ${a.content || ''}`.toLowerCase())
-    .join(' ');
-  
-  // Check each event type for keyword matches
-  for (const [eventType, config] of Object.entries(CONTENT_LIBRARY.eventMappings)) {
-    const matchCount = config.keywords.filter(keyword => allText.includes(keyword)).length;
-    if (matchCount >= 2) {
-      console.log(`🎯 Detected event type: ${eventType} (${matchCount} keyword matches)`);
-      return eventType;
-    }
-  }
-  
-  // Check for single strong matches
-  for (const [eventType, config] of Object.entries(CONTENT_LIBRARY.eventMappings)) {
-    const hasMatch = config.keywords.some(keyword => allText.includes(keyword));
-    if (hasMatch) {
-      console.log(`🎯 Detected event type: ${eventType} (single match)`);
-      return eventType;
-    }
-  }
-  
-  console.log('⚠️ No specific event type detected, using fallback');
-  return 'fallback';
-}
+// Note: Topic detection and deduplication now handled by unified service (content_deduplication.js)
+// This module focuses on content selection from CONTENT_LIBRARY based on suggested topic
 
 /**
- * Get recently used topics and content URLs (for deduplication)
+ * Get relevant content for topic (maps topic to Kodex Academy content)
+ * Uses unified service for content URL freshness filtering
  */
-async function getRecentlyUsedContent(daysBack = 7) {
-  try {
-    const mongoUri = process.env.MONGODB_URI;
-    if (!mongoUri) return { eventTypes: [], contentUrls: [] };
-    
-    const client = new MongoClient(mongoUri);
-    await client.connect();
-    
-    const db = client.db('TweetBot');
-    const collection = db.collection('daily_lessons');
-    
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - daysBack);
-    
-    const recentLessons = await collection.find({
-      postedAt: { $gte: cutoffDate }
-    }).toArray();
-    
-    await client.close();
-    
-    const eventTypes = [...new Set(recentLessons.map(l => l.eventType).filter(Boolean))];
-    const contentUrls = [...new Set(recentLessons.map(l => l.linkedContent?.url).filter(Boolean))];
-    
-    console.log(`📊 Recent lessons (${daysBack} days): ${recentLessons.length} entries`);
-    console.log(`   - Recent event types: ${eventTypes.join(', ') || 'none'}`);
-    console.log(`   - Recent content URLs: ${contentUrls.length} unique`);
-    
-    return { eventTypes, contentUrls };
-  } catch (error) {
-    console.error('⚠️ Error checking recent content:', error.message);
-    return { eventTypes: [], contentUrls: [] };
-  }
-}
-
-/**
- * Get relevant content for event type (with deduplication)
- */
-function getRelevantContent(eventType, recentlyUsed = { eventTypes: [], contentUrls: [] }) {
+async function getRelevantContent(topic, recentContentUrls = []) {
+  // Map unified topic names to CONTENT_LIBRARY event types
+  // (some may differ between unified service and local library)
+  const topicMapping = {
+    'sentiment': 'fomo',
+    'general': 'fallback'
+  };
+  
+  const eventType = topicMapping[topic] || topic;
+  
   // Collect all available content from event type
   let allContent = [];
   
@@ -483,18 +436,17 @@ function getRelevantContent(eventType, recentlyUsed = { eventTypes: [], contentU
     allContent = fallbackOptions;
   }
   
-  // Filter out recently used URLs
-  const freshContent = allContent.filter(c => !recentlyUsed.contentUrls.includes(c.url));
+  // Use unified service for content freshness filtering
+  const freshContent = await deduplication.filterFreshContent(allContent);
   
   if (freshContent.length > 0) {
-    console.log(`✅ Found ${freshContent.length} fresh content options (filtered ${allContent.length - freshContent.length} recently used)`);
     return freshContent[Math.floor(Math.random() * freshContent.length)];
   }
   
-  // If all content for this event type was used recently, try fallback
-  const freshFallback = fallbackOptions.filter(c => !recentlyUsed.contentUrls.includes(c.url));
+  // If all content used recently, try fallback
+  const freshFallback = await deduplication.filterFreshContent(fallbackOptions);
   if (freshFallback.length > 0) {
-    console.log(`⚠️ All event content used recently, using fresh fallback`);
+    console.log(`⚠️ All topic content used recently, using fresh fallback`);
     return freshFallback[Math.floor(Math.random() * freshFallback.length)];
   }
   
@@ -525,17 +477,24 @@ async function generateDailyLesson() {
     
     console.log(`📚 Found ${articles.length} articles for Daily Lesson`);
     
-    // 2. Check what we've posted recently (deduplication)
-    const recentlyUsed = await getRecentlyUsedContent(7); // Last 7 days
+    // 2. Use unified deduplication service to suggest best topic
+    const topicSuggestion = await deduplication.suggestTopic(articles, {
+      callerType: 'dailyLesson',
+      checkSameDayConflict: true
+    });
     
-    // 3. Detect event type
-    const eventType = detectEventType(articles);
+    console.log(`🎯 Topic suggestion: ${topicSuggestion.topic} (${topicSuggestion.reason})`);
+    if (topicSuggestion.warning) {
+      console.log(`⚠️ ${topicSuggestion.warning}`);
+    }
     
-    // 4. Get relevant content (avoiding recently used)
-    const relevantContent = getRelevantContent(eventType, recentlyUsed);
+    const eventType = topicSuggestion.topic;
+    
+    // 3. Get relevant content from CONTENT_LIBRARY (with freshness filtering)
+    const relevantContent = await getRelevantContent(eventType);
     console.log(`📖 Selected content: ${relevantContent.name}`);
-    
-    // 5. Generate the lesson content
+
+    // 4. Generate the lesson content
     const lessonContent = await generateLessonContent(eventType, relevantContent, articles);
     
     if (!lessonContent) {
@@ -543,12 +502,12 @@ async function generateDailyLesson() {
       return null;
     }
     
-    // 6. Post to Mastodon
+    // 5. Post to Mastodon
     let mastodonPostData = null;
     if (process.env.MASTODON_POST_ENABLED === 'true') {
       mastodonPostData = await postLessonToMastodon(lessonContent);
       
-      // 7. Cross-post to X if enabled
+      // 6. Cross-post to X if enabled
       if (mastodonPostData && crossPostToSocialMedia && process.env.X_POST_ENABLED === 'true') {
         try {
           await crossPostToSocialMedia(mastodonPostData, {
@@ -562,7 +521,7 @@ async function generateDailyLesson() {
       }
     }
     
-    // 8. Store in MongoDB
+    // 7. Store in MongoDB
     await storeLessonInMongoDB(lessonContent, eventType, relevantContent, articles, mastodonPostData);
     
     return lessonContent;
