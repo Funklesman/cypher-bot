@@ -727,7 +727,6 @@ module.exports = {
   generateDailyLesson,
   scheduleDailyLesson,
   setBotStateChecker,
-  detectEventType,
   getRelevantContent,
   CONTENT_LIBRARY,
   get nextDailyLesson() { return nextDailyLesson; }
