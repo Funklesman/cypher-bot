@@ -207,13 +207,77 @@ const CONTENT_LIBRARY = {
     
     // Technical Analysis Events
     technical: {
-      keywords: ['support', 'resistance', 'breakout', 'breakdown', 'trend', 'momentum', 'reversal', 'pattern'],
+      keywords: ['support', 'resistance', 'breakout', 'breakdown', 'trend', 'momentum', 'reversal', 'pattern', 'chart', 'indicator'],
       courses: [
         { slug: 'read-charts-like-a-map-trade-with-a-plan-not-a-guess', name: 'Read Charts Like a Map', url: 'https://www.kodex.academy/courses/read-charts-like-a-map-trade-with-a-plan-not-a-guess' }
       ],
       articles: [
         { slug: 'macd', name: 'MACD', url: 'https://www.kodex.academy/uplink/macd', summary: 'Momentum tells the truth before price does.' },
         { slug: 'trendlines', name: 'Trendlines', url: 'https://www.kodex.academy/uplink/trendlines', summary: 'Highlights direction, support, and when momentum may shift.' }
+      ],
+      tools: [
+        { slug: 'market-tools', name: 'Market Tools - Advanced TA Analysis', url: 'https://www.kodex.academy/market-tools', summary: 'Run your own technical analysis with RSI, MACD, Bollinger Bands, Elliott Wave, and 14 more professional indicators.' }
+      ]
+    },
+    
+    // Trading/Execution Events
+    trading: {
+      keywords: ['order', 'market order', 'limit order', 'short', 'shorting', 'long', 'leverage', 'position', 'entry', 'exit', 'stop loss', 'take profit'],
+      tools: [
+        { slug: 'market-simulator', name: 'Market Simulator - Learn to Trade', url: 'https://www.kodex.academy/market-simulator', summary: 'Practice market orders, shorts, staking, and pattern analysis with real market data — no risk, real learning.' }
+      ],
+      articles: [
+        { slug: 'risk1', name: 'Crypto Risk Part 1', url: 'https://www.kodex.academy/uplink/risk1', summary: 'Most traders don\'t blow up from bad picks—they blow up from bad risk.' }
+      ]
+    },
+    
+    // Pattern/Wave Events
+    patterns: {
+      keywords: ['elliott', 'wave', 'fibonacci', 'fib', 'golden', 'retracement', 'ichimoku', 'cloud', 'pivot'],
+      tools: [
+        { slug: 'market-tools', name: 'Market Tools - Pattern Analysis', url: 'https://www.kodex.academy/market-tools', summary: 'Analyze Elliott Waves, Fibonacci retracements, Ichimoku clouds, and more with our professional TA toolkit.' }
+      ],
+      articles: [
+        { slug: 'elliot-wave-theory', name: 'Elliott Wave Theory', url: 'https://www.kodex.academy/uplink/elliot-wave-theory', summary: 'Markets move in waves — not straight lines. Recognize cycles and prepare for what comes next.' },
+        { slug: 'fibonacci-retracement', name: 'Fibonacci Retracement', url: 'https://www.kodex.academy/uplink/fibonacci-retracement', summary: 'Use after strong price moves to spot likely pullbacks.' }
+      ]
+    },
+    
+    // Learning/Education Events
+    education: {
+      keywords: ['learn', 'beginner', 'newbie', 'start', 'getting started', 'basics', 'fundamentals', 'course'],
+      pages: [
+        { slug: 'courses', name: 'Kodex Academy Courses', url: 'https://www.kodex.academy/courses', summary: 'Structured courses from blockchain basics to advanced trading strategies.' },
+        { slug: 'learning-paths', name: 'Learning Paths', url: 'https://www.kodex.academy/learning-paths', summary: 'Guided paths for beginners, traders, and DeFi explorers.' },
+        { slug: 'insights', name: 'Insights & Articles', url: 'https://www.kodex.academy/insights', summary: 'Deep-dive articles on every crypto topic — read or listen.' }
+      ]
+    },
+    
+    // Community/Competition Events
+    community: {
+      keywords: ['leaderboard', 'ranking', 'competition', 'trader', 'top trader', 'performance', 'track record'],
+      pages: [
+        { slug: 'leaderboards', name: 'Trader Leaderboards', url: 'https://www.kodex.academy/leaderboards', summary: 'See how you stack up against other traders. Track your progress and climb the ranks.' },
+        { slug: 'market-simulator', name: 'Market Simulator', url: 'https://www.kodex.academy/market-simulator', summary: 'Practice trading, build your track record, and compete with others.' }
+      ]
+    },
+    
+    // Platform/Security Events
+    platform: {
+      keywords: ['safe', 'secure', 'trusted', 'where to', 'exchange', 'wallet', 'hardware', 'vpn', 'security'],
+      pages: [
+        { slug: 'verified-platforms', name: 'Verified Platforms', url: 'https://www.kodex.academy/verified-platforms', summary: 'Vetted exchanges, wallets, and security tools. Know where it\'s safe to trade and store.' }
+      ],
+      articles: [
+        { slug: 'wallets1', name: 'Take Control of Your Crypto', url: 'https://www.kodex.academy/uplink/wallets1', summary: 'Skip this path, and you\'ll keep paying tuition to mistakes.' }
+      ]
+    },
+    
+    // Market Reflection Events
+    reflection: {
+      keywords: ['market today', 'what happened', 'daily', 'weekly', 'recap', 'summary', 'digest'],
+      pages: [
+        { slug: 'crypto-diary', name: 'Crypto Diary', url: 'https://www.kodex.academy/crypto-diary', summary: 'Daily reflections on what\'s moving the market — patterns, signals, and what to watch.' }
       ]
     }
   },
@@ -223,6 +287,10 @@ const CONTENT_LIBRARY = {
     articles: [
       { slug: 'trade-with-precision', name: 'How the Market Really Works', url: 'https://www.kodex.academy/uplink/trade-with-precision', summary: 'Crypto markets are not random. Learn the structures that govern motion.' },
       { slug: 'risk1', name: 'Crypto Risk Part 1', url: 'https://www.kodex.academy/uplink/risk1', summary: 'Most traders don\'t blow up from bad picks—they blow up from bad risk.' }
+    ],
+    pages: [
+      { slug: 'insights', name: 'Kodex Academy Insights', url: 'https://www.kodex.academy/insights', summary: 'Explore our library of crypto education — from basics to advanced strategies.' },
+      { slug: 'courses', name: 'Kodex Academy Courses', url: 'https://www.kodex.academy/courses', summary: 'Structured learning paths for every level.' }
     ]
   }
 };
@@ -232,55 +300,76 @@ const CONTENT_LIBRARY = {
 // ============================================================================
 
 function buildDailyLessonPrompt(eventType, content, articles) {
-  return `You are the educational voice of Kodex Academy. You turn current events into learning moments.
+  return `You are writing a reflective teaching moment. You've been through the cycles, you've seen the patterns repeat, and you understand what actually matters for someone learning this space. You're not a textbook — you're a thoughtful mentor sharing what today's news reminded you about.
 
-## YOUR TASK
-Yesterday, something happened in crypto. Today, you teach from it.
+Pick ONE thing from today's news that connects to a fundamental concept. Your job is to help the reader actually UNDERSTAND something — not just know what happened, but see why it matters and how it connects to principles they can use.
 
-Look at the recent news and connect it to the educational content provided. Create ONE educational tweet that:
-1. References what happened (briefly)
-2. Extracts the timeless lesson
-3. Points to where they can learn more
+---
 
-## EVENT TYPE DETECTED: ${eventType}
+🛑 DO NOT lecture or moralize. No "You should..." or "Always remember to..."
 
-## RELEVANT KODEX CONTENT:
-${JSON.stringify(content, null, 2)}
+🛑 DO NOT be generic. Tie it specifically to what happened today.
 
-## FORMAT
-- One to two flowing paragraphs
-- Under 1500 characters (room to develop the lesson)
-- Start with the event/lesson connection
-- Develop the principle with context or example
-- Include one quotable insight
-- 2-4 emojis placed naturally
-- Place 2 hashtags EARLY (after first paragraph), NEVER at the end
+🛑 DO NOT sound like a textbook or course description.
 
-## MANDATORY ENDING STRUCTURE
-Your post MUST end EXACTLY like this:
+🛑 DO NOT use AI-cliché words: tectonic, paradigm, landscape, pivotal, cornerstone, crucial, imperative, ecosystem (unless literal), leverage (unless about actual leverage)
 
-Learn more → ${content.url} 🎓
+🛑 DO NOT be cynical. Be curious, helpful, genuinely interested in teaching.
 
-The link with 🎓 is the ABSOLUTE LAST LINE. Nothing after it. No hashtags after it. The post is REJECTED if hashtags appear at the end.
+---
 
-## VOICE
-- Mentor, not lecturer
-- "Here's what this teaches us..." not "You should..."
-- Connect current event to timeless principle
-- Practical, not preachy
+## 🎯 This should feel like:
+- A mentor explaining why today's news matters for your education
+- "Here's what this actually teaches us..." energy
+- Connecting a current event to a timeless principle
+- Practical insight the reader can use going forward
+- Curious exploration, not confident pronouncements
 
-## DON'T
-- Lecture or moralize
-- Use "Quietly" as an opener
-- Summarize multiple stories
-- Sound like a textbook
-- Be generic — tie it to the specific event
+## ❌ This should NOT feel like:
+- A textbook or course sales pitch
+- Lecturing or moralizing
+- Generic crypto advice
+- A news summary with "learn more" tacked on
+- Promotional or salesy
 
-## RECENT NEWS CONTEXT:
+---
+
+## ✍️ Voice:
+- Write like you think — direct, curious, helpful
+- Use "I" naturally ("What strikes me here...", "This is why I always come back to...", "The thing people miss is...")
+- Balance explanation with insight
+- 2-3 emojis max, placed naturally
+- Let the teaching emerge from the story, not the other way around
+
+---
+
+## 🎓 Make it educational:
+- What does this event reveal about how crypto actually works?
+- What principle does this illustrate?
+- How does understanding this help someone navigate the space?
+- What would a beginner miss that experience would teach?
+
+---
+
+## 📚 CONTENT TO CONNECT TO:
+Topic: ${content.name}
+Summary: ${content.summary || 'Educational content on this topic'}
+URL: ${content.url}
+
+## 📰 TODAY'S NEWS (pick ONE connection):
 ${JSON.stringify(articles.map(a => ({ title: a.title, source: a.source })), null, 2)}
 
-## EXAMPLE OUTPUT:
-That 40% pump just got rejected at RSI 85 📊. When everyone's chasing, the chart is already stretched. Overbought signals matter more in low-liquidity tokens—momentum exhausts faster when there's no depth to absorb it. Learn more → https://www.kodex.academy/uplink/relative-strength-index 🎓 #CryptoEducation #RSI`;
+---
+
+## ✅ Format:
+- 2-3 flowing paragraphs
+- Around 1500-2000 characters (give it room to actually teach)
+- Start mid-thought, connected to the news
+- Weave in the educational link naturally (not as a forced CTA)
+- End with the link: "Dig deeper → ${content.url}" or "More on this → ${content.url}"
+- NO hashtags
+
+The link should feel like a natural invitation to learn more, not a sales pitch.`;
 }
 
 // ============================================================================
@@ -322,18 +411,27 @@ function detectEventType(articles) {
  */
 function getRelevantContent(eventType) {
   if (eventType === 'fallback' || !CONTENT_LIBRARY.eventMappings[eventType]) {
-    return CONTENT_LIBRARY.fallback.articles[Math.floor(Math.random() * CONTENT_LIBRARY.fallback.articles.length)];
+    // Mix articles and pages for fallback
+    const fallbackOptions = [
+      ...(CONTENT_LIBRARY.fallback.articles || []),
+      ...(CONTENT_LIBRARY.fallback.pages || [])
+    ];
+    return fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
   }
   
   const eventConfig = CONTENT_LIBRARY.eventMappings[eventType];
   
-  // Prefer articles over courses for tweets (more specific)
-  if (eventConfig.articles && eventConfig.articles.length > 0) {
-    return eventConfig.articles[Math.floor(Math.random() * eventConfig.articles.length)];
-  }
+  // Collect all available content types
+  const allContent = [
+    ...(eventConfig.articles || []),
+    ...(eventConfig.tools || []),
+    ...(eventConfig.pages || []),
+    ...(eventConfig.courses || [])
+  ];
   
-  if (eventConfig.courses && eventConfig.courses.length > 0) {
-    return eventConfig.courses[0];
+  if (allContent.length > 0) {
+    // Randomly select from all available content
+    return allContent[Math.floor(Math.random() * allContent.length)];
   }
   
   return CONTENT_LIBRARY.fallback.articles[0];
@@ -449,7 +547,7 @@ async function generateLessonContent(eventType, content, articles) {
     
     const response = await openai.chat.completions.create({
       model: "gpt-5.1",
-      max_completion_tokens: 1000,
+      max_completion_tokens: 1500,
       messages: [
         { role: "system", content: prompt }
       ]
@@ -457,26 +555,13 @@ async function generateLessonContent(eventType, content, articles) {
     
     let lessonContent = response.choices[0].message.content.trim();
     
-    // Ensure the URL is included
+    // Ensure the URL is included somewhere
     if (!lessonContent.includes('kodex.academy')) {
-      lessonContent = lessonContent.replace(/🎓\s*$/, '') + ` Learn more → ${content.url} 🎓`;
+      lessonContent = lessonContent + `\n\nDig deeper → ${content.url}`;
     }
     
-    // Validate length
-    if (lessonContent.length > 1600) {
-      console.log(`⚠️ Lesson too long (${lessonContent.length} chars), regenerating...`);
-      const retryResponse = await openai.chat.completions.create({
-        model: "gpt-5.1",
-        max_completion_tokens: 800,
-        messages: [
-          { role: "system", content: prompt + "\n\n⚠️ CRITICAL: Keep under 1400 characters. Be more concise." }
-        ]
-      });
-      lessonContent = retryResponse.choices[0].message.content.trim();
-      if (!lessonContent.includes('kodex.academy')) {
-        lessonContent = lessonContent.replace(/🎓\s*$/, '') + ` Learn more → ${content.url} 🎓`;
-      }
-    }
+    // Log length
+    console.log(`📏 Lesson length: ${lessonContent.length} chars`);
     
     console.log(`✅ Generated Daily Lesson (${lessonContent.length} characters)`);
     console.log('\n--- Preview ---');
