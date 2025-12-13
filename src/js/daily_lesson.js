@@ -248,11 +248,12 @@ Look at the recent news and connect it to the educational content provided. Crea
 ${JSON.stringify(content, null, 2)}
 
 ## FORMAT
-- One flowing paragraph
-- Under 600 characters
+- One to two flowing paragraphs
+- Under 1500 characters (room to develop the lesson)
 - Start with the event/lesson connection
+- Develop the principle with context or example
 - Include one quotable insight
-- 1-2 emojis placed naturally
+- 2-4 emojis placed naturally
 - End with: "Learn more → [URL] 🎓"
 - Add 2 relevant hashtags
 
@@ -442,7 +443,7 @@ async function generateLessonContent(eventType, content, articles) {
     
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
-      max_tokens: 400,
+      max_tokens: 800,
       messages: [
         { role: "system", content: prompt }
       ]
@@ -456,13 +457,13 @@ async function generateLessonContent(eventType, content, articles) {
     }
     
     // Validate length
-    if (lessonContent.length > 650) {
+    if (lessonContent.length > 1600) {
       console.log(`⚠️ Lesson too long (${lessonContent.length} chars), regenerating...`);
       const retryResponse = await openai.chat.completions.create({
         model: "gpt-4o",
-        max_tokens: 350,
+        max_tokens: 700,
         messages: [
-          { role: "system", content: prompt + "\n\n⚠️ CRITICAL: Keep under 550 characters. Be more concise." }
+          { role: "system", content: prompt + "\n\n⚠️ CRITICAL: Keep under 1400 characters. Be more concise." }
         ]
       });
       lessonContent = retryResponse.choices[0].message.content.trim();

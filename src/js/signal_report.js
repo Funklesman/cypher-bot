@@ -65,11 +65,12 @@ const signalReportPrompt = `You are a documentary narrator covering crypto. You'
 Look at today's articles and find THE ONE PATTERN worth noting. Not a summary — a signal. What did the noise say vs what actually happened?
 
 ## FORMAT
-- One flowing paragraph
-- Under 600 characters (this is a tweet, not a diary)
+- One to two flowing paragraphs
+- Under 1500 characters (longer than a tweet, but not a full diary)
 - Start with an observation about what happened or what shifted
+- Develop the thought with context or comparison
 - Include one punch line that's quotable
-- 2-3 emojis placed naturally inside text
+- 2-4 emojis placed naturally inside text
 - End with: "The signal remembers. The noise forgets."
 - Add 2 relevant hashtags at the very end
 
@@ -207,7 +208,7 @@ ${JSON.stringify(articlesData, null, 2)}`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
-      max_tokens: 400,
+      max_tokens: 800,
       messages: [
         { role: "system", content: fullPrompt }
       ]
@@ -216,14 +217,14 @@ ${JSON.stringify(articlesData, null, 2)}`;
     let reportContent = response.choices[0].message.content.trim();
     
     // Validate length
-    if (reportContent.length > 650) {
+    if (reportContent.length > 1600) {
       console.log(`⚠️ Report too long (${reportContent.length} chars), regenerating...`);
       // Try again with stricter instruction
       const retryResponse = await openai.chat.completions.create({
         model: "gpt-4o",
-        max_tokens: 350,
+        max_tokens: 700,
         messages: [
-          { role: "system", content: fullPrompt + "\n\n⚠️ CRITICAL: Keep under 550 characters. Be more concise." }
+          { role: "system", content: fullPrompt + "\n\n⚠️ CRITICAL: Keep under 1400 characters. Be more concise." }
         ]
       });
       reportContent = retryResponse.choices[0].message.content.trim();
