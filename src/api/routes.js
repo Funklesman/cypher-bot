@@ -1,10 +1,48 @@
 const express = require('express');
 const router = express.Router();
 const { exec } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
 // Import bot functions
 let botModule;
 let cryptoDiaryModule;
+
+/**
+ * Update a variable in the .env file so it persists across restarts
+ * @param {string} key - The environment variable name
+ * @param {string} value - The new value
+ */
+function updateEnvFile(key, value) {
+    try {
+        const envPath = path.join(process.cwd(), '.env');
+        
+        if (!fs.existsSync(envPath)) {
+            console.error('❌ .env file not found at:', envPath);
+            return false;
+        }
+        
+        let envContent = fs.readFileSync(envPath, 'utf8');
+        
+        // Check if the key exists in the file
+        const regex = new RegExp(`^${key}=.*$`, 'm');
+        
+        if (regex.test(envContent)) {
+            // Update existing key
+            envContent = envContent.replace(regex, `${key}=${value}`);
+        } else {
+            // Add new key at the end
+            envContent += `\n${key}=${value}`;
+        }
+        
+        fs.writeFileSync(envPath, envContent);
+        console.log(`💾 Persisted ${key}=${value} to .env file`);
+        return true;
+    } catch (error) {
+        console.error(`❌ Failed to update .env file:`, error.message);
+        return false;
+    }
+}
 
 // Lazy load modules to avoid circular dependencies
 function getBotModule() {
@@ -323,20 +361,24 @@ router.get('/settings', (req, res) => {
 
 /**
  * POST /api/settings/toggle-x
- * Toggle X (Twitter) posting on/off
+ * Toggle X (Twitter) posting on/off - persists to .env file
  */
 router.post('/settings/toggle-x', (req, res) => {
     try {
         const { enabled } = req.body;
+        const value = enabled ? 'true' : 'false';
         
-        // Update environment variable
-        process.env.X_POST_ENABLED = enabled ? 'true' : 'false';
+        // Update environment variable in memory
+        process.env.X_POST_ENABLED = value;
         
-        console.log(`📡 Admin ${enabled ? 'enabled' : 'disabled'} X posting`);
+        // Persist to .env file so it survives restarts
+        updateEnvFile('X_POST_ENABLED', value);
+        
+        console.log(`📡 Admin ${enabled ? 'enabled' : 'disabled'} X posting (persisted)`);
 
         res.json({
             success: true,
-            message: `X posting ${enabled ? 'enabled' : 'disabled'}`,
+            message: `X posting ${enabled ? 'enabled' : 'disabled'} (saved to .env)`,
             data: { xPostEnabled: enabled },
             timestamp: new Date().toISOString()
         });
@@ -352,20 +394,24 @@ router.post('/settings/toggle-x', (req, res) => {
 
 /**
  * POST /api/settings/toggle-bluesky
- * Toggle Bluesky posting on/off
+ * Toggle Bluesky posting on/off - persists to .env file
  */
 router.post('/settings/toggle-bluesky', (req, res) => {
     try {
         const { enabled } = req.body;
+        const value = enabled ? 'true' : 'false';
         
-        // Update environment variable
-        process.env.BLUESKY_POST_ENABLED = enabled ? 'true' : 'false';
+        // Update environment variable in memory
+        process.env.BLUESKY_POST_ENABLED = value;
         
-        console.log(`📡 Admin ${enabled ? 'enabled' : 'disabled'} Bluesky posting`);
+        // Persist to .env file so it survives restarts
+        updateEnvFile('BLUESKY_POST_ENABLED', value);
+        
+        console.log(`📡 Admin ${enabled ? 'enabled' : 'disabled'} Bluesky posting (persisted)`);
 
         res.json({
             success: true,
-            message: `Bluesky posting ${enabled ? 'enabled' : 'disabled'}`,
+            message: `Bluesky posting ${enabled ? 'enabled' : 'disabled'} (saved to .env)`,
             data: { blueskyPostEnabled: enabled },
             timestamp: new Date().toISOString()
         });
@@ -381,20 +427,24 @@ router.post('/settings/toggle-bluesky', (req, res) => {
 
 /**
  * POST /api/settings/toggle-wisdom
- * Toggle Wisdom posting on/off
+ * Toggle Wisdom posting on/off - persists to .env file
  */
 router.post('/settings/toggle-wisdom', (req, res) => {
     try {
         const { enabled } = req.body;
+        const value = enabled ? 'true' : 'false';
         
-        // Update environment variable
-        process.env.WISDOM_POST_ENABLED = enabled ? 'true' : 'false';
+        // Update environment variable in memory
+        process.env.WISDOM_POST_ENABLED = value;
         
-        console.log(`🎓 Admin ${enabled ? 'enabled' : 'disabled'} Wisdom posting`);
+        // Persist to .env file so it survives restarts
+        updateEnvFile('WISDOM_POST_ENABLED', value);
+        
+        console.log(`🎓 Admin ${enabled ? 'enabled' : 'disabled'} Wisdom posting (persisted)`);
 
         res.json({
             success: true,
-            message: `Wisdom posting ${enabled ? 'enabled' : 'disabled'}`,
+            message: `Wisdom posting ${enabled ? 'enabled' : 'disabled'} (saved to .env)`,
             data: { wisdomPostEnabled: enabled },
             timestamp: new Date().toISOString()
         });
