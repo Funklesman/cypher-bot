@@ -174,9 +174,12 @@ function formatContentForX(content) {
   // Remove markdown formatting (except for the title we've already handled)
   processedContent = processedContent.replace(/\*\*/g, ''); // Remove bold markers
   
-  // Remove problematic characters while keeping structure
-  processedContent = processedContent.replace(/[\u{1F300}-\u{1F6FF}]/ug, ''); // Remove emojis
-  processedContent = processedContent.replace(/[^\x00-\x7F\n]/g, ''); // Remove non-ASCII chars except newlines
+  // Clean up problematic characters but KEEP emojis
+  processedContent = processedContent
+    .replace(/[\u2018\u2019]/g, "'")  // Smart single quotes → regular
+    .replace(/[\u201C\u201D]/g, '"')  // Smart double quotes → regular
+    .replace(/\u2026/g, '...')        // Ellipsis → three dots
+    .replace(/[\u2013\u2014]/g, '-'); // En/em dashes → regular dash
   
   // Clean up excessive line breaks (no more than 2 consecutive)
   processedContent = processedContent.replace(/\n{3,}/g, '\n\n');

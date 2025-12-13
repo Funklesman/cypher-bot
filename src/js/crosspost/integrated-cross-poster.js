@@ -87,9 +87,8 @@ function formatContentForX(htmlContent, options = {}) {
     // Fix any potential double spaces from the replacements
     .replace(/ {2,}/g, ' ');
   
-  // Clean up other problematic characters
+  // Clean up problematic characters but KEEP emojis
   content = content
-    .replace(/[^\x00-\x7F]/g, '') // Remove non-ASCII chars including emojis
     .replace(/…/g, '...')         // Replace ellipsis
     .replace(/"/g, '"')           // Replace smart quotes
     .replace(/"/g, '"')           // Replace smart quotes
