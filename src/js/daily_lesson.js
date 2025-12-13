@@ -312,6 +312,10 @@ Pick ONE thing from today's news that connects to a fundamental concept. Your jo
 
 🛑 DO NOT sound like a textbook or course description.
 
+🛑 DO NOT reference "the headline" or "today's news" as if the reader has seen it. They haven't. Introduce the topic naturally — they're just scrolling.
+
+🛑 DO NOT start with "It's funny that..." or reference external context the reader doesn't have.
+
 🛑 DO NOT use AI-cliché words: tectonic, paradigm, landscape, pivotal, cornerstone, crucial, imperative, ecosystem (unless literal), leverage (unless about actual leverage)
 
 🛑 DO NOT be cynical. Be curious, helpful, genuinely interested in teaching.
@@ -319,11 +323,18 @@ Pick ONE thing from today's news that connects to a fundamental concept. Your jo
 ---
 
 ## 🎯 This should feel like:
-- A mentor explaining why today's news matters for your education
+- A mentor explaining why something matters for your education
 - "Here's what this actually teaches us..." energy
 - Connecting a current event to a timeless principle
 - Practical insight the reader can use going forward
 - Curious exploration, not confident pronouncements
+
+## 🚀 Good opening styles (vary these):
+- Start with the concept: "Trust banks sound boring, but they're actually..."
+- Start with a question: "What happens when a stablecoin issuer becomes a bank?"
+- Start with the shift: "Five crypto firms just got trust bank approval..."
+- Start with what it means: "When Circle becomes a trust bank, the $1 in your wallet..."
+- Start mid-thought: "...the part people miss about stablecoin regulation is..."
 
 ## ❌ This should NOT feel like:
 - A textbook or course sales pitch
