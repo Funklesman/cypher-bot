@@ -329,12 +329,14 @@ Pick ONE thing from today's news that connects to a fundamental concept. Your jo
 - Practical insight the reader can use going forward
 - Curious exploration, not confident pronouncements
 
-## 🚀 Good opening styles (vary these):
-- Start with the concept: "Trust banks sound boring, but they're actually..."
-- Start with a question: "What happens when a stablecoin issuer becomes a bank?"
-- Start with the shift: "Five crypto firms just got trust bank approval..."
-- Start with what it means: "When Circle becomes a trust bank, the $1 in your wallet..."
-- Start mid-thought: "...the part people miss about stablecoin regulation is..."
+## 🚀 Good opening styles (VARY THESE - don't always use the same one):
+- Direct statement: "Trust banks sound boring, but they're actually where the real power lives."
+- Question: "What happens when a stablecoin issuer becomes a bank?"
+- The shift: "Five crypto firms just got trust bank approval. Here's why that matters."
+- What it means: "When Circle becomes a trust bank, the $1 in your wallet changes legally."
+- Bold claim: "Stablecoin regulation isn't about crypto. It's about who backs your dollar."
+
+⚠️ DO NOT always start with "..." — vary your openings. Only use ellipsis occasionally.
 
 ## ❌ This should NOT feel like:
 - A textbook or course sales pitch
@@ -418,34 +420,87 @@ function detectEventType(articles) {
 }
 
 /**
- * Get relevant content for event type
+ * Get recently used topics and content URLs (for deduplication)
  */
-function getRelevantContent(eventType) {
-  if (eventType === 'fallback' || !CONTENT_LIBRARY.eventMappings[eventType]) {
-    // Mix articles and pages for fallback
-    const fallbackOptions = [
-      ...(CONTENT_LIBRARY.fallback.articles || []),
-      ...(CONTENT_LIBRARY.fallback.pages || [])
+async function getRecentlyUsedContent(daysBack = 7) {
+  try {
+    const mongoUri = process.env.MONGODB_URI;
+    if (!mongoUri) return { eventTypes: [], contentUrls: [] };
+    
+    const client = new MongoClient(mongoUri);
+    await client.connect();
+    
+    const db = client.db('TweetBot');
+    const collection = db.collection('daily_lessons');
+    
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - daysBack);
+    
+    const recentLessons = await collection.find({
+      postedAt: { $gte: cutoffDate }
+    }).toArray();
+    
+    await client.close();
+    
+    const eventTypes = [...new Set(recentLessons.map(l => l.eventType).filter(Boolean))];
+    const contentUrls = [...new Set(recentLessons.map(l => l.linkedContent?.url).filter(Boolean))];
+    
+    console.log(`📊 Recent lessons (${daysBack} days): ${recentLessons.length} entries`);
+    console.log(`   - Recent event types: ${eventTypes.join(', ') || 'none'}`);
+    console.log(`   - Recent content URLs: ${contentUrls.length} unique`);
+    
+    return { eventTypes, contentUrls };
+  } catch (error) {
+    console.error('⚠️ Error checking recent content:', error.message);
+    return { eventTypes: [], contentUrls: [] };
+  }
+}
+
+/**
+ * Get relevant content for event type (with deduplication)
+ */
+function getRelevantContent(eventType, recentlyUsed = { eventTypes: [], contentUrls: [] }) {
+  // Collect all available content from event type
+  let allContent = [];
+  
+  if (eventType !== 'fallback' && CONTENT_LIBRARY.eventMappings[eventType]) {
+    const eventConfig = CONTENT_LIBRARY.eventMappings[eventType];
+    allContent = [
+      ...(eventConfig.articles || []),
+      ...(eventConfig.tools || []),
+      ...(eventConfig.pages || []),
+      ...(eventConfig.courses || [])
     ];
-    return fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
   }
   
-  const eventConfig = CONTENT_LIBRARY.eventMappings[eventType];
-  
-  // Collect all available content types
-  const allContent = [
-    ...(eventConfig.articles || []),
-    ...(eventConfig.tools || []),
-    ...(eventConfig.pages || []),
-    ...(eventConfig.courses || [])
+  // Add fallback content
+  const fallbackOptions = [
+    ...(CONTENT_LIBRARY.fallback.articles || []),
+    ...(CONTENT_LIBRARY.fallback.pages || [])
   ];
   
-  if (allContent.length > 0) {
-    // Randomly select from all available content
-    return allContent[Math.floor(Math.random() * allContent.length)];
+  if (allContent.length === 0) {
+    allContent = fallbackOptions;
   }
   
-  return CONTENT_LIBRARY.fallback.articles[0];
+  // Filter out recently used URLs
+  const freshContent = allContent.filter(c => !recentlyUsed.contentUrls.includes(c.url));
+  
+  if (freshContent.length > 0) {
+    console.log(`✅ Found ${freshContent.length} fresh content options (filtered ${allContent.length - freshContent.length} recently used)`);
+    return freshContent[Math.floor(Math.random() * freshContent.length)];
+  }
+  
+  // If all content for this event type was used recently, try fallback
+  const freshFallback = fallbackOptions.filter(c => !recentlyUsed.contentUrls.includes(c.url));
+  if (freshFallback.length > 0) {
+    console.log(`⚠️ All event content used recently, using fresh fallback`);
+    return freshFallback[Math.floor(Math.random() * freshFallback.length)];
+  }
+  
+  // Last resort: just pick something
+  console.log(`⚠️ All content used recently, picking randomly anyway`);
+  return allContent[Math.floor(Math.random() * allContent.length)];
 }
 
 /**
@@ -470,14 +525,17 @@ async function generateDailyLesson() {
     
     console.log(`📚 Found ${articles.length} articles for Daily Lesson`);
     
-    // 2. Detect event type
+    // 2. Check what we've posted recently (deduplication)
+    const recentlyUsed = await getRecentlyUsedContent(7); // Last 7 days
+    
+    // 3. Detect event type
     const eventType = detectEventType(articles);
     
-    // 3. Get relevant content
-    const relevantContent = getRelevantContent(eventType);
+    // 4. Get relevant content (avoiding recently used)
+    const relevantContent = getRelevantContent(eventType, recentlyUsed);
     console.log(`📖 Selected content: ${relevantContent.name}`);
     
-    // 4. Generate the lesson content
+    // 5. Generate the lesson content
     const lessonContent = await generateLessonContent(eventType, relevantContent, articles);
     
     if (!lessonContent) {
@@ -485,12 +543,12 @@ async function generateDailyLesson() {
       return null;
     }
     
-    // 5. Post to Mastodon
+    // 6. Post to Mastodon
     let mastodonPostData = null;
     if (process.env.MASTODON_POST_ENABLED === 'true') {
       mastodonPostData = await postLessonToMastodon(lessonContent);
       
-      // 6. Cross-post to X if enabled
+      // 7. Cross-post to X if enabled
       if (mastodonPostData && crossPostToSocialMedia && process.env.X_POST_ENABLED === 'true') {
         try {
           await crossPostToSocialMedia(mastodonPostData, {
@@ -504,7 +562,7 @@ async function generateDailyLesson() {
       }
     }
     
-    // 7. Store in MongoDB
+    // 8. Store in MongoDB
     await storeLessonInMongoDB(lessonContent, eventType, relevantContent, articles, mastodonPostData);
     
     return lessonContent;

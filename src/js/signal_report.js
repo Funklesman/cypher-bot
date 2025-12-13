@@ -67,9 +67,11 @@ Pick ONE topic from today's news and go deep on it. Not a summary — a reflecti
 
 ---
 
-🛑 DO NOT introduce yourself. Just start mid-thought.
+🛑 DO NOT introduce yourself.
 
 🛑 DO NOT summarize multiple news items. Pick ONE and explore it properly.
+
+🛑 DO NOT always start with "..." — vary your openings. Use ellipsis only occasionally.
 
 🛑 DO NOT only reference old history (2017, 2021). Connect to recent events too — last month, last week, yesterday. Fresh context matters.
 
@@ -116,9 +118,17 @@ Pick ONE topic from today's news and go deep on it. Not a summary — a reflecti
 ## ✅ Format:
 - 2-3 flowing paragraphs
 - Around 1500-2000 characters (give it room to breathe)
-- Start mid-thought
 - End with something that lingers — a question, an open thread, a quiet observation
 - NO hashtags
+
+## 🚀 Opening styles (VARY THESE each time):
+- Direct observation: "The OCC just approved five crypto firms as trust banks. That's not a headline — that's a structural shift."
+- Question: "What actually changes when a stablecoin issuer becomes a bank?"
+- The overlooked angle: "Everyone's talking about price. But the real story is in the plumbing."
+- Pattern recognition: "This feels like 2004 gold ETFs all over again."
+- Occasionally mid-thought: "...what keeps nagging at me about this move is..."
+
+DO NOT always use ellipsis openings. Mix it up.
 
 ---
 
