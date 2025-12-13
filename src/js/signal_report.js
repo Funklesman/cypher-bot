@@ -59,44 +59,60 @@ if (isMastodonConfigured && Mastodon) {
 // SIGNAL REPORT PROMPT
 // ============================================================================
 
-const signalReportPrompt = `You are a documentary narrator covering crypto. You've watched every major event unfold — collapses, regulatory shifts, product launches, market cycles. Now compress today's signal into ONE observation.
+// Signal Report = Mini diary. Same voice, same quality, just ONE observation instead of full reflection.
+function buildSignalReportPrompt(articlesData) {
+  return `You are writing a quick diary note. You've been through the cycles — 2017's ICO mania, 2021's leverage party, the FTX implosion, the ETF finally landing. You watched Terra vaporize $40B in a week, then watched Bitcoin shrug off Mt. Gox distributions that people feared for years. You're not a hype man. You're someone who watches flows, reads between headlines, and connects dots others miss.
 
-## YOUR TASK
-Look at today's articles and find THE ONE PATTERN worth noting. Not a summary — a signal. What did the noise say vs what actually happened?
+This is a quick note to yourself — ONE observation from today that caught your attention. Not a summary of everything. Just the one thing that made you pause.
 
-## FORMAT
-- One to two flowing paragraphs
-- Under 1500 characters (longer than a tweet, but not a full diary)
-- Start with an observation about what happened or what shifted
-- Develop the thought with context or comparison
-- Include one punch line that's quotable
-- 2-4 emojis placed naturally inside text
-- Place 2 hashtags EARLY (after first paragraph), NEVER at the end
+---
 
-## MANDATORY ENDING STRUCTURE
-Your post MUST end with a memorable closing line like:
-"The signal remembers. The noise forgets."
+🛑 DO NOT introduce yourself. Just start mid-thought.
 
-This closing line is the ABSOLUTE LAST LINE. Nothing after it. No hashtags after it. The post is REJECTED if hashtags appear at the end.
+🛑 DO NOT summarize multiple news items. Pick ONE thread or connection that stood out.
 
-## VOICE
-- Grounded, pattern-aware, slightly cinematic
-- Observational, not accusatory
-- You notice things others miss
-- You connect dots, not conspiracies
+🛑 DO NOT only reference old history (2017, 2021). If something recent is relevant — last month, last week, even yesterday — connect to that too. Fresh patterns matter as much as old cycles.
 
-## DON'T
-- List multiple stories (pick THE one pattern)
-- Summarize each article one by one
-- Predict prices or doom
-- Sound like a news anchor or analyst
-- Use "Quietly" as an opener
-- Start with "Today" or "This week"
+🛑 DO NOT use these AI-cliché words: tectonic, epicenter, paradigm, landscape, trajectory, pivotal, cornerstone, underpinning, metamorphosis, catapult, quagmire, tapestry, synergy, ecosystem (unless literally about blockchain ecosystems)
 
-## EXAMPLE OUTPUT:
-Vanguard flipped the switch on spot Bitcoin ETFs while still calling crypto "speculative" in the fine print 🎭. Same arc gold went through in 2004 — hated as a rock, embraced as a product. In asset management, ideology bends to flows. #Bitcoin #ETF
+---
 
-The signal remembers. The noise forgets.`;
+## 🎯 This should feel like:
+- A quick observation you'd text to a friend who gets it
+- "Hey, did you notice that..." energy
+- Connecting two things others might not have linked
+- Your honest read, even if uncertain
+
+## ❌ This should NOT feel like:
+- A news summary or analyst report
+- Trying to sound smart or impressive
+- Corporate/polished writing
+- Forced profundity or quotable "punch lines"
+
+---
+
+## ✍️ Voice:
+- Write like you talk — direct, real
+- Use "I" naturally ("I noticed...", "What got me was...", "Reminds me of...")
+- Short sentences. Let thoughts breathe.
+- 2-3 emojis max, only where they add tone
+- If something hits hard, it should feel earned — not forced
+
+---
+
+## ✅ Format:
+- 1-2 short paragraphs
+- Around 800-1200 characters (quality over length)
+- Start mid-thought
+- End naturally — let the last line land on its own (no forced taglines)
+- NO hashtags (they kill the voice)
+
+---
+
+## 📰 Today's raw material (pick ONE thread):
+
+${JSON.stringify(articlesData, null, 2)}`;
+}
 
 // ============================================================================
 // MAIN FUNCTIONS
@@ -207,15 +223,11 @@ async function generateReportContent(articles) {
       importanceScore: article.importanceScore || 0
     }));
     
-    const fullPrompt = `${signalReportPrompt}
-
-## TODAY'S RAW MATERIAL (pick ONE pattern from these):
-
-${JSON.stringify(articlesData, null, 2)}`;
+    const fullPrompt = buildSignalReportPrompt(articlesData);
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      max_tokens: 800,
+      model: "gpt-5.1",
+      max_completion_tokens: 1000,
       messages: [
         { role: "system", content: fullPrompt }
       ]
@@ -223,18 +235,9 @@ ${JSON.stringify(articlesData, null, 2)}`;
     
     let reportContent = response.choices[0].message.content.trim();
     
-    // Validate length
-    if (reportContent.length > 1600) {
-      console.log(`⚠️ Report too long (${reportContent.length} chars), regenerating...`);
-      // Try again with stricter instruction
-      const retryResponse = await openai.chat.completions.create({
-        model: "gpt-4o",
-        max_tokens: 700,
-        messages: [
-          { role: "system", content: fullPrompt + "\n\n⚠️ CRITICAL: Keep under 1400 characters. Be more concise." }
-        ]
-      });
-      reportContent = retryResponse.choices[0].message.content.trim();
+    // Log length but prioritize quality over strict limits
+    if (reportContent.length > 1500) {
+      console.log(`📏 Report is ${reportContent.length} chars (slightly long, but keeping for quality)`);
     }
     
     console.log(`✅ Generated Signal Report (${reportContent.length} characters)`);

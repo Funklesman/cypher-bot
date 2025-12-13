@@ -448,8 +448,8 @@ async function generateLessonContent(eventType, content, articles) {
     const prompt = buildDailyLessonPrompt(eventType, content, articles);
     
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      max_tokens: 800,
+      model: "gpt-5.1",
+      max_completion_tokens: 1000,
       messages: [
         { role: "system", content: prompt }
       ]
@@ -466,8 +466,8 @@ async function generateLessonContent(eventType, content, articles) {
     if (lessonContent.length > 1600) {
       console.log(`⚠️ Lesson too long (${lessonContent.length} chars), regenerating...`);
       const retryResponse = await openai.chat.completions.create({
-        model: "gpt-4o",
-        max_tokens: 700,
+        model: "gpt-5.1",
+        max_completion_tokens: 800,
         messages: [
           { role: "system", content: prompt + "\n\n⚠️ CRITICAL: Keep under 1400 characters. Be more concise." }
         ]
