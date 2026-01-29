@@ -21,6 +21,32 @@ try {
 
 require('dotenv').config();
 
+// ============================================
+// GLOBAL ERROR HANDLERS - Prevent process exit
+// ============================================
+
+// Catch unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('⚠️ Unhandled Promise Rejection:');
+    console.error('Reason:', reason);
+    // Don't exit - just log and continue
+});
+
+// Catch uncaught exceptions
+process.on('uncaughtException', (error) => {
+    console.error('⚠️ Uncaught Exception:');
+    console.error('Error:', error.message);
+    console.error('Stack:', error.stack);
+    // Don't exit - just log and continue
+});
+
+// Keep-alive heartbeat to prevent event loop from draining
+setInterval(() => {
+    // Silent heartbeat - keeps Node.js event loop alive
+}, 30000);
+
+console.log('🛡️ Global error handlers and keep-alive initialized');
+
 // Set default for WISDOM_POST_ENABLED if not defined (default to disabled)
 if (process.env.WISDOM_POST_ENABLED === undefined) {
     process.env.WISDOM_POST_ENABLED = 'false';
@@ -29,6 +55,9 @@ if (process.env.WISDOM_POST_ENABLED === undefined) {
 // Import MongoDB client factory
 const DBClientFactory = require('./db_client_factory');
 const dbClient = DBClientFactory.createClient();
+
+// Import content deduplication service for wisdom topics
+const { suggestWisdomTopic } = require('./content_deduplication');
 
 // OpenAI API client
 const openai = new OpenAI({
@@ -1169,47 +1198,53 @@ async function evaluateTweetQuality(tweet, recentPhrases = []) {
             messages: [
                 {
                     role: "system",
-                    content: `You are a harsh tweet quality evaluator for a crypto news account. Rate this tweet on S-CLASS criteria.
+                    content: `Rate this crypto tweet 0-10. Score 5 dimensions (0-2 each):
+1. PUNCH: Quotable line? (0=none, 1=ok, 2=screenshot-worthy)
+2. INSIGHT: Beyond headline? (0=rephrases, 1=context, 2=reveals pattern)
+3. STANCE: Clear position? (0=hedgy, 1=lean, 2=clear take)
+4. FRESH: Original phrases? (0=cliché, 1=mostly, 2=all original)
+5. FLOW: Good structure? (0=awkward, 1=solid, 2=natural)
 
-Score each dimension 0-2 points:
-
-1. PUNCH LINE (0-2): Is there ONE line quotable enough to screenshot?
-   - 0: No memorable line
-   - 1: Decent line but not screenshot-worthy
-   - 2: Sharp, quotable, makes you think "damn"
-
-2. INSIGHT (0-2): Does it add value beyond what any headline says?
-   - 0: Just rephrases the news
-   - 1: Adds some context
-   - 2: Reveals something only someone paying attention would notice
-
-3. STANCE (0-2): Does it take a clear position?
-   - 0: Wishy-washy, hedge-y, "we'll see"
-   - 1: Has a lean but plays it safe
-   - 2: Clear take, not afraid to be wrong
-
-4. FRESHNESS (0-2): Original metaphors/phrases, not recycled?
-   - 0: Uses clichés or generic crypto phrases
-   - 1: Mostly fresh but some generic parts
-   - 2: Every phrase feels original and earned
-
-5. STRUCTURE (0-2): Good opener, closer, length, flow?
-   - 0: Formulaic, awkward, or too long/short
-   - 1: Solid but predictable
-   - 2: Flows naturally, surprising structure
-
-Return JSON: {"scores": {"punchLine": 0-2, "insight": 0-2, "stance": 0-2, "freshness": 0-2, "structure": 0-2}, "total": 0-10, "weakest": "dimension name", "improvement": "specific fix for weakest dimension"}`
+Return ONLY valid JSON: {"scores":{"punch":N,"insight":N,"stance":N,"fresh":N,"flow":N},"total":N,"weakest":"category","improvement":"short tip"}`
                 },
                 {
                     role: "user",
-                    content: `Rate this tweet:\n\n${tweet}`
+                    content: tweet
                 }
             ],
-            response_format: { type: "json_object" },
-            max_completion_tokens: 300
+            max_completion_tokens: 500,
+            temperature: 0.3
         });
 
-        const result = JSON.parse(response.choices[0].message.content);
+        // Store response content for debugging
+        const responseContent = response.choices[0]?.message?.content || '';
+        const finishReason = response.choices[0]?.finish_reason;
+        
+        // Try to parse JSON with better error handling
+        let result;
+        try {
+            // Try to extract JSON from response (in case there's extra text)
+            // First try direct parse
+            try {
+                result = JSON.parse(responseContent.trim());
+            } catch {
+                // Try to extract JSON object from response
+                const jsonMatch = responseContent.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/);
+                if (jsonMatch) {
+                    result = JSON.parse(jsonMatch[0]);
+                } else {
+                    throw new Error('No JSON object found in response');
+                }
+            }
+        } catch (parseError) {
+            console.error('⚠️ JSON Parse Error in evaluateTweetQuality:');
+            console.error('Response content:', responseContent.substring(0, 500) || '(empty)');
+            console.error('Finish reason:', finishReason);
+            console.error('Parse error:', parseError.message);
+            // Return default score instead of throwing
+            return { total: 7, weakest: 'parse_error', improvement: 'API returned invalid JSON', ruleViolations };
+        }
+        
         const rawScore = result.total;
         
         // Apply rule penalties to the score
@@ -1258,20 +1293,23 @@ function buildImprovementPrompt(evaluation) {
             return `CRITICAL: You reused a phrase from recent tweets. Create COMPLETELY FRESH metaphors. Every phrase must feel original to this tweet.`;
         }
         if (violation === 'line-break') {
-            return `CRITICAL RULE VIOLATION: Your tweet has line breaks. Write ONE FLOWING PARAGRAPH. No line breaks, no bullet points, no thread format.`;
+            return `CRITICAL RULE VIOLATION: Your tweet has actual line breaks (\\n). Write ONE FLOWING PARAGRAPH for the body, then use the |||CTA||| marker (not a line break) before your engagement question. Example: "Body content here |||CTA||| Your question here?"`;
         }
         if (violation === 'thread-starter') {
             return `CRITICAL RULE VIOLATION: Your tweet looks like a thread starter (👇, "the real story is this", etc.). This is a SELF-CONTAINED single tweet, not a thread. Remove thread-starter patterns.`;
         }
     }
     
-    // Handle quality dimension weaknesses
+    // Handle quality dimension weaknesses (matching shortened field names)
     const prompts = {
-        punchLine: `CRITICAL: Your tweet lacks a PUNCH LINE. Add ONE line that's sharp enough to screenshot. Example: "Same 1 BTC on-chain, very different 1 BTC in the eyes of compliance." Make it hit hard.`,
+        punch: `CRITICAL: Your tweet lacks a PUNCH LINE. Add ONE line that's sharp enough to screenshot. Example: "Same 1 BTC on-chain, very different 1 BTC in the eyes of compliance." Make it hit hard.`,
+        punchLine: `CRITICAL: Your tweet lacks a PUNCH LINE. Add ONE line that's sharp enough to screenshot. Make it hit hard.`,
         insight: `CRITICAL: Your tweet just rephrases the news. Add YOUR insight — what do YOU know about this that the headline doesn't say? What pattern does this connect to?`,
         stance: `CRITICAL: Your tweet is too hedge-y. Take a CLEAR STANCE. Not doom, but a real opinion. "This matters because..." or "Everyone thinks X, but actually Y."`,
-        freshness: `CRITICAL: Your tweet uses recycled phrases. Create ORIGINAL metaphors. Don't use: "What I'm watching is...", "Same X on-chain", or any phrase from recent tweets.`,
-        structure: `CRITICAL: Your tweet structure is formulaic. Try a different opener category. Try a different closer style. Make it flow naturally, not predictably.`
+        fresh: `CRITICAL: Your tweet uses recycled phrases. Create ORIGINAL metaphors. Don't use: "What I'm watching is...", "Same X on-chain", or any phrase from recent tweets.`,
+        freshness: `CRITICAL: Your tweet uses recycled phrases. Create ORIGINAL metaphors. Don't use any phrase from recent tweets.`,
+        flow: `CRITICAL: Your tweet structure is formulaic. Try a different opener category. Try a different closer style. Make it flow naturally, not predictably.`,
+        structure: `CRITICAL: Your tweet structure is formulaic. Try a different opener. Make it flow naturally.`
     };
     
     return prompts[evaluation.weakest] || evaluation.improvement;
@@ -1441,16 +1479,35 @@ Each tweet needs FRESH metaphors and phrases. Don't recycle.`;
             systemPrompt += phraseInstruction;
         }
         
+        // 4d. Get recent reflection phrases to enforce variety (e.g., "What stands out to me...")
+        const recentReflectionPhrases = await dbClient.getRecentReflectionPhrases(5);
+        if (recentReflectionPhrases && recentReflectionPhrases.length > 0) {
+            const reflectionInstruction = `
+
+🚫 RECENTLY USED REFLECTION OPENERS — DO NOT USE THESE:
+${recentReflectionPhrases.map(p => `- "${p}..."`).join('\n')}
+
+Pick a DIFFERENT reflection phrase from the PERSONAL VOICE list. There are 30+ options - be creative!`;
+            systemPrompt += reflectionInstruction;
+            console.log(`🔄 Reflection variety: Avoiding ${recentReflectionPhrases.length} recently used phrases`);
+        }
+        
+        // Also replace the placeholder in the prompt if it exists
+        systemPrompt = systemPrompt.replace('{{RECENTLY_USED_OPENERS}}', 
+            recentReflectionPhrases && recentReflectionPhrases.length > 0 
+                ? `\n🚫 DO NOT USE THESE (recently used): ${recentReflectionPhrases.join(', ')}`
+                : ''
+        );
+        
         // 5. Build minimal user prompt (let system prompt lead)
+        // Note: Hashtags are NOT passed to OpenAI - they are added in code after generation
         const userPrompt = `Article Title: ${event.title}
 
 Context: ${event.description}
 
 ${event.content ? `Additional context: ${event.content.substring(0, 500)}` : ''}
 
-Source: ${event.source}
-
-Hashtags to include: ${hashtags.join(' ')}`;
+Source: ${event.source}`;
         
         // 6. S-CLASS QUALITY GENERATION
         // Uses quality scoring, multiple retries, and improvement feedback
@@ -1464,13 +1521,37 @@ Hashtags to include: ${hashtags.join(' ')}`;
         
         let content = sClassResult.content;
         
-        // STRUCTURAL FIX: Force single paragraph (remove line breaks)
-        content = content.replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim();
+        // STRUCTURAL FIX: Parse CTA marker and assemble with hashtags
+        let body = content;
+        let cta = '';
         
-        // STRUCTURAL FIX: Remove thread-starter patterns
-        content = content.replace(/👇🏽?|👇🏼?|👇🏻?|👇🏾?|👇🏿?|👇/g, '');
-        content = content.replace(/\s*(the real story is this|here's the thing|the punch\s?line|thread|1\/\d+)\s*:?\s*/gi, ' ');
-        content = content.replace(/\s+/g, ' ').trim();
+        // Check for CTA marker
+        if (content.includes('|||CTA|||')) {
+            const parts = content.split('|||CTA|||');
+            body = parts[0].trim();
+            cta = parts[1] ? parts[1].trim() : '';
+            console.log('📝 Found CTA marker, separating body and CTA');
+        } else {
+            console.log('⚠️ No CTA marker found, using content as-is');
+        }
+        
+        // Clean up body: force single paragraph (remove line breaks)
+        body = body.replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim();
+        
+        // Remove thread-starter patterns from body
+        body = body.replace(/👇🏽?|👇🏼?|👇🏻?|👇🏾?|👇🏿?|👇/g, '');
+        body = body.replace(/\s*(the real story is this|here's the thing|the punch\s?line|thread|1\/\d+)\s*:?\s*/gi, ' ');
+        body = body.replace(/\s+/g, ' ').trim();
+        
+        // Assemble final content: "The Zk" headline + newline + body + hashtags + newline + CTA
+        if (cta) {
+            content = `The Zk\n\n${body} ${hashtags.join(' ')}\n\n${cta}`;
+            console.log('✅ Assembled: The Zk headline + body + hashtags + CTA');
+        } else {
+            // Fallback: just append hashtags to body with headline
+            content = `The Zk\n\n${body} ${hashtags.join(' ')}`;
+            console.log('⚠️ No CTA, appending headline + hashtags to body');
+        }
         
         console.log(`📊 Final quality score: ${sClassResult.qualityScore}/10 (${sClassResult.attempts} attempts)`);
             
@@ -1494,8 +1575,9 @@ Hashtags to include: ${hashtags.join(' ')}`;
             console.log(`⚠️ Emoji count: ${emojiCount} (expected 2-4)`);
         }
         
-        if (content.length > 650) {
-            console.log(`⚠️ Content exceeds 650 chars: ${content.length}`);
+        // Character limit: body (~700) + hashtags (~30) + newlines (2) + CTA (~100) = ~830
+        if (content.length > 900) {
+            console.log(`⚠️ Content exceeds 900 chars: ${content.length}`);
         }
         
         // Check if urgent
@@ -2026,7 +2108,8 @@ Make it philosophical but practical. This should feel like mentorship, not marke
 Wisdom topic to expand:`;
 
 // Generate and post a wisdom tweet
-async function postWisdomTweet() {
+// forcePost = true bypasses the WISDOM_POST_ENABLED check (for manual admin triggers)
+async function postWisdomTweet(forcePost = false) {
     try {
         // Check if bot is running
         if (!botIsRunning) {
@@ -2034,35 +2117,21 @@ async function postWisdomTweet() {
             return;
         }
         
-        // Check if wisdom posting is enabled
-        if (process.env.WISDOM_POST_ENABLED !== 'true') {
+        // Check if wisdom posting is enabled (skip check if forcePost is true)
+        if (!forcePost && process.env.WISDOM_POST_ENABLED !== 'true') {
             console.log('🛑 Wisdom posting is disabled, skipping');
             return;
         }
         
         console.log('🎓 Generating wisdom tweet for Kodex Academy...');
         
-        // SMART TOPIC SELECTION: Avoid topics used in last 14 days
-        const recentTopics = await dbClient.getRecentWisdomTopics(14);
+        // SMART TOPIC SELECTION: Use deduplication service to avoid category overlap
+        const { topic, category, reason } = await suggestWisdomTopic(wisdomTopics, {
+            cooldownDays: 3  // Avoid same category group for 3 days
+        });
         
-        // Find topics that haven't been used recently
-        const availableTopics = wisdomTopics.filter(topic => 
-            !recentTopics.some(recent => recent && topic.includes(recent.split(':')[0]))
-        );
-        
-        let topic;
-        if (availableTopics.length > 0) {
-            // Pick random from available topics
-            const randomIndex = Math.floor(Math.random() * availableTopics.length);
-            topic = availableTopics[randomIndex];
-            console.log(`🎯 Selected from ${availableTopics.length} available topics (${wisdomTopics.length - availableTopics.length} used recently)`);
-        } else {
-            // All topics used recently - pick random from full list
-            const randomIndex = Math.floor(Math.random() * wisdomTopics.length);
-            topic = wisdomTopics[randomIndex];
-            console.log(`⚠️ All topics used recently, picking random from full list`);
-        }
-        
+        console.log(`📚 Topic category: ${category}`);
+        console.log(`📚 Selection reason: ${reason}`);
         console.log(`📚 Topic: ${topic.substring(0, 80)}...`);
         
         // Generate the wisdom tweet
@@ -2117,55 +2186,247 @@ async function postWisdomTweet() {
 
 // Store active timeouts for bot control
 let activeTimeouts = {
-    newsPost: null,
-    wisdomPost: null
+    dailyPost: null,
+    nextDayCheck: null,
+    newsPosts: []
 };
 let botIsRunning = false;
 
-// Schedule wisdom tweets with smart timing to avoid collision with news tweets
-function scheduleNextWisdomTweet() {
-    // Random time in next 18-30 hours (to ensure once per day but varied)
-    const minHours = 18;
-    const maxHours = 30;
-    const randomHours = Math.random() * (maxHours - minHours) + minHours;
-    let wisdomDelay = randomHours * 60 * 60 * 1000;
+/**
+ * Article Curation Job
+ * Fetches recent news, analyzes with AI, and stores to post_history
+ * Threshold: importanceScore >= 5 OR urgencyScore >= 7
+ * Runs every 6 hours to populate post_history with fresh rated content
+ * This gives Signal Report, Daily Lesson, and Diary more material to work with
+ */
+async function curateArticles() {
+    console.log('📦 Starting article curation...');
+    const startTime = Date.now();
     
-    // Add buffer to avoid collision with news tweets (minimum 2 hours after last news tweet)
-    const timeSinceLastNews = Date.now() - lastNewsTweetTime;
-    const minimumBuffer = 2 * 60 * 60 * 1000; // 2 hours
-    
-    if (timeSinceLastNews < minimumBuffer) {
-        const additionalWait = minimumBuffer - timeSinceLastNews;
-        wisdomDelay += additionalWait;
-        console.log(`⏰ Adding ${(additionalWait / 1000 / 60 / 60).toFixed(1)} hour buffer to avoid collision with news tweet`);
-    }
-    
-    const nextWisdomTime = new Date(Date.now() + wisdomDelay);
-    nextWisdomPost = nextWisdomTime; // Store for API access
-    console.log(`🎓 Next wisdom tweet scheduled for: ${nextWisdomTime.toLocaleString()} (${(wisdomDelay / 1000 / 60 / 60).toFixed(1)} hours from now)`);
-    
-    activeTimeouts.wisdomPost = setTimeout(async () => {
-        if (process.env.WISDOM_POST_ENABLED === 'true') {
-            console.log('🎓 Running scheduled wisdom tweet...');
-            await postWisdomTweet();
-        } else {
-            console.log('🎓 Wisdom posting is disabled, skipping scheduled post');
+    try {
+        // Fetch recent articles (last 6 hours)
+        const articles = await fetchNews(6);
+        
+        if (!articles || articles.length === 0) {
+            console.log('⚠️ No articles found for curation');
+            return { stored: 0, skipped: 0, errors: 0 };
         }
         
-        // Schedule the next wisdom tweet (keeps checking even if disabled)
-        if (botIsRunning) {
-            scheduleNextWisdomTweet();
+        console.log(`📰 Found ${articles.length} articles to analyze`);
+        
+        // Analyze articles with AI (reuses enhanceArticleSelection logic)
+        const analyzedArticles = await enhanceArticleSelection(articles);
+        
+        if (!analyzedArticles || analyzedArticles.length === 0) {
+            console.log('⚠️ No articles analyzed for curation');
+            return { stored: 0, skipped: 0, errors: 0 };
         }
-    }, wisdomDelay);
+        
+        // Store articles that meet threshold to post_history
+        const stats = { stored: 0, skipped: 0, errors: 0 };
+        
+        console.log('\n📊 Curation Analysis Results:');
+        for (const article of analyzedArticles) {
+            const importance = article.importanceScore || 0;
+            const urgency = article.urgencyScore || 0;
+            const meetsCriteria = importance >= 5 || urgency >= 7;
+            
+            if (meetsCriteria) {
+                try {
+                    // Store to post_history with promptType 'auto-curated'
+                    // Content is placeholder since we're just storing for future use
+                    await dbClient.storePostHistory(
+                        article, 
+                        `Auto-curated: ${article.title}`, 
+                        null, 
+                        'auto-curated'
+                    );
+                    console.log(`✅ "${article.title.substring(0, 50)}..." | Importance: ${importance}/10 | Urgency: ${urgency}/10`);
+                    stats.stored++;
+                } catch (error) {
+                    console.error(`❌ Error storing: ${error.message}`);
+                    stats.errors++;
+                }
+            } else {
+                console.log(`⏭️ "${article.title.substring(0, 50)}..." | Importance: ${importance}/10 | Urgency: ${urgency}/10`);
+                stats.skipped++;
+            }
+        }
+        
+        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+        console.log(`\n✅ Curation complete in ${duration}s: ${stats.stored} stored to post_history, ${stats.skipped} below threshold, ${stats.errors} errors`);
+        
+        return stats;
+    } catch (error) {
+        console.error('❌ Error in article curation:', error);
+        return { stored: 0, skipped: 0, errors: 1 };
+    }
 }
 
-// Start the bot in production mode (posts every 7-10 hours with randomization)
+// 5x Daily News Schedule - Monday to Friday (UTC times, converted from CET)
+// Evenly distributed ~4-5h gaps for global audience: EU, US, and Asia coverage
+const NEWS_SLOTS = [
+    { startHour: 1,  endHour: 3,    emoji: '🌙', name: 'Night News' },         // 02:00-04:00 CET | US evening + Asia morning
+    { startHour: 11, endHour: 13,   emoji: '📰', name: 'Midday News' },        // 12:00-14:00 CET | EU lunch + Asia evening
+    { startHour: 20, endHour: 22,   emoji: '🌆', name: 'Evening News' }        // 21:00-23:00 CET | US afternoon + EU evening
+];
+
+// Days when news posts run (1=Monday through 5=Friday)
+const NEWS_DAYS = [1, 2, 3, 4, 5];
+
+// Schedule all remaining news posts for today
+// Track which slots have been handled today (persists across schedule calls within same day)
+let lastScheduledDate = null;
+let missedSlotsCatchupDone = false;
+
+async function scheduleTodaysPosts() {
+    const now = new Date();
+    const dayOfWeek = now.getUTCDay();
+    const todayStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
+    
+    // Reset tracking if it's a new day
+    if (lastScheduledDate !== todayStr) {
+        lastScheduledDate = todayStr;
+        missedSlotsCatchupDone = false;
+    }
+    
+    // Check if today is a news day (Monday-Friday)
+    if (!NEWS_DAYS.includes(dayOfWeek)) {
+        console.log('🔕 Weekend - No news posts scheduled today');
+        scheduleNextDayCheck();
+        return;
+    }
+    
+    // Clear any existing post timeouts
+    if (activeTimeouts.newsPosts) {
+        activeTimeouts.newsPosts.forEach(timeout => clearTimeout(timeout));
+    }
+    activeTimeouts.newsPosts = [];
+    
+    let scheduledCount = 0;
+    let missedCount = 0;
+    
+    // Schedule each news slot that hasn't passed yet
+    NEWS_SLOTS.forEach((slot, index) => {
+        // Calculate random time within window
+        const windowMinutes = (slot.endHour - slot.startHour) * 60;
+        const randomMinutes = Math.floor(Math.random() * windowMinutes);
+        const postHour = Math.floor(slot.startHour + randomMinutes / 60);
+        const postMinute = Math.floor((slot.startHour * 60 + randomMinutes) % 60);
+        
+        // Create target time for today
+        const targetTime = new Date(now);
+        targetTime.setUTCHours(postHour, postMinute, 0, 0);
+        
+        // Check if window already passed
+        if (targetTime <= now) {
+            console.log(`⏭️ ${slot.name} window already passed`);
+            missedCount++;
+            return;
+        }
+        
+        const delayMs = targetTime - now;
+        const delayHours = (delayMs / 1000 / 60 / 60).toFixed(1);
+        
+        console.log(`${slot.emoji} ${slot.name} scheduled for ${targetTime.toISOString()} (${delayHours}h from now)`);
+        
+        if (scheduledCount === 0) {
+            nextScheduledPost = targetTime; // Track next upcoming post
+        }
+        scheduledCount++;
+        
+        const timeout = setTimeout(async () => {
+            console.log(`\n${slot.emoji} Running scheduled ${slot.name}...`);
+            process.env.MASTODON_POST_ENABLED = 'true';
+            
+            try {
+                await postSingleItem(12);
+                console.log(`✅ ${slot.name} posted successfully`);
+            } catch (error) {
+                console.error(`❌ Error posting ${slot.name}:`, error);
+            }
+            
+            // Remove this timeout from the array (mark as completed)
+            const index = activeTimeouts.newsPosts.indexOf(timeout);
+            if (index > -1) {
+                activeTimeouts.newsPosts.splice(index, 1);
+            }
+            
+            console.log(`📊 ${activeTimeouts.newsPosts.length} news posts remaining today`);
+            
+            // If all posts done for today, schedule tomorrow's check
+            if (activeTimeouts.newsPosts.length === 0) {
+                console.log('✅ All news posts completed for today');
+                scheduleNextDayCheck();
+            }
+        }, delayMs);
+        
+        activeTimeouts.newsPosts.push(timeout);
+    });
+    
+    if (scheduledCount === 0) {
+        console.log('⏭️ All news slots passed for today, waiting for tomorrow');
+        scheduleNextDayCheck();
+    } else {
+        console.log(`📅 Scheduled ${scheduledCount} news posts for today`);
+    }
+    
+    // CATCH-UP LOGIC: If slots were missed, check if we already posted recently before doing catch-up
+    if (missedCount > 0 && !missedSlotsCatchupDone) {
+        // Delay catch-up check by 15 seconds to let MongoDB connect first
+        setTimeout(async () => {
+            try {
+                // Check if we posted in the last 4 hours using dbClient method
+                const fourHoursAgo = new Date(Date.now() - 4 * 60 * 60 * 1000);
+                const recentPost = await dbClient.getRecentSuccessfulPost(fourHoursAgo);
+                
+                if (recentPost) {
+                    console.log(`\n⏭️ CATCH-UP SKIPPED: Already posted "${recentPost.title?.substring(0, 40)}..." at ${recentPost.createdAt}`);
+                    console.log(`   No catch-up needed - last post was ${Math.round((Date.now() - new Date(recentPost.createdAt).getTime()) / (1000 * 60))} minutes ago`);
+                    missedSlotsCatchupDone = true;
+                    return;
+                }
+                
+                // No recent posts found - do the catch-up
+                missedSlotsCatchupDone = true;
+                console.log(`\n🔄 CATCH-UP: ${missedCount} slots were missed and no recent posts found - posting now...`);
+                
+                process.env.MASTODON_POST_ENABLED = 'true';
+                await postSingleItem(24); // 24 hours instead of 12 for catch-up
+                console.log('✅ Catch-up post completed successfully');
+            } catch (error) {
+                console.error('❌ Catch-up check/post failed:', error.message);
+            }
+        }, 15000); // 15 second delay to let MongoDB connect
+    }
+}
+
+// Schedule a check at 00:05 UTC to set up the next day's posts
+function scheduleNextDayCheck() {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+    tomorrow.setUTCHours(0, 5, 0, 0); // 00:05 UTC
+    
+    const delayMs = tomorrow - now;
+    
+    console.log(`⏰ Next schedule check at ${tomorrow.toISOString()}`);
+    
+    activeTimeouts.nextDayCheck = setTimeout(() => {
+        if (botIsRunning) {
+            scheduleTodaysPosts();
+        }
+    }, delayMs);
+}
+
+// Start the bot in production mode (4 news posts per day, Monday-Friday)
 function startProductionMode() {
     console.log('🚀 Starting TweetBot in PRODUCTION mode');
-    console.log('📅 News tweets will be posted every 7-10 HOURS (randomized for organic feel)');
-    console.log(`🎓 Wisdom tweets: ${process.env.WISDOM_POST_ENABLED === 'true' ? 'ENABLED' : 'DISABLED'} (once per day, randomized timing)`);
-    console.log('📔 Crypto Diary will be generated EVERY 2 DAYS at 8 PM');
-    console.log('🎯 Optimized for 2-3 news posts/day + 1 wisdom tweet/day + diary every 2 days');
+    console.log('📅 3x Daily News Schedule (Monday-Friday):');
+    console.log('   🌙 Night News:   01:00-03:00 UTC (02:00-04:00 CET) | US evening + Asia morning');
+    console.log('   📰 Midday News:  11:00-13:00 UTC (12:00-14:00 CET) | EU lunch + Asia evening');
+    console.log('   🌆 Evening News: 20:00-22:00 UTC (21:00-23:00 CET) | US afternoon + EU evening');
+    console.log('   🔕 Weekend:        No posts');
     
     // Clean Redis cache on startup
     cleanupRedisCache();
@@ -2173,63 +2434,27 @@ function startProductionMode() {
     // Set bot as running
     botIsRunning = true;
     
-    // Schedule next post with organic timing
-    function scheduleNextPost() {
-        // Random interval between 7-10 hours for 2-3 posts per day
-        const minHours = 7;
-        const maxHours = 10;
-        const randomHours = Math.random() * (maxHours - minHours) + minHours;
-        const nextPostDelay = randomHours * 60 * 60 * 1000; // Convert to milliseconds
-        
-        const nextPostTime = new Date(Date.now() + nextPostDelay);
-        nextScheduledPost = nextPostTime; // Store for API access
-        console.log(`⏰ Next post scheduled for: ${nextPostTime.toLocaleString()} (${randomHours.toFixed(1)} hours from now)`);
-        
-        activeTimeouts.newsPost = setTimeout(async () => {
-            console.log('⏰ Running scheduled organic post...');
-            process.env.MASTODON_POST_ENABLED = 'true';
-            await postSingleItem(12);
-            lastNewsTweetTime = Date.now(); // Track timing for wisdom tweet collision avoidance
-            
-            // Schedule the next post
-            if (botIsRunning) {
-                scheduleNextPost();
-            }
-        }, nextPostDelay);
-    }
-    
-    // Schedule crypto diary generation every 2 days at 8 PM
+    // Schedule crypto diary generation every 2 days at 8 PM (keeps its own schedule)
     const { scheduleDailyCryptoDiary, setBotStateChecker } = require('./crypto_diary');
-    setBotStateChecker(() => botIsRunning); // Pass bot running state checker to diary module
+    setBotStateChecker(() => botIsRunning);
     scheduleDailyCryptoDiary();
-    console.log('📅 Scheduled crypto diary for 8 PM every 2 days');
+    console.log('📔 Scheduled crypto diary for 8 PM every 2 days');
     
-    // Schedule Signal Report - daily at 10 PM
-    const signalReport = require('./signal_report');
-    signalReport.setBotStateChecker(() => botIsRunning);
-    signalReport.scheduleSignalReport();
-    console.log('🎬 Scheduled Signal Report for 10 PM daily');
+    // Schedule Article Curation - every 6 hours at :30
+    cron.schedule('30 */6 * * *', async () => {
+        console.log('\n📦 Running 6-hour article curation job...');
+        await curateArticles();
+    });
+    console.log('📦 Scheduled Article Curation for every 6 hours at :30');
     
-    // Schedule Daily Lesson - daily at 10 AM
-    const dailyLesson = require('./daily_lesson');
-    dailyLesson.setBotStateChecker(() => botIsRunning);
-    dailyLesson.scheduleDailyLesson();
-    console.log('📚 Scheduled Daily Lesson for 10 AM daily');
+    // Schedule today's news posts
+    scheduleTodaysPosts();
     
-    // Urgent scanning removed - integrated into regular posting cycle
-    
-    // Run initial post immediately
-    console.log('🚀 Running initial post...');
-    process.env.MASTODON_POST_ENABLED = 'true';
-    postSingleItem(12);
-    lastNewsTweetTime = Date.now(); // Track initial post timing
-    
-    // Start organic scheduling after initial post
-    scheduleNextPost();
-    
-    // Start wisdom tweet scheduler
-    console.log('🎓 Starting wisdom tweet scheduler (once daily, randomized timing)');
-    scheduleNextWisdomTweet();
+    // Run initial article curation after a short delay
+    setTimeout(async () => {
+        console.log('\n📦 Running initial article curation...');
+        await curateArticles();
+    }, 60000);
 }
 
 // Make sure environment variables are valid
@@ -2250,16 +2475,16 @@ function stopBot() {
     botIsRunning = false;
     
     // Clear all active timeouts
-    if (activeTimeouts.newsPost) {
-        clearTimeout(activeTimeouts.newsPost);
-        activeTimeouts.newsPost = null;
-        console.log('✅ Cleared news post scheduler');
+    if (activeTimeouts.dailyPost) {
+        clearTimeout(activeTimeouts.dailyPost);
+        activeTimeouts.dailyPost = null;
+        console.log('✅ Cleared daily post scheduler');
     }
     
-    if (activeTimeouts.wisdomPost) {
-        clearTimeout(activeTimeouts.wisdomPost);
-        activeTimeouts.wisdomPost = null;
-        console.log('✅ Cleared wisdom post scheduler');
+    if (activeTimeouts.nextDayCheck) {
+        clearTimeout(activeTimeouts.nextDayCheck);
+        activeTimeouts.nextDayCheck = null;
+        console.log('✅ Cleared next day check scheduler');
     }
     
     console.log('✅ TweetBot stopped');
@@ -2288,6 +2513,7 @@ module.exports = {
     runNewsPost,
     stopBot,
     startBot,
+    curateArticles,
     
     // Helper functions
     generateTweet,
