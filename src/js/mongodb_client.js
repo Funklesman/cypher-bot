@@ -233,6 +233,26 @@ class MongoDBClient {
     await this.initPromise;
     return this.mongoService.getRecentWisdomTopics(days);
   }
+
+  /**
+   * Get recently used reflection phrases for variety enforcement
+   * @param {number} count - Number of recent phrases to retrieve
+   * @returns {Promise<string[]>} - Array of recently used reflection phrases
+   */
+  async getRecentReflectionPhrases(count = 5) {
+    await this.initPromise;
+    return this.mongoService.getRecentReflectionPhrases(count);
+  }
+
+  /**
+   * Get recent successful post (for catch-up logic)
+   * @param {Date} since - Only look for posts after this date
+   * @returns {Promise<Object|null>} - Recent post or null
+   */
+  async getRecentSuccessfulPost(since) {
+    await this.initPromise;
+    return this.mongoService.getRecentSuccessfulPost(since);
+  }
 }
 
 module.exports = MongoDBClient; 

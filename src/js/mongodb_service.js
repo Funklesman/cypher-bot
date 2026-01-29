@@ -87,6 +87,7 @@ class MongoDBService {
       await this.collections.postHistory.createIndex({ urgencyScore: -1 });
       await this.collections.postHistory.createIndex({ postedAt: -1 }); // For diary date range queries
       await this.collections.postHistory.createIndex({ publishedAt: -1 }); // For article recency
+      await this.collections.postHistory.createIndex({ promptType: 1 }); // For filtering by type
       
       console.log('✅ Created all indexes');
       return true;
@@ -97,9 +98,11 @@ class MongoDBService {
   }
 
   /**
-   * Check if an article has been processed already by looking in post_history
+   * Check if an article has been POSTED already by looking in post_history
+   * Only considers articles as "processed" if they have content (were actually posted)
+   * Articles with promptType 'auto-curated' are stored material, NOT posted tweets
    * @param {string} url - Article URL
-   * @returns {Promise<boolean>} - True if the article has been processed
+   * @returns {Promise<boolean>} - True if the article has been POSTED
    */
   async isArticleProcessed(url) {
     if (!this.collections.postHistory) {
@@ -107,7 +110,14 @@ class MongoDBService {
     }
     
     try {
-      const existingArticle = await this.collections.postHistory.findOne({ url });
+      // Only consider as processed if it was ACTUALLY POSTED successfully
+      // This allows retrying failed posts and ignores curated/diary entries
+      const existingArticle = await this.collections.postHistory.findOne({ 
+        url,
+        postSuccess: true,  // Must have been successfully posted
+        content: { $exists: true, $ne: null, $ne: '' },
+        promptType: { $nin: ['auto-curated', 'diary-candidate'] }  // Exclude curation entries
+      });
       return Boolean(existingArticle);
     } catch (error) {
       console.error(`❌ Error checking if article was processed: ${error.message}`);
@@ -357,6 +367,13 @@ class MongoDBService {
         postSuccess: Boolean(postResult),
         characterCount: content.length
       };
+      
+      // Extract and store reflection phrase for variety tracking
+      const reflectionPhrase = this.extractReflectionPhrase(content);
+      if (reflectionPhrase) {
+        postObj.reflectionPhrase = reflectionPhrase;
+        console.log(`🎯 Detected reflection phrase: "${reflectionPhrase}..."`);
+      }
       
       // Check all possible score field variations
       // Standard camelCase
@@ -721,6 +738,106 @@ class MongoDBService {
       console.error('Error getting recent phrases:', error);
       return [];
     }
+  }
+
+  /**
+   * Get recently used reflection phrases (e.g., "What stands out to me...", "The real story is...")
+   * @param {number} count - Number of recent phrases to retrieve
+   * @returns {Promise<string[]>} - Array of recently used reflection phrases
+   */
+  async getRecentReflectionPhrases(count = 5) {
+    try {
+      const recentPosts = await this.collections.postHistory.find(
+        { 
+          postSuccess: true, 
+          reflectionPhrase: { $exists: true, $ne: '' }
+        },
+        { sort: { postedAt: -1 }, limit: count }
+      ).toArray();
+      
+      const phrases = recentPosts
+        .map(post => post.reflectionPhrase)
+        .filter(Boolean);
+      
+      console.log(`🔄 Found ${phrases.length} recently used reflection phrases`);
+      return phrases;
+    } catch (error) {
+      console.error('Error getting recent reflection phrases:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get recent successful post (for catch-up logic to avoid double-posting)
+   * @param {Date} since - Only look for posts after this date
+   * @returns {Promise<Object|null>} - Recent post or null
+   */
+  async getRecentSuccessfulPost(since) {
+    try {
+      const recentPost = await this.collections.postHistory.findOne(
+        { 
+          postSuccess: true,
+          postedAt: { $gte: since }
+        },
+        { sort: { postedAt: -1 } }
+      );
+      return recentPost;
+    } catch (error) {
+      console.error('Error getting recent successful post:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Extract and identify which reflection phrase was used in a tweet
+   * @param {string} content - The tweet content
+   * @returns {string|null} - The reflection phrase used, or null
+   */
+  extractReflectionPhrase(content) {
+    if (!content) return null;
+    
+    // All possible reflection phrases to detect
+    const reflectionPhrases = [
+      "What stands out to me",
+      "The part that sticks with me",
+      "Here's what catches my eye",
+      "The underrated angle here",
+      "The quiet signal here",
+      "What's telling is",
+      "The overlooked detail",
+      "Worth noting",
+      "The real story is",
+      "What this reveals",
+      "The subtext here",
+      "The detail that matters",
+      "What gets lost in headlines",
+      "The thread worth pulling",
+      "The part nobody's talking about",
+      "Here's the buried lede",
+      "The signal in the noise",
+      "What the numbers don't show",
+      "The piece that connects",
+      "What's happening underneath",
+      "The shift worth watching",
+      "The pattern forming here",
+      "What this sets up",
+      "The domino nobody saw",
+      "The angle that matters",
+      "What's actually at stake",
+      "The context that changes everything",
+      "The question this raises",
+      "What's really being decided",
+      "The timing here is everything",
+      "The unspoken implication"
+    ];
+    
+    for (const phrase of reflectionPhrases) {
+      if (content.toLowerCase().includes(phrase.toLowerCase())) {
+        return phrase;
+      }
+    }
+    
+    return null;
   }
 
   /**
